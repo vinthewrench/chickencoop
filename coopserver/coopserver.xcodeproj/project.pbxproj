@@ -9,6 +9,19 @@
 /* Begin PBXBuildFile section */
 		2EFD1392276FF5DF0073F6AD /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD1391276FF5DF0073F6AD /* main.cpp */; };
 		2EFD145B277003520073F6AD /* libFOOServer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2EFD1457277001B60073F6AD /* libFOOServer.a */; };
+		2EFD1463277101D10073F6AD /* CoopMgr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD1460277100AA0073F6AD /* CoopMgr.cpp */; };
+		2EFD146C277106240073F6AD /* CPUInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD1467277102C20073F6AD /* CPUInfo.cpp */; };
+		2EFD146D277106270073F6AD /* I2C.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD1466277102C20073F6AD /* I2C.cpp */; };
+		2EFD146E277106290073F6AD /* TempSensor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD1465277102C20073F6AD /* TempSensor.cpp */; };
+		2EFD146F2771062D0073F6AD /* TMP102.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD146B277102C20073F6AD /* TMP102.cpp */; };
+		2EFD1473277108070073F6AD /* ServerNouns.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD1471277108070073F6AD /* ServerNouns.cpp */; };
+		2EFD147727710A490073F6AD /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 2EFD147627710A490073F6AD /* libsqlite3.tbd */; };
+		2EFD147A27710A770073F6AD /* CoopMgrDB.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD147827710A770073F6AD /* CoopMgrDB.cpp */; };
+		2EFD147D277111C20073F6AD /* CoopMgrAPISecretMgr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD147B277111C20073F6AD /* CoopMgrAPISecretMgr.cpp */; };
+		2EFD1480277118BE0073F6AD /* coopmgr.props.csv in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2EFD147F2771184B0073F6AD /* coopmgr.props.csv */; };
+		2EFD148227711BC60073F6AD /* ServerCommandsLineFunctions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD148127711BC60073F6AD /* ServerCommandsLineFunctions.cpp */; };
+		2EFD148627711D7E0073F6AD /* helpfile.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2EFD148527711D410073F6AD /* helpfile.txt */; };
+		2EFD14892771213F0073F6AD /* valueschema.csv in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2EFD1488277121250073F6AD /* valueschema.csv */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -31,12 +44,15 @@
 /* Begin PBXCopyFilesBuildPhase section */
 		2EFD138C276FF5DF0073F6AD /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
+			buildActionMask = 12;
+			dstPath = "";
+			dstSubfolderSpec = 16;
 			files = (
+				2EFD1480277118BE0073F6AD /* coopmgr.props.csv in CopyFiles */,
+				2EFD148627711D7E0073F6AD /* helpfile.txt in CopyFiles */,
+				2EFD14892771213F0073F6AD /* valueschema.csv in CopyFiles */,
 			);
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
@@ -44,6 +60,31 @@
 		2EFD138E276FF5DF0073F6AD /* coopserver */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = coopserver; sourceTree = BUILT_PRODUCTS_DIR; };
 		2EFD1391276FF5DF0073F6AD /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		2EFD1452277001B60073F6AD /* FooServer.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = FooServer.xcodeproj; path = FooServer/FooServer.xcodeproj; sourceTree = "<group>"; };
+		2EFD145F277100320073F6AD /* CoopMgrCommon.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CoopMgrCommon.h; sourceTree = "<group>"; };
+		2EFD1460277100AA0073F6AD /* CoopMgr.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CoopMgr.cpp; sourceTree = "<group>"; };
+		2EFD1461277100AA0073F6AD /* CoopMgr.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CoopMgr.hpp; sourceTree = "<group>"; };
+		2EFD1462277101390073F6AD /* CoopMgrDevice.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CoopMgrDevice.hpp; sourceTree = "<group>"; };
+		2EFD1464277102C20073F6AD /* I2C.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = I2C.hpp; sourceTree = "<group>"; };
+		2EFD1465277102C20073F6AD /* TempSensor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TempSensor.cpp; sourceTree = "<group>"; };
+		2EFD1466277102C20073F6AD /* I2C.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = I2C.cpp; sourceTree = "<group>"; };
+		2EFD1467277102C20073F6AD /* CPUInfo.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CPUInfo.cpp; sourceTree = "<group>"; };
+		2EFD1468277102C20073F6AD /* CPUInfo.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CPUInfo.hpp; sourceTree = "<group>"; };
+		2EFD1469277102C20073F6AD /* TMP102.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = TMP102.hpp; sourceTree = "<group>"; };
+		2EFD146A277102C20073F6AD /* TempSensor.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = TempSensor.hpp; sourceTree = "<group>"; };
+		2EFD146B277102C20073F6AD /* TMP102.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TMP102.cpp; sourceTree = "<group>"; };
+		2EFD1470277107950073F6AD /* ServerCommands.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ServerCommands.hpp; sourceTree = "<group>"; };
+		2EFD1471277108070073F6AD /* ServerNouns.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ServerNouns.cpp; sourceTree = "<group>"; };
+		2EFD1474277108C30073F6AD /* ServerCmdValidators.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ServerCmdValidators.hpp; sourceTree = "<group>"; };
+		2EFD1475277109470073F6AD /* CommonIncludes.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CommonIncludes.hpp; sourceTree = "<group>"; };
+		2EFD147627710A490073F6AD /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
+		2EFD147827710A770073F6AD /* CoopMgrDB.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CoopMgrDB.cpp; sourceTree = "<group>"; };
+		2EFD147927710A770073F6AD /* CoopMgrDB.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CoopMgrDB.hpp; sourceTree = "<group>"; };
+		2EFD147B277111C20073F6AD /* CoopMgrAPISecretMgr.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CoopMgrAPISecretMgr.cpp; sourceTree = "<group>"; };
+		2EFD147C277111C20073F6AD /* CoopMgrAPISecretMgr.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CoopMgrAPISecretMgr.hpp; sourceTree = "<group>"; };
+		2EFD147F2771184B0073F6AD /* coopmgr.props.csv */ = {isa = PBXFileReference; lastKnownFileType = text; path = coopmgr.props.csv; sourceTree = "<group>"; };
+		2EFD148127711BC60073F6AD /* ServerCommandsLineFunctions.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ServerCommandsLineFunctions.cpp; sourceTree = "<group>"; };
+		2EFD148527711D410073F6AD /* helpfile.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = helpfile.txt; sourceTree = "<group>"; };
+		2EFD1488277121250073F6AD /* valueschema.csv */ = {isa = PBXFileReference; lastKnownFileType = text; path = valueschema.csv; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -51,6 +92,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2EFD147727710A490073F6AD /* libsqlite3.tbd in Frameworks */,
 				2EFD145B277003520073F6AD /* libFOOServer.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -61,7 +103,9 @@
 		2EFD1385276FF5DF0073F6AD = {
 			isa = PBXGroup;
 			children = (
+				2EFD147E277117EB0073F6AD /* Assets */,
 				2EFD1390276FF5DF0073F6AD /* src */,
+				2EFD145E2770FFFC0073F6AD /* CoopMgr */,
 				2EFD1399276FFD800073F6AD /* Submodule */,
 				2EFD138F276FF5DF0073F6AD /* Products */,
 				2EFD145A277003520073F6AD /* Frameworks */,
@@ -80,6 +124,11 @@
 			isa = PBXGroup;
 			children = (
 				2EFD1391276FF5DF0073F6AD /* main.cpp */,
+				2EFD1470277107950073F6AD /* ServerCommands.hpp */,
+				2EFD1475277109470073F6AD /* CommonIncludes.hpp */,
+				2EFD1471277108070073F6AD /* ServerNouns.cpp */,
+				2EFD148127711BC60073F6AD /* ServerCommandsLineFunctions.cpp */,
+				2EFD1474277108C30073F6AD /* ServerCmdValidators.hpp */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -104,8 +153,43 @@
 		2EFD145A277003520073F6AD /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				2EFD147627710A490073F6AD /* libsqlite3.tbd */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		2EFD145E2770FFFC0073F6AD /* CoopMgr */ = {
+			isa = PBXGroup;
+			children = (
+				2EFD145F277100320073F6AD /* CoopMgrCommon.h */,
+				2EFD1460277100AA0073F6AD /* CoopMgr.cpp */,
+				2EFD1461277100AA0073F6AD /* CoopMgr.hpp */,
+				2EFD147827710A770073F6AD /* CoopMgrDB.cpp */,
+				2EFD147927710A770073F6AD /* CoopMgrDB.hpp */,
+				2EFD1462277101390073F6AD /* CoopMgrDevice.hpp */,
+				2EFD147B277111C20073F6AD /* CoopMgrAPISecretMgr.cpp */,
+				2EFD147C277111C20073F6AD /* CoopMgrAPISecretMgr.hpp */,
+				2EFD1467277102C20073F6AD /* CPUInfo.cpp */,
+				2EFD1468277102C20073F6AD /* CPUInfo.hpp */,
+				2EFD1466277102C20073F6AD /* I2C.cpp */,
+				2EFD1464277102C20073F6AD /* I2C.hpp */,
+				2EFD1465277102C20073F6AD /* TempSensor.cpp */,
+				2EFD146A277102C20073F6AD /* TempSensor.hpp */,
+				2EFD146B277102C20073F6AD /* TMP102.cpp */,
+				2EFD1469277102C20073F6AD /* TMP102.hpp */,
+			);
+			path = CoopMgr;
+			sourceTree = "<group>";
+		};
+		2EFD147E277117EB0073F6AD /* Assets */ = {
+			isa = PBXGroup;
+			children = (
+				2EFD147F2771184B0073F6AD /* coopmgr.props.csv */,
+				2EFD148527711D410073F6AD /* helpfile.txt */,
+				2EFD1488277121250073F6AD /* valueschema.csv */,
+			);
+			name = Assets;
+			path = ../Assets;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -182,6 +266,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				2EFD1392276FF5DF0073F6AD /* main.cpp in Sources */,
+				2EFD147D277111C20073F6AD /* CoopMgrAPISecretMgr.cpp in Sources */,
+				2EFD1463277101D10073F6AD /* CoopMgr.cpp in Sources */,
+				2EFD1473277108070073F6AD /* ServerNouns.cpp in Sources */,
+				2EFD147A27710A770073F6AD /* CoopMgrDB.cpp in Sources */,
+				2EFD146D277106270073F6AD /* I2C.cpp in Sources */,
+				2EFD148227711BC60073F6AD /* ServerCommandsLineFunctions.cpp in Sources */,
+				2EFD146F2771062D0073F6AD /* TMP102.cpp in Sources */,
+				2EFD146E277106290073F6AD /* TempSensor.cpp in Sources */,
+				2EFD146C277106240073F6AD /* CPUInfo.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

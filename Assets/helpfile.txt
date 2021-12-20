@@ -1,0 +1,62 @@
+## Help for Insteon Sever
+
+TOPIC-START: "history"
+dont know much about history
+TOPIC-END:
+
+
+TOPIC-START: "version"
+some text about version..
+
+TOPIC-END:
+
+TOPIC-START: "date"
+NAME
+     date -- display date and time
+     
+SYNOPSIS
+	date
+	
+DESCRIPTION
+     The date utility displays the current date and time.
+     
+TOPIC-END:
+
+TOPIC-START: "dump"
+ SYNOPSIS
+	dump
+	dump all
+TOPIC-END:
+
+ 
+
+TOPIC-START: "whatismyip"
+NAME
+     whatismyip -- display my IP adddress
+
+SYNOPSIS
+          whatismyip
+
+DESCRIPTION
+     The whatismyip utility displays the user IP adddress
+
+TOPIC-END:
+
+TOPIC-START: "finger"
+NAME
+     finger -- user information lookup program
+
+SYNOPSIS
+     finger
+
+DESCRIPTION
+     The finger utility displays information about the system users.
+     
+TOPIC-END:
+
+TOPIC-START: "bye"
+well bye...
+TOPIC-END:
+
+	
+

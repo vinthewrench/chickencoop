@@ -6,28 +6,43 @@
 //
 
 #include <iostream>
- 
+
+#include "CommonIncludes.hpp"
+
 #include "LogMgr.hpp"
+#include "CoopMgr.hpp"
+#include "CoopMgrAPISecretMgr.hpp"
+
 
 #include "TCPServer.hpp"
 #include "Telnet/TelnetServerConnection.hpp"
 #include "REST/RESTServerConnection.hpp"
 #include "ServerCmdQueue.hpp"
 #include "Telnet/CmdLineRegistry.hpp"
-
+#include "ServerCommands.hpp"
  
+
+[[clang::no_destroy]]  CoopMgr	coopMgr;
+
 
 int main(int argc, const char * argv[]) {
 
-	int telnetPort = 2020 ; // pumphouse.getDB()->getTelnetPort();
-	int restPort =  8080 ; // pumphouse.getDB()->getRESTPort();
-	bool remoteTelnet = true ;// pumphouse.getDB()->getAllowRemoteTelnet();
+	LogMgr::shared()->_logFlags = LogMgr::LogLevelDebug;
+
+	coopMgr.start();
+
+	//set up the api secrets
+	CoopMgrAPISecretMgr apiSecrets(coopMgr.getDB());
+
+	int telnetPort = 	coopMgr.getDB()->getTelnetPort();
+	int restPort = 	coopMgr.getDB()->getRESTPort();
+	bool remoteTelnet = coopMgr.getDB()->getAllowRemoteTelnet();
 
 	 
 	// create the server command processor
-	auto cmdQueue = new ServerCmdQueue(NULL);
-//	registerServerNouns();
-//	registerCommandsLineFunctions();
+	auto cmdQueue = new ServerCmdQueue(&apiSecrets);
+ 	registerServerNouns();
+ 	registerCommandsLineFunctions();
 	
 	
 	TCPServer telnet_server(cmdQueue);
@@ -44,9 +59,9 @@ int main(int argc, const char * argv[]) {
 	 
 	// run the main loop.
 	while(true) {
-//
-//		pumphouse.setActiveConnections( rest_server.hasActiveConnections()
-//												|| telnet_server.hasActiveConnections());
+
+		coopMgr.setActiveConnections( rest_server.hasActiveConnections()
+												|| telnet_server.hasActiveConnections());
  	sleep(2);
 	}
 
