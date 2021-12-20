@@ -174,10 +174,10 @@ void CoopMgr::startTempSensor( std::function<void(bool didSucceed, std::string e
  
 	didSucceed =  _tempSensor1.begin(deviceAddress,resultKey, &errnum);
 	if(didSucceed){
-//		_db.addSchema(resultKey,
-//						  PumpHouseDB::DEGREES_C,
-//						  "Inverter Temperature",
-//						  PumpHouseDB::TR_TRACK);
+		_db.addSchema(resultKey,
+						  CoopMgrDB::DEGREES_C,
+						  "Coop Temperature",
+						  CoopMgrDB::TR_TRACK);
 		
 		LOGT_DEBUG("Start TempSensor 1 - OK");
 	}

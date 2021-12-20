@@ -85,6 +85,8 @@
 		2EFD148127711BC60073F6AD /* ServerCommandsLineFunctions.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ServerCommandsLineFunctions.cpp; sourceTree = "<group>"; };
 		2EFD148527711D410073F6AD /* helpfile.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = helpfile.txt; sourceTree = "<group>"; };
 		2EFD1488277121250073F6AD /* valueschema.csv */ = {isa = PBXFileReference; lastKnownFileType = text; path = valueschema.csv; sourceTree = "<group>"; };
+		2EFD148D277124BC0073F6AD /* CMakeLists.txt */ = {isa = PBXFileReference; lastKnownFileType = text; name = CMakeLists.txt; path = ../CMakeLists.txt; sourceTree = "<group>"; };
+		2EFD148E277124C40073F6AD /* sync.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = sync.sh; path = ../sync.sh; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -103,6 +105,7 @@
 		2EFD1385276FF5DF0073F6AD = {
 			isa = PBXGroup;
 			children = (
+				2EFD148C277124720073F6AD /* Build Stuff */,
 				2EFD147E277117EB0073F6AD /* Assets */,
 				2EFD1390276FF5DF0073F6AD /* src */,
 				2EFD145E2770FFFC0073F6AD /* CoopMgr */,
@@ -190,6 +193,15 @@
 			);
 			name = Assets;
 			path = ../Assets;
+			sourceTree = "<group>";
+		};
+		2EFD148C277124720073F6AD /* Build Stuff */ = {
+			isa = PBXGroup;
+			children = (
+				2EFD148E277124C40073F6AD /* sync.sh */,
+				2EFD148D277124BC0073F6AD /* CMakeLists.txt */,
+			);
+			name = "Build Stuff";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
