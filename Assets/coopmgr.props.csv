@@ -2,4 +2,7 @@ log-filepath, logfile.txt
 log-flags, 0x0f
 api-key,test
 api-secret,40v)ywv*e2e&$k(6
-
+lat-long,  42.235389 -122.865947
+rest-port, 8081
+telnet-port, 2020
+allow-remote-telnet, true

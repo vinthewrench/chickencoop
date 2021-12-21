@@ -22,6 +22,10 @@
 		2EFD148227711BC60073F6AD /* ServerCommandsLineFunctions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD148127711BC60073F6AD /* ServerCommandsLineFunctions.cpp */; };
 		2EFD148627711D7E0073F6AD /* helpfile.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2EFD148527711D410073F6AD /* helpfile.txt */; };
 		2EFD14892771213F0073F6AD /* valueschema.csv in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2EFD1488277121250073F6AD /* valueschema.csv */; };
+		2EFD1493277167BE0073F6AD /* sunset.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD1491277167BE0073F6AD /* sunset.cpp */; };
+		2EFD14962771680B0073F6AD /* ScheduleMgr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD14942771680B0073F6AD /* ScheduleMgr.cpp */; };
+		2EFD149C27725EC50073F6AD /* GPIO.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD149B27725EC50073F6AD /* GPIO.cpp */; };
+		2EFD149F27725F710073F6AD /* CoopDevices.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD149D27725F710073F6AD /* CoopDevices.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -87,6 +91,14 @@
 		2EFD1488277121250073F6AD /* valueschema.csv */ = {isa = PBXFileReference; lastKnownFileType = text; path = valueschema.csv; sourceTree = "<group>"; };
 		2EFD148D277124BC0073F6AD /* CMakeLists.txt */ = {isa = PBXFileReference; lastKnownFileType = text; name = CMakeLists.txt; path = ../CMakeLists.txt; sourceTree = "<group>"; };
 		2EFD148E277124C40073F6AD /* sync.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = sync.sh; path = ../sync.sh; sourceTree = "<group>"; };
+		2EFD1491277167BE0073F6AD /* sunset.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sunset.cpp; sourceTree = "<group>"; };
+		2EFD1492277167BE0073F6AD /* sunset.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sunset.h; sourceTree = "<group>"; };
+		2EFD14942771680B0073F6AD /* ScheduleMgr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScheduleMgr.cpp; sourceTree = "<group>"; };
+		2EFD14952771680B0073F6AD /* ScheduleMgr.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ScheduleMgr.hpp; sourceTree = "<group>"; };
+		2EFD149A27725EC50073F6AD /* GPIO.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = GPIO.hpp; sourceTree = "<group>"; };
+		2EFD149B27725EC50073F6AD /* GPIO.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GPIO.cpp; sourceTree = "<group>"; };
+		2EFD149D27725F710073F6AD /* CoopDevices.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CoopDevices.cpp; sourceTree = "<group>"; };
+		2EFD149E27725F710073F6AD /* CoopDevices.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CoopDevices.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -172,14 +184,22 @@
 				2EFD1462277101390073F6AD /* CoopMgrDevice.hpp */,
 				2EFD147B277111C20073F6AD /* CoopMgrAPISecretMgr.cpp */,
 				2EFD147C277111C20073F6AD /* CoopMgrAPISecretMgr.hpp */,
+				2EFD14942771680B0073F6AD /* ScheduleMgr.cpp */,
+				2EFD14952771680B0073F6AD /* ScheduleMgr.hpp */,
 				2EFD1467277102C20073F6AD /* CPUInfo.cpp */,
 				2EFD1468277102C20073F6AD /* CPUInfo.hpp */,
+				2EFD149D27725F710073F6AD /* CoopDevices.cpp */,
+				2EFD149E27725F710073F6AD /* CoopDevices.hpp */,
+				2EFD149B27725EC50073F6AD /* GPIO.cpp */,
+				2EFD149A27725EC50073F6AD /* GPIO.hpp */,
 				2EFD1466277102C20073F6AD /* I2C.cpp */,
 				2EFD1464277102C20073F6AD /* I2C.hpp */,
 				2EFD1465277102C20073F6AD /* TempSensor.cpp */,
 				2EFD146A277102C20073F6AD /* TempSensor.hpp */,
 				2EFD146B277102C20073F6AD /* TMP102.cpp */,
 				2EFD1469277102C20073F6AD /* TMP102.hpp */,
+				2EFD1491277167BE0073F6AD /* sunset.cpp */,
+				2EFD1492277167BE0073F6AD /* sunset.h */,
 			);
 			path = CoopMgr;
 			sourceTree = "<group>";
@@ -281,10 +301,14 @@
 				2EFD147D277111C20073F6AD /* CoopMgrAPISecretMgr.cpp in Sources */,
 				2EFD1463277101D10073F6AD /* CoopMgr.cpp in Sources */,
 				2EFD1473277108070073F6AD /* ServerNouns.cpp in Sources */,
+				2EFD1493277167BE0073F6AD /* sunset.cpp in Sources */,
 				2EFD147A27710A770073F6AD /* CoopMgrDB.cpp in Sources */,
+				2EFD149F27725F710073F6AD /* CoopDevices.cpp in Sources */,
 				2EFD146D277106270073F6AD /* I2C.cpp in Sources */,
+				2EFD14962771680B0073F6AD /* ScheduleMgr.cpp in Sources */,
 				2EFD148227711BC60073F6AD /* ServerCommandsLineFunctions.cpp in Sources */,
 				2EFD146F2771062D0073F6AD /* TMP102.cpp in Sources */,
+				2EFD149C27725EC50073F6AD /* GPIO.cpp in Sources */,
 				2EFD146E277106290073F6AD /* TempSensor.cpp in Sources */,
 				2EFD146C277106240073F6AD /* CPUInfo.cpp in Sources */,
 			);

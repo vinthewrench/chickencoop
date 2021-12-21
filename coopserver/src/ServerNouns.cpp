@@ -726,8 +726,25 @@ static bool State_NounHandler_GET(ServerCmdQueue* cmdQueue,
 	reply[string(JSON_ARG_BUILD_TIME)]	=  string(__DATE__) + " " + string(__TIME__);
 
 	reply[string(JSON_ARG_STATE)] 		= coopMgr.coopState();
-	reply[string(JSON_ARG_STATESTR)] = CoopMgrDevice::stateString(coopMgr.coopState());
+	reply[string(JSON_ARG_STATESTR)] 	= CoopMgrDevice::stateString(coopMgr.coopState());
 
+	reply[string(JSON_ARG_TEMP_SENSOR1)]	= coopMgr.tempSensor1State();
+	reply[string(JSON_ARG_COOP_DEVICE)]		= coopMgr.coopState();
+	
+	solarTimes_t solar;
+	if( coopMgr.getSolarEvents(solar)) {
+		reply["civilSunRise"] = solar.civilSunRiseMins;
+		reply["sunRise"] = solar.sunriseMins;
+		reply["sunSet"] = solar.sunSetMins;
+		reply["civilSunSet"] = solar.civilSunSetMins;
+		reply["latitude"] = solar.latitude;
+		reply["longitude"] = solar.longitude;
+		reply["gmtOffset"] = solar.gmtOffset;
+		reply["timeZone"] = solar.timeZoneString;
+		reply["midnight"] = solar.previousMidnight;
+	}
+
+ 
 	double temp;
 	if(getCPUTemp(temp)){
 		reply[string(JSON_ARG_CPU_TEMP)] =   temp;

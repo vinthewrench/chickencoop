@@ -34,11 +34,16 @@ int main(int argc, const char * argv[]) {
 	//set up the api secrets
 	CoopMgrAPISecretMgr apiSecrets(coopMgr.getDB());
 
-	int telnetPort = 	coopMgr.getDB()->getTelnetPort();
-	int restPort = 	coopMgr.getDB()->getRESTPort();
-	bool remoteTelnet = coopMgr.getDB()->getAllowRemoteTelnet();
+	auto db = coopMgr.getDB();
 
-	 
+	uint16_t restPort = 	8080;
+	uint16_t telnetPort = 2020;
+	bool remoteTelnet = false;
+
+ 	db->getUint16Property(string(CoopMgrDB::PROP_TELNET_PORT),&telnetPort);
+	db->getUint16Property(string(CoopMgrDB::PROP_REST_PORT),&restPort);
+	db->getBoolProperty(string(CoopMgrDB::PROP_ALLOW_REMOTE_TELNET),&remoteTelnet);
+ 
 	// create the server command processor
 	auto cmdQueue = new ServerCmdQueue(&apiSecrets);
  	registerServerNouns();

@@ -22,6 +22,8 @@
 
 #include "CPUInfo.hpp"
 #include "TempSensor.hpp"
+#include "ScheduleMgr.hpp"
+#include "CoopDevices.hpp"
 
 
 using namespace std;
@@ -41,14 +43,17 @@ public:
 	void stopTempSensor();
 	CoopMgrDevice::device_state_t tempSensor1State();
 
-
+	void startCoopDevices( std::function<void(bool didSucceed, std::string error_text)> callback = NULL);
+	void stopCoopDevices();
+	CoopMgrDevice::device_state_t CoopDevicesState();
 	
 	string deviceStateString(CoopMgrDevice::device_state_t st);
  
 	bool initDataBase(string schemaFilePath = "", string logDBFilePath = "");
 
 	long upTime();  // how long since we started
-	
+	bool getSolarEvents(solarTimes_t &solar);
+
 	CoopMgrDevice::device_state_t coopState() {return _state;};
 	CoopMgrDB*		getDB() {return &_db; };
 	
@@ -64,10 +69,9 @@ public:
 	
 	 void run();
 
-	time_t 				_startTime;		// to calculate uptime
 	CPUInfo				_cpuInfo;
 	TempSensor			_tempSensor1;
-
+	CoopDevices			_coopHW;
 	CoopMgrDB			_db;
 
 };

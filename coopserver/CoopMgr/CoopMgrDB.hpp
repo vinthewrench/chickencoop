@@ -38,11 +38,18 @@ public:
 	
 	constexpr static string_view PROP_TRIGGER_PREFIX 			= "trigger-";
 
-	constexpr static string_view PROP_LOG_FLAGS						= "log-flags";
-	constexpr static string_view PROP_LOG_FILE						= "log-filepath";
+	constexpr static string_view PROP_LOG_FLAGS					= "log-flags";
+	constexpr static string_view PROP_LOG_FILE					= "log-filepath";
 	constexpr static string_view PROP_API_KEY						= "api-key";
 	constexpr static string_view PROP_API_SECRET					= "api-secret";
+	constexpr static string_view PROP_LATLONG						= "lat-long";
 
+	constexpr static string_view PROP_TELNET_PORT				= "telnet-port";
+	constexpr static string_view PROP_REST_PORT					= "rest-port";
+	constexpr static string_view PROP_ALLOW_REMOTE_TELNET		= "allow-remote-telnet";
+
+	 
+	
 	typedef enum {
 		INVALID = 0,
 		BOOL,				// Bool ON/OFF
@@ -116,15 +123,6 @@ public:
 	bool apiSecretGetSecret(string APIkey, string &APISecret);
 	bool apiSecretMustAuthenticate();
 
-	// MARK: -   SERVER PORTS
-	void  setAllowRemoteTelnet(bool remoteTelnet);
-	bool  getAllowRemoteTelnet();
-
-	void  setTelnetPort(int port);
-	int  	getTelnetPort();
-	void  setRESTPort(int port);
-	int  	getRESTPort();
-
 	// MARK: -   Data
 	json	schemaJSON();
 	json	currentValuesJSON(eTag_t  eTag = 0);
@@ -153,10 +151,12 @@ public:
 
 	bool getUint16Property(string key, uint16_t * value);
 	bool getFloatProperty(string key, float * valOut);
+	bool getBoolProperty(string key, bool * valOut);
 
 	bool removeProperty(string key);
 	map<string ,string> getProperties();
 
+ 
 private:
 	
 	
@@ -164,11 +164,12 @@ private:
 	mutable std::mutex _mutex;
 
 	string defaultPropertyFilePath();
-	
+	bool 	refreshSolarEvents();
+
 	valueSchema_t schemaForKey(string key);
 	valueSchemaUnits_t unitsForKey(string key);
 	string   unitSuffixForKey(string key);
-	
+
 	double 	normalizedDoubleForValue(string key, string value);
 	int 		intForValue(string key, string value);
 	
@@ -186,6 +187,9 @@ private:
 
 	map<string,string> 			_properties;
 	string 						_propertyFilePath;
+
+	double		_longitude;
+	double 		_latitude;
 
 
 };

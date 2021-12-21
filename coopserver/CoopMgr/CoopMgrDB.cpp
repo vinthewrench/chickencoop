@@ -9,6 +9,8 @@
   
 #include "TimeStamp.hpp"
 #include "LogMgr.hpp"
+#include "ScheduleMgr.hpp"
+
 #include "Utils.hpp"
 #include <stdlib.h>
 #include <regex>
@@ -398,6 +400,27 @@ string CoopMgrDB::displayStringForEvent(ph_event_t evt){
 	return result;
 }
 
+// MARK: -  SOLAR EVENTS
+
+bool CoopMgrDB::refreshSolarEvents(){
+	
+	string str;
+	bool success = false;
+	
+	success = getProperty(string(CoopMgrDB::PROP_LATLONG), &str);
+	if(success && !str.empty()){
+
+		double latitude, longitude;
+		int n;
+
+		if( sscanf(str.c_str(), "%lf %lf%n", &latitude, &longitude, &n) == 2) {
+			ScheduleMgr::shared()->setLatLong(latitude ,longitude);
+			return ScheduleMgr::shared()->calculateSolarEvents();
+		}
+	}
+		return false;
+}
+
 
 // MARK: -  DATABASE OPERATIONS
 
@@ -770,10 +793,16 @@ void CoopMgrDB::addSchema(string key,  valueSchemaUnits_t units, string descript
 	_schema[key] = sc;
 }
 
+
 // MARK: - properties
 bool CoopMgrDB::setProperty(string key, string value){
 	_properties[key] = value;
 	savePropertiesToFile();
+	
+	if(key ==  CoopMgrDB::PROP_LATLONG){
+		refreshSolarEvents();
+	}
+ 
 	return true;
 }
 
@@ -782,6 +811,11 @@ bool CoopMgrDB::removeProperty(string key){
 	if(_properties.count(key)){
 		_properties.erase(key);
 		savePropertiesToFile();
+		
+		if(key ==  CoopMgrDB::PROP_LATLONG){
+			ScheduleMgr::shared()->setLatLong(numeric_limits<double>::max() ,numeric_limits<double>::max());
+ 		}
+	 
 		return true;
 	}
 	return false;
@@ -842,6 +876,32 @@ bool  CoopMgrDB::getFloatProperty(string key, float * valOut){
 	return false;
 }
  
+bool  CoopMgrDB::getBoolProperty(string key, bool * valOut){
+	
+	string str;
+	if(getProperty(string(key), &str) ){
+		char* p;
+		
+		transform(str.begin(), str.end(), str.begin(), ::tolower);
+		
+		long val = strtoul(str.c_str(), &p, 0);
+		if(*p == 0 && (val == 0 || val == 1)){
+			if(valOut) *valOut = (bool)val;
+			return true;
+			
+		}else if(str == "true"){
+			if(valOut) *valOut = true;
+			return true;
+		}
+		else if(str == "false"){
+			if(valOut)	*valOut = false;
+			return true;
+		}
+	}
+	return false;
+}
+
+
 bool CoopMgrDB::restorePropertiesFromFile(string filePath){
 
 	std::ifstream	ifs;
@@ -877,6 +937,7 @@ bool CoopMgrDB::restorePropertiesFromFile(string filePath){
 			_properties[key] = value;
 		}
 		
+		refreshSolarEvents();
 		statusOk = true;
 		ifs.close();
 		
@@ -988,27 +1049,6 @@ bool CoopMgrDB::apiSecretMustAuthenticate(){
 	return getProperty(string(PROP_API_KEY), NULL) &&  getProperty(string(PROP_API_SECRET),NULL);
  }
 
-// MARK: -   SERVER PORTS
-void  CoopMgrDB::setAllowRemoteTelnet(bool remoteTelnet) {
-};
-
-bool  CoopMgrDB::getAllowRemoteTelnet() {
-	return true;
-};
-
-void  CoopMgrDB::setTelnetPort(int port){
-}
-
-int  	CoopMgrDB::getTelnetPort(){
-	return 2021;
-}
-
-void  CoopMgrDB::setRESTPort(int port){
-}
-
-int CoopMgrDB::getRESTPort(){
-	return 8081;
-}
 
 // MARK: -   JSON REQUESTS
 

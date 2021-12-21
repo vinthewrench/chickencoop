@@ -36,6 +36,8 @@ constexpr string_view JSON_ARG_STATE			= "state";
 constexpr string_view JSON_ARG_STATESTR		= "stateString";
 constexpr string_view JSON_ARG_CPU_TEMP		= "cpuTemp";
 
+constexpr string_view JSON_ARG_COOP_DEVICE	 	= "coopdevice";
+constexpr string_view JSON_ARG_TEMP_SENSOR1	 	= "tempsensor1";
 
 constexpr string_view JSON_ARG_PROPERTIES	= "properties";
 

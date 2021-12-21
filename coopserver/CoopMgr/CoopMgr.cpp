@@ -8,7 +8,7 @@
 #include "CoopMgr.hpp"
 #include "LogMgr.hpp"
 #include "Utils.hpp"
-
+ 
  const char* 	CoopMgr::CoopMgr_Version = "1.0.0 dev 1";
 
 
@@ -26,10 +26,12 @@ CoopMgr::CoopMgr()
 //	signal(SIGKILL, signal_callback_handler);
 //
 	
+	ScheduleMgr::shared();   // initialize the schedule manager - for uptime
+
 	// start the thread running
 	_running = true;
 	_state = CoopMgrDevice::DEVICE_STATE_UNKNOWN;
-	_startTime = time(NULL);
+	
 	_thread = std::thread(&CoopMgr::run, this);
 	_cpuInfo.begin();
 }
@@ -81,10 +83,13 @@ void CoopMgr::start(){
 	initDataBase();
 
  	startTempSensor();
+	startCoopDevices();
+	
  }
 
 void CoopMgr::stop(){
  	stopTempSensor();
+	stopCoopDevices();
 }
 
 
@@ -115,12 +120,11 @@ void CoopMgr::run(){
 	 				_db.insertValues(results);
 				});
 			}
-
-		
 	
 			sleep(TIMEOUT_SEC);
 	 
 			_tempSensor1.idle();
+			_coopHW.idle();
 			_cpuInfo.idle();
 		};
 	}
@@ -136,11 +140,12 @@ void CoopMgr::run(){
 // MARK: -   utilities
 
 long CoopMgr::upTime(){
-	time_t now = time(NULL);
-
-	return now - _startTime;
+	return ScheduleMgr::shared()->upTime();
 }
 
+bool CoopMgr::getSolarEvents(solarTimes_t &solar){
+	return ScheduleMgr::shared()->getSolarEvents(solar);
+}
 
 
 string CoopMgr::deviceStateString(CoopMgrDevice::device_state_t st) {
@@ -198,4 +203,33 @@ void CoopMgr::stopTempSensor(){
 CoopMgrDevice::device_state_t CoopMgr::tempSensor1State(){
 	return _tempSensor1.getDeviceState();
 }
+
+
+// MARK: -   GPIO Door relay
+
+
+void CoopMgr::startCoopDevices( std::function<void(bool didSucceed, std::string error_text)> cb){
+	
+	int  errnum = 0;
+	bool didSucceed = false;
+	
+	didSucceed =  _coopHW.begin(&errnum);
+	if(didSucceed){
+		LOGT_DEBUG("Start CoopDevices - OK");
+	}
+	else
+		LOGT_ERROR("Start CoopDevices  - FAIL %s", string(strerror(errnum)).c_str());
+	
+	if(cb)
+		(cb)(didSucceed, didSucceed?"": string(strerror(errnum) ));
+}
  
+void CoopMgr::stopCoopDevices(){
+	_coopHW.stop();
+}
+
+CoopMgrDevice::device_state_t CoopMgr::CoopDevicesState(){
+	return _coopHW.getDeviceState();
+}
+
+
