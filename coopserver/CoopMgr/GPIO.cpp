@@ -6,7 +6,9 @@
 //
 
 #include "GPIO.hpp"
- 
+#include <algorithm>
+
+
 #include "LogMgr.hpp"
 
 GPIO::GPIO(){
