@@ -35,7 +35,7 @@ bool GPIO::begin(string	path, vector<uint8_t> pins,  int &error){
 	int initial_values[3] = {0,0,0};
 
 	// Create an array of size equivalent to vector
-	 unsigned int offsets[ pins.size() ];
+	 unsigned int offsets[ pins.size()];
 	  // Copy all elements of vector to array
 	  std::transform( pins.begin(),  pins.end(),  offsets, [](const auto & elem){  return elem; });
    
@@ -58,6 +58,7 @@ bool GPIO::begin(string	path, vector<uint8_t> pins,  int &error){
 		goto cleanup;
 	}
 	
+
 	// setup the lines
 	memset(&config, 0, sizeof(config));
 	config.consumer = "test3";
@@ -67,7 +68,7 @@ bool GPIO::begin(string	path, vector<uint8_t> pins,  int &error){
 		// get the bulk lines setting default value to 0
 	error = gpiod_line_request_bulk(&_lines, &config, initial_values);
 	if(error) {
-		LOGT_ERROR("Failed reequest GPIO lines: %s \n",strerror(errno));
+		LOGT_ERROR("Failed request GPIO lines: %s \n",strerror(errno));
 	goto cleanup;
 	}
  

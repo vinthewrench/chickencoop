@@ -22,19 +22,20 @@
 #include "ServerCommands.hpp"
  
 
-[[clang::no_destroy]]  CoopMgr	coopMgr;
+//[[clang::no_destroy]]  CoopMgr	coopMgr;
 
 
 int main(int argc, const char * argv[]) {
 
+	auto coopMgr = CoopMgr::shared();
 	LogMgr::shared()->_logFlags = LogMgr::LogLevelDebug;
 
-	coopMgr.start();
+	coopMgr->start();
 
 	//set up the api secrets
-	CoopMgrAPISecretMgr apiSecrets(coopMgr.getDB());
+	CoopMgrAPISecretMgr apiSecrets(coopMgr->getDB());
 
-	auto db = coopMgr.getDB();
+	auto db = coopMgr->getDB();
 
 	uint16_t restPort = 	8080;
 	uint16_t telnetPort = 2020;
@@ -65,7 +66,7 @@ int main(int argc, const char * argv[]) {
 	// run the main loop.
 	while(true) {
 
-		coopMgr.setActiveConnections( rest_server.hasActiveConnections()
+		coopMgr->setActiveConnections( rest_server.hasActiveConnections()
 												|| telnet_server.hasActiveConnections());
  	sleep(2);
 	}

@@ -100,6 +100,8 @@ static bool Devices_NounHandler_PUT(ServerCmdQueue* cmdQueue,
 												TCPClientInfo cInfo,
 												ServerCmdQueue::cmdCallback_t completion) {
 	
+	auto coopMgr = CoopMgr::shared();
+
 	using namespace rest;
 	auto path = url.path();
 	auto queries = url.queries();
@@ -122,7 +124,7 @@ static bool Devices_NounHandler_PUT(ServerCmdQueue* cmdQueue,
 				
 				bool queued = false;
 				if(deviceStr == "door"){
-					queued = coopMgr.setDoor(relayState,[=]( bool didSucceed){
+					queued = coopMgr->setDoor(relayState,[=]( bool didSucceed){
 						
 						json reply;
 						
@@ -139,7 +141,7 @@ static bool Devices_NounHandler_PUT(ServerCmdQueue* cmdQueue,
 					
 				}
 				else if(deviceStr == "light"){
-					queued = coopMgr.setLight(relayState,[=]( bool didSucceed){
+					queued = coopMgr->setLight(relayState,[=]( bool didSucceed){
 						json reply;
 						
 						if(didSucceed){
@@ -229,7 +231,8 @@ static void Schema_NounHandler(ServerCmdQueue* cmdQueue,
 	using namespace rest;
 	json reply;
 	
-	auto db = coopMgr.getDB();
+	auto coopMgr = CoopMgr::shared();
+	auto db = coopMgr->getDB();
 	
 	// CHECK METHOD
 	if(url.method() != HTTP_GET ) {
@@ -268,7 +271,8 @@ static void Values_Handler(ServerCmdQueue* cmdQueue,
 	ServerCmdArgValidator v1;
 	string str;
 	
-	auto db = coopMgr.getDB();
+	auto coopMgr = CoopMgr::shared();
+	auto db = coopMgr->getDB();
 	
 	// CHECK METHOD
 	if(url.method() != HTTP_GET ) {
@@ -301,8 +305,8 @@ static void Values_Handler(ServerCmdQueue* cmdQueue,
 		reply[string(JSON_ARG_VALUES)] = db->currentValuesJSON(eTag);
 		reply[string(JSON_ARG_ETAG)] = db->lastEtag();
 		
-		reply[string(JSON_ARG_STATE)] 		= coopMgr.coopState();
-		reply[string(JSON_ARG_STATESTR)] 	= CoopMgrDevice::stateString(coopMgr.coopState());
+		reply[string(JSON_ARG_STATE)] 		= coopMgr->coopState();
+		reply[string(JSON_ARG_STATESTR)] 	= CoopMgrDevice::stateString(coopMgr->coopState());
 
 		makeStatusJSON(reply,STATUS_OK);
 		(completion) (reply, STATUS_OK);
@@ -337,7 +341,8 @@ static bool History_NounHandler_GET(ServerCmdQueue* cmdQueue,
 		noun = path.at(0);
 	}
 	
-	auto db = coopMgr.getDB();
+	auto coopMgr = CoopMgr::shared();
+	auto db = coopMgr->getDB();
 
 	// CHECK sub paths
 	map<string ,string> propList;
@@ -404,8 +409,9 @@ static bool History_NounHandler_DELETE(ServerCmdQueue* cmdQueue,
 		noun = path.at(0);
 	}
 	
-	auto db = coopMgr.getDB();
-	
+	auto coopMgr = CoopMgr::shared();
+	auto db = coopMgr->getDB();
+
 	// CHECK sub paths
 	map<string ,string> propList;
 	
@@ -507,8 +513,9 @@ static bool Events_NounHandler_GET(ServerCmdQueue* cmdQueue,
 		noun = path.at(0);
 	}
 	
-	auto db = coopMgr.getDB();
-	
+	auto coopMgr = CoopMgr::shared();
+	auto db = coopMgr->getDB();
+
 	CoopMgrDB::historicEvents_t events;
 	
 	float days = 0;
@@ -565,8 +572,9 @@ static bool Events_NounHandler_DELETE(ServerCmdQueue* cmdQueue,
 		noun = path.at(0);
 	}
 	
-	auto db = coopMgr.getDB();
-	
+	auto coopMgr = CoopMgr::shared();
+	auto db = coopMgr->getDB();
+
 	// CHECK sub paths
 	float days = 0;
 	
@@ -652,7 +660,8 @@ static bool Properties_NounHandler_GET(ServerCmdQueue* cmdQueue,
 		noun = path.at(0);
 	}
 	
-	auto db = coopMgr.getDB();
+	auto coopMgr = CoopMgr::shared();
+	auto db = coopMgr->getDB();
 
 	// CHECK sub paths
 	map<string ,string> propList;
@@ -707,7 +716,9 @@ static bool Properties_NounHandler_PATCH(ServerCmdQueue* cmdQueue,
 	
 	json reply;
 	
-	auto db = coopMgr.getDB();
+	auto coopMgr = CoopMgr::shared();
+	auto db = coopMgr->getDB();
+
 	string noun;
 	
 	if(path.size() > 0) {
@@ -769,7 +780,8 @@ static bool Properties_NounHandler_DELETE(ServerCmdQueue* cmdQueue,
 		noun = path.at(0);
 	}
 
-	auto db = coopMgr.getDB();
+	auto coopMgr = CoopMgr::shared();
+	auto db = coopMgr->getDB();
 
 	if (path.size() == 2){
 		string propName = path.at(1);
@@ -852,6 +864,7 @@ static bool State_NounHandler_GET(ServerCmdQueue* cmdQueue,
 	using namespace rest;
 	using namespace timestamp;
 
+	auto coopMgr = CoopMgr::shared();
 	json reply;
 	
 	auto path = url.path();
@@ -868,19 +881,19 @@ static bool State_NounHandler_GET(ServerCmdQueue* cmdQueue,
 	}
 	 
 	reply[string(JSON_ARG_DATE)] = TimeStamp().RFC1123String();
-	reply[string(JSON_ARG_UPTIME)]	= coopMgr.upTime();
+	reply[string(JSON_ARG_UPTIME)]	= coopMgr->upTime();
 
 	reply[string(JSON_ARG_VERSION)] = CoopMgr::CoopMgr_Version;
 	reply[string(JSON_ARG_BUILD_TIME)]	=  string(__DATE__) + " " + string(__TIME__);
 
-	reply[string(JSON_ARG_STATE)] 		= coopMgr.coopState();
-	reply[string(JSON_ARG_STATESTR)] 	= CoopMgrDevice::stateString(coopMgr.coopState());
+	reply[string(JSON_ARG_STATE)] 		= coopMgr->coopState();
+	reply[string(JSON_ARG_STATESTR)] 	= CoopMgrDevice::stateString(coopMgr->coopState());
 
-	reply[string(JSON_ARG_TEMP_SENSOR1)]	= coopMgr.tempSensor1State();
-	reply[string(JSON_ARG_COOP_DEVICE)]		= coopMgr.coopState();
+	reply[string(JSON_ARG_TEMP_SENSOR1)]	= coopMgr->tempSensor1State();
+	reply[string(JSON_ARG_COOP_DEVICE)]		= coopMgr->coopState();
 	
 	solarTimes_t solar;
-	if( coopMgr.getSolarEvents(solar)) {
+	if( coopMgr->getSolarEvents(solar)) {
 		reply["civilSunRise"] = solar.civilSunRiseMins;
 		reply["sunRise"] = solar.sunriseMins;
 		reply["sunSet"] = solar.sunSetMins;
@@ -924,7 +937,7 @@ static bool State_NounHandler_PUT(ServerCmdQueue* cmdQueue,
 	auto headers = url.headers();
 	
 	ServerCmdArgValidator v1;
-	//	auto db = coopMgr.getDB();
+	//	auto db = coopMgr->getDB();
 	
 	string noun;
 	json reply;
@@ -1007,7 +1020,8 @@ static bool Log_NounHandler_GET(ServerCmdQueue* cmdQueue,
 	auto queries = url.queries();
 	auto headers = url.headers();
 	json reply;
-	auto db = coopMgr.getDB();
+	auto coopMgr = CoopMgr::shared();
+	auto db = coopMgr->getDB();
 
 	string subpath;
 	
@@ -1054,7 +1068,8 @@ static bool Log_NounHandler_PUT(ServerCmdQueue* cmdQueue,
 	json reply;
 	string subpath;
 
-	auto db = coopMgr.getDB();
+	auto coopMgr = CoopMgr::shared();
+	auto db = coopMgr->getDB();
 
 	if(path.size() > 1){
 		subpath =   path.at(1);

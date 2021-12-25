@@ -34,6 +34,13 @@ class CoopMgr {
 public:
 	static const char* 	CoopMgr_Version;
 
+	static CoopMgr *shared() {
+		if(!sharedInstance){
+			sharedInstance = new CoopMgr;
+		}
+		return sharedInstance;
+	}
+ 
 	CoopMgr();
 	~CoopMgr();
  
@@ -71,7 +78,9 @@ public:
 
 	
  private:
-	 
+	
+	static CoopMgr *sharedInstance;
+ 
 	CoopMgrDevice::device_state_t	_state;
 
 	 bool 					_running;				//Flag for starting and terminating the main loop

@@ -11,21 +11,22 @@
  
  const char* 	CoopMgr::CoopMgr_Version = "1.0.0 dev 1";
 
+CoopMgr *CoopMgr::sharedInstance = NULL;
 
-
-CoopMgr::CoopMgr()
-//:
-//								_tankSensor(&_db),
-//								_inverter(&_db),
-//								_pumpSensor(&_db)
-{
-//	signal(SIGINT, signal_callback_handler);
-//	signal(SIGHUP, signal_callback_handler);
-//	signal(SIGQUIT, signal_callback_handler);
-//	signal(SIGTERM, signal_callback_handler);
-//	signal(SIGKILL, signal_callback_handler);
-//
+static void sigHandler (int signum) {
 	
+	auto coopMgr = CoopMgr::shared();
+	coopMgr->stop();
+}
+
+CoopMgr::CoopMgr(){
+	
+	signal(SIGKILL, sigHandler);
+	signal(SIGHUP, sigHandler);
+	signal(SIGQUIT, sigHandler);
+	signal(SIGTERM, sigHandler);
+//	signal(SIGINT, sigHandler);
+ 
 	ScheduleMgr::shared();   // initialize the schedule manager - for uptime
 
 	// start the thread running
