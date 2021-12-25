@@ -20,6 +20,7 @@ set(SOURCES
 	coopserver/CoopMgr/sunset.cpp
 	coopserver/CoopMgr/ScheduleMgr.cpp
 	coopserver/CoopMgr/CoopMgrDB.cpp
+	coopserver/CoopMgr/CoopDevices.cpp
 	coopserver/CoopMgr/I2C.cpp
 	coopserver/CoopMgr/TMP102.cpp
 	coopserver/CoopMgr/CPUInfo.cpp
@@ -65,7 +66,7 @@ find_package(Threads REQUIRED)
 
 include_directories(/usr/include)
 link_directories(/usr/lib)
-target_link_libraries(coopmgr  PRIVATE sqlite3 Threads::Threads)
+target_link_libraries(coopmgr  PRIVATE sqlite3 Threads::Threads gpiod)
 
 target_include_directories(coopmgr
 	PRIVATE 
