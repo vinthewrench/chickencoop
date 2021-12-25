@@ -6,12 +6,7 @@
 //
 
 #include "GPIO.hpp"
-
-
-#if !defined(__APPLE__)
-#include <gpiod.h>
-#endif
-
+ 
 #include "LogMgr.hpp"
 
 GPIO::GPIO(){

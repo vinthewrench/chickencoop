@@ -25,6 +25,8 @@
 #if defined(__APPLE__)
 // used for cross compile on osx
 #include "macos_gpiod.h"
+#else
+#include <gpiod.h>
 #endif
 
 using namespace std;
