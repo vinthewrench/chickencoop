@@ -28,7 +28,7 @@ public:
 	~I2C();
 	
 	bool begin(uint8_t	devAddr);
- 	bool begin(uint8_t	devAddr,  int *error = NULL);
+ 	bool begin(uint8_t	devAddr,  int &error);
 
 	void stop();
 

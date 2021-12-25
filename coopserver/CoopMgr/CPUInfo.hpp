@@ -27,7 +27,8 @@ public:
 	CPUInfo();
 	~CPUInfo();
 
-	bool begin(int *error = NULL);
+	bool begin();
+	bool begin(int &error);
 	void stop();
 
 	bool isConnected();

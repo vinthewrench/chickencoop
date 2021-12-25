@@ -83,13 +83,21 @@ void CoopMgr::start(){
 	initDataBase();
 
  	startTempSensor();
-	startCoopDevices();
-	
+	startCoopDevices([=](bool didSucceed, string error_text){
+		
+		if(didSucceed){
+			_state = CoopMgrDevice::DEVICE_STATE_CONNECTED;
+		}
+		else {
+			_state = CoopMgrDevice::DEVICE_STATE_ERROR;
+		}
+	});
  }
 
 void CoopMgr::stop(){
  	stopTempSensor();
 	stopCoopDevices();
+	_state = CoopMgrDevice::DEVICE_STATE_DISCONNECTED;
 }
 
 
@@ -177,7 +185,7 @@ void CoopMgr::startTempSensor( std::function<void(bool didSucceed, std::string e
 	uint8_t deviceAddress = 0x48;
 	string resultKey =  string(TEMPSENSOR_KEY) + to_hex(deviceAddress,true);
  
-	didSucceed =  _tempSensor1.begin(deviceAddress,resultKey, &errnum);
+	didSucceed =  _tempSensor1.begin(deviceAddress, resultKey, errnum);
 	if(didSucceed){
 		_db.addSchema(resultKey,
 						  CoopMgrDB::DEGREES_C,
@@ -205,7 +213,7 @@ CoopMgrDevice::device_state_t CoopMgr::tempSensor1State(){
 }
 
 
-// MARK: -   GPIO Door relay
+// MARK: -   Coop devices
 
 
 void CoopMgr::startCoopDevices( std::function<void(bool didSucceed, std::string error_text)> cb){
@@ -213,7 +221,8 @@ void CoopMgr::startCoopDevices( std::function<void(bool didSucceed, std::string 
 	int  errnum = 0;
 	bool didSucceed = false;
 	
-	didSucceed =  _coopHW.begin(&errnum);
+	
+	didSucceed =  _coopHW.begin(errnum);
 	if(didSucceed){
 		LOGT_DEBUG("Start CoopDevices - OK");
 	}
@@ -233,3 +242,22 @@ CoopMgrDevice::device_state_t CoopMgr::CoopDevicesState(){
 }
 
 
+// coop door
+bool CoopMgr::setDoor(bool isOpen, boolCallback_t cb){
+	return _coopHW.setDoor(isOpen, cb);
+}
+
+CoopDevices::door_state_t CoopMgr::getDoorState(){
+	return _coopHW.getDoorState();
+}
+
+
+// light state
+bool CoopMgr::setLight(bool isOpen, boolCallback_t cb){
+	return _coopHW.setLight(isOpen, cb);
+}
+
+bool CoopMgr::getLight(){
+	return _coopHW.getLight();
+}
+ 

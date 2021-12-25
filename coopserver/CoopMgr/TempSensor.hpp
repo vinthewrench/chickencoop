@@ -25,7 +25,8 @@ public:
 	TempSensor();
 	~TempSensor();
 
-	bool begin(int deviceAddress, string resultKey,  int *error = NULL);
+	bool begin(int deviceAddress, string resultKey);
+	bool begin(int deviceAddress, string resultKey,  int &error);
 	void stop();
 
 	bool isConnected();

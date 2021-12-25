@@ -9,7 +9,14 @@
 #define coopMgrCommon_h
 
 #include <stdexcept>
- 
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <functional>
+
+
+typedef std::function<void(bool didSucceed)> boolCallback_t;
+
 extern "C" {
 void dumpHex(uint8_t* buffer, int length, int offset = 0);
 }

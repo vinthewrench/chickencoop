@@ -26,6 +26,9 @@
 		2EFD14962771680B0073F6AD /* ScheduleMgr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD14942771680B0073F6AD /* ScheduleMgr.cpp */; };
 		2EFD149C27725EC50073F6AD /* GPIO.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD149B27725EC50073F6AD /* GPIO.cpp */; };
 		2EFD149F27725F710073F6AD /* CoopDevices.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD149D27725F710073F6AD /* CoopDevices.cpp */; };
+		2EFD14A62772A80A0073F6AD /* QwiicButton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD14A42772A80A0073F6AD /* QwiicButton.cpp */; };
+		2EFD14AD277539670073F6AD /* RPi_RelayHat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD14AB277539670073F6AD /* RPi_RelayHat.cpp */; };
+		2EFD14B5277691BB0073F6AD /* macos_gpiod.c in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD14B4277691BB0073F6AD /* macos_gpiod.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -99,6 +102,12 @@
 		2EFD149B27725EC50073F6AD /* GPIO.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GPIO.cpp; sourceTree = "<group>"; };
 		2EFD149D27725F710073F6AD /* CoopDevices.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CoopDevices.cpp; sourceTree = "<group>"; };
 		2EFD149E27725F710073F6AD /* CoopDevices.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CoopDevices.hpp; sourceTree = "<group>"; };
+		2EFD14A42772A80A0073F6AD /* QwiicButton.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = QwiicButton.cpp; sourceTree = "<group>"; };
+		2EFD14A52772A80A0073F6AD /* QwiicButton.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = QwiicButton.hpp; sourceTree = "<group>"; };
+		2EFD14AB277539670073F6AD /* RPi_RelayHat.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RPi_RelayHat.cpp; sourceTree = "<group>"; };
+		2EFD14AC277539670073F6AD /* RPi_RelayHat.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = RPi_RelayHat.hpp; sourceTree = "<group>"; };
+		2EFD14B327768DCC0073F6AD /* macos_gpiod.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = macos_gpiod.h; sourceTree = "<group>"; };
+		2EFD14B4277691BB0073F6AD /* macos_gpiod.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = macos_gpiod.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -190,14 +199,20 @@
 				2EFD1468277102C20073F6AD /* CPUInfo.hpp */,
 				2EFD149D27725F710073F6AD /* CoopDevices.cpp */,
 				2EFD149E27725F710073F6AD /* CoopDevices.hpp */,
+				2EFD14AB277539670073F6AD /* RPi_RelayHat.cpp */,
+				2EFD14AC277539670073F6AD /* RPi_RelayHat.hpp */,
 				2EFD149B27725EC50073F6AD /* GPIO.cpp */,
 				2EFD149A27725EC50073F6AD /* GPIO.hpp */,
+				2EFD14B327768DCC0073F6AD /* macos_gpiod.h */,
+				2EFD14B4277691BB0073F6AD /* macos_gpiod.c */,
 				2EFD1466277102C20073F6AD /* I2C.cpp */,
 				2EFD1464277102C20073F6AD /* I2C.hpp */,
 				2EFD1465277102C20073F6AD /* TempSensor.cpp */,
 				2EFD146A277102C20073F6AD /* TempSensor.hpp */,
 				2EFD146B277102C20073F6AD /* TMP102.cpp */,
 				2EFD1469277102C20073F6AD /* TMP102.hpp */,
+				2EFD14A42772A80A0073F6AD /* QwiicButton.cpp */,
+				2EFD14A52772A80A0073F6AD /* QwiicButton.hpp */,
 				2EFD1491277167BE0073F6AD /* sunset.cpp */,
 				2EFD1492277167BE0073F6AD /* sunset.h */,
 			);
@@ -297,10 +312,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2EFD14A62772A80A0073F6AD /* QwiicButton.cpp in Sources */,
+				2EFD14B5277691BB0073F6AD /* macos_gpiod.c in Sources */,
 				2EFD1392276FF5DF0073F6AD /* main.cpp in Sources */,
 				2EFD147D277111C20073F6AD /* CoopMgrAPISecretMgr.cpp in Sources */,
 				2EFD1463277101D10073F6AD /* CoopMgr.cpp in Sources */,
 				2EFD1473277108070073F6AD /* ServerNouns.cpp in Sources */,
+				2EFD14AD277539670073F6AD /* RPi_RelayHat.cpp in Sources */,
 				2EFD1493277167BE0073F6AD /* sunset.cpp in Sources */,
 				2EFD147A27710A770073F6AD /* CoopMgrDB.cpp in Sources */,
 				2EFD149F27725F710073F6AD /* CoopDevices.cpp in Sources */,

@@ -24,6 +24,7 @@
 #include "TempSensor.hpp"
 #include "ScheduleMgr.hpp"
 #include "CoopDevices.hpp"
+#include "QwiicButton.hpp"
 
 
 using namespace std;
@@ -59,6 +60,16 @@ public:
 	
 	void setActiveConnections(bool isActive);
 	
+	
+	// coop door
+	bool setDoor(bool isOpen, boolCallback_t callback = NULL);
+	CoopDevices::door_state_t getDoorState();
+	
+	// light state
+	bool setLight(bool isOn, boolCallback_t callback = NULL);
+	bool getLight();
+
+	
  private:
 	 
 	CoopMgrDevice::device_state_t	_state;
@@ -73,6 +84,9 @@ public:
 	TempSensor			_tempSensor1;
 	CoopDevices			_coopHW;
 	CoopMgrDB			_db;
+	
+	QwiicButton			_greenButton;
+	QwiicButton			_redButton;
 
 };
 #endif /* CoopMgr_hpp */

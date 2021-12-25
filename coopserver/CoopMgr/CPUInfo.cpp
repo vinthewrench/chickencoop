@@ -18,8 +18,14 @@ CPUInfo::~CPUInfo(){
 	stop();
 }
 
+bool CPUInfo::begin(){
+	int error = 0;
+
+	return begin(error);
+}
+
  
-bool CPUInfo::begin(int *error){
+bool CPUInfo::begin(int &error){
  
 	_state = INS_IDLE;
 	_queryDelay = 2;	// seconds

@@ -17,10 +17,16 @@ set(SOURCES
 	coopserver/CoopMgr/CoopMgr.cpp
 	coopserver/CoopMgr/CoopMgrDB.cpp
 	coopserver/CoopMgr/CoopMgrAPISecretMgr.cpp
+	coopserver/CoopMgr/sunset.cpp
+	coopserver/CoopMgr/ScheduleMgr.cpp
+	coopserver/CoopMgr/CoopMgrDB.cpp
 	coopserver/CoopMgr/I2C.cpp
 	coopserver/CoopMgr/TMP102.cpp
 	coopserver/CoopMgr/CPUInfo.cpp
 	coopserver/CoopMgr/TempSensor.cpp
+	coopserver/CoopMgr/QwiicButton.cpp
+	coopserver/CoopMgr/RPi_RelayHat.cpp
+	coopserver/CoopMgr/GPIO.cpp
 	Submodule/FooServer/src/RESTutils.cpp
 	Submodule/FooServer/src/ServerCmdQueue.cpp
 	Submodule/FooServer/src/TCPClientInfo.cpp

@@ -19,8 +19,14 @@ TempSensor::~TempSensor(){
 }
 
 
+bool TempSensor::begin(int deviceAddress, string resultKey){
+	int error = 0;
+
+	return begin(deviceAddress, resultKey, error);
+}
+
  
-bool TempSensor::begin(int deviceAddress, string resultKey, int *error){
+bool TempSensor::begin(int deviceAddress, string resultKey, int &error){
 	bool status = false;
 
 	status = _sensor.begin(deviceAddress, error);

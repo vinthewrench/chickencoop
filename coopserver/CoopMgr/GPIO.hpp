@@ -9,9 +9,7 @@
 #define GPIO_hpp
  
 #include <stdio.h>
-#include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
 #include <stdarg.h>     /* va_list, va_start, va_arg, va_end */
@@ -19,25 +17,40 @@
 #include <termios.h>
 #include <stdexcept>
 #include <string>
+#include <unistd.h>
+
+#include <vector>
+#include <tuple>
+
+#if defined(__APPLE__)
+// used for cross compile on osx
+#include "macos_gpiod.h"
+#endif
 
 using namespace std;
 
 class GPIO  {
 	
 public:
+	
+	typedef vector<pair<int, bool>> gpioStates_t;
+
 	GPIO();
 	~GPIO();
 
-	bool begin(string	path);
-	bool begin(string	path,  int *error = NULL);
-
-	void stop();
+	bool begin(string	path, vector<uint8_t> pins);
+	bool begin(string	path, vector<uint8_t> pins, int  &error);
+ 	void stop();
 
 	bool isAvailable();
 
+	bool setRelays(gpioStates_t states);
+
 private:
  
-	struct gpiod_chip* _chip;
+	struct gpiod_chip* 		_chip;
+	struct gpiod_line_bulk  _lines;
+	  
 	bool 					_isSetup;
 
 };

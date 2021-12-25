@@ -70,6 +70,155 @@ static bool getCPUTemp(double &tempOut) {
 	return didSucceed;
 }
 
+
+// MARK:  DEVICES NOUN HANDLERS
+
+static bool Devices_NounHandler_GET(ServerCmdQueue* cmdQueue,
+												REST_URL url,
+												TCPClientInfo cInfo,
+												ServerCmdQueue::cmdCallback_t completion) {
+	
+	using namespace rest;
+	using namespace timestamp;
+	
+	auto path = url.path();
+	auto queries = url.queries();
+	auto headers = url.headers();
+ 
+ 
+	json reply;
+
+	
+	return false;
+
+}
+
+
+
+static bool Devices_NounHandler_PUT(ServerCmdQueue* cmdQueue,
+												REST_URL url,
+												TCPClientInfo cInfo,
+												ServerCmdQueue::cmdCallback_t completion) {
+	
+	using namespace rest;
+	auto path = url.path();
+	auto queries = url.queries();
+	auto headers = url.headers();
+	json reply;
+	
+	
+	if(path.size() == 2) {
+		DeviceNameArgValidator vDevice;
+		RelayStateArgValidator v1;
+		
+		auto deviceStr = path.at(1);
+		
+		if(vDevice.validateArg(deviceStr)){
+			
+			bool relayState = false;
+			if(v1.getBoolFromJSON(JSON_ARG_STATE, url.body(), relayState)){
+				
+				transform(deviceStr.begin(), deviceStr.end(), deviceStr.begin(), ::tolower);
+				
+				bool queued = false;
+				if(deviceStr == "door"){
+					queued = coopMgr.setDoor(relayState,[=]( bool didSucceed){
+						
+						json reply;
+						
+						if(didSucceed){
+							makeStatusJSON(reply,STATUS_OK);
+							(completion) (reply, STATUS_OK);
+						}
+						else {
+							makeStatusJSON(reply, STATUS_BAD_REQUEST, "Set Failed" );;
+							(completion) (reply, STATUS_BAD_REQUEST);
+						}
+						
+					});
+					
+				}
+				else if(deviceStr == "light"){
+					queued = coopMgr.setLight(relayState,[=]( bool didSucceed){
+						json reply;
+						
+						if(didSucceed){
+							makeStatusJSON(reply,STATUS_OK);
+							(completion) (reply, STATUS_OK);
+						}
+						else {
+							makeStatusJSON(reply, STATUS_BAD_REQUEST, "Set Failed" );;
+							(completion) (reply, STATUS_BAD_REQUEST);
+						}
+						
+					});
+				}
+				
+				if(!queued) {
+					makeStatusJSON(reply, STATUS_UNAVAILABLE, "Server is not running" );;
+					(completion) (reply, STATUS_UNAVAILABLE);
+					return false;
+				}
+				return true;
+				
+			}
+		}
+		
+	}
+	
+	return false;
+	
+}
+
+static void Devices_NounHandler(ServerCmdQueue* cmdQueue,
+										  REST_URL url,
+										  TCPClientInfo cInfo,
+										  ServerCmdQueue::cmdCallback_t completion) {
+	
+	using namespace rest;
+	json reply;
+	
+	auto path = url.path();
+	auto queries = url.queries();
+	auto headers = url.headers();
+	string noun;
+	
+	bool isValidURL = false;
+	
+	if(path.size() > 0) {
+		noun = path.at(0);
+	}
+	
+ 
+	switch(url.method()){
+		case HTTP_GET:
+ 			isValidURL = Devices_NounHandler_GET(cmdQueue,url,cInfo, completion);
+			break;
+			
+		case HTTP_PUT:
+ 			isValidURL = Devices_NounHandler_PUT(cmdQueue,url,cInfo, completion);
+			break;
+	
+		case HTTP_DELETE:
+//			isValidURL = Devices_NounHandler_DELETE(cmdQueue,url,cInfo, completion);
+			break;
+
+		case HTTP_PATCH:
+//			isValidURL = Devices_NounHandler_PATCH(cmdQueue,url,cInfo, completion);
+			break;
+			
+	 
+		default:
+			(completion) (reply, STATUS_INVALID_METHOD);
+			return;
+	}
+	
+	if(!isValidURL) {
+		(completion) (reply, STATUS_NOT_FOUND);
+	}
+};
+
+
 // MARK:  SCHEMA NOUN HANDLERS
 
 static void Schema_NounHandler(ServerCmdQueue* cmdQueue,
@@ -82,7 +231,6 @@ static void Schema_NounHandler(ServerCmdQueue* cmdQueue,
 	
 	auto db = coopMgr.getDB();
 	
-
 	// CHECK METHOD
 	if(url.method() != HTTP_GET ) {
 		(completion) (reply, STATUS_INVALID_METHOD);
@@ -1039,6 +1187,8 @@ void registerServerNouns() {
 	cmdQueue->registerNoun(NOUN_STATE, 	State_NounHandler);
 	cmdQueue->registerNoun(NOUN_SCHEMA, 	Schema_NounHandler);
 	cmdQueue->registerNoun(NOUN_VALUES, 	Values_Handler);
+	cmdQueue->registerNoun(NOUN_DEVICES, 	Devices_NounHandler);
+
 	cmdQueue->registerNoun(NOUN_PROPERTIES, Properties_NounHandler);
 	cmdQueue->registerNoun(NOUN_LOG, 		Log_NounHandler);
 	cmdQueue->registerNoun(NOUN_HISTORY,	 History_NounHandler);

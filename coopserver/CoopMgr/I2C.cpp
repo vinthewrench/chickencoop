@@ -42,11 +42,11 @@ I2C::~I2C(){
 bool I2C::begin(uint8_t	devAddr){
 	int error = 0;
 
-	return begin(devAddr, &error);
+	return begin(devAddr, error);
 }
 
 
-bool I2C::begin(uint8_t	devAddr,   int * errorOut){
+bool I2C::begin(uint8_t	devAddr,   int &error){
 	static const char *ic2_device = "/dev/i2c-1";
  
 	_isSetup = false;
@@ -54,7 +54,7 @@ bool I2C::begin(uint8_t	devAddr,   int * errorOut){
  	_fd = open( ic2_device, O_RDWR);
 	
 	if(_fd == -1){
-		if(errorOut) *errorOut = errno;
+		error = errno;
 		return false;
 	}
 	
@@ -63,7 +63,7 @@ bool I2C::begin(uint8_t	devAddr,   int * errorOut){
 		LOG_INFO("Failed to acquire I2C bus access and/or talk to I2C slave.\n");
 		//ERROR HANDLING; you can check errno to see what went wrong
 		_fd = -1;
-		if(errorOut) *errorOut = errno;
+		error = errno;
 		return false;
 	}
  

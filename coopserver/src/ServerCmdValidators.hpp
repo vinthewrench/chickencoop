@@ -16,6 +16,8 @@
 #include "Utils.hpp"
 #include <iostream>
 
+#include "CoopDevices.hpp"
+
 using namespace std;
 using namespace nlohmann;
 
@@ -202,6 +204,54 @@ public:
 		if(getStringFromJSON(key, j, str)){
 			result = str;
 			return true;
+		}
+		return false;
+	}
+};
+
+class DeviceNameArgValidator : public ServerCmdArgValidator {
+public:
+
+	virtual bool validateArg( string_view arg) {
+ 
+		string str = string(arg);
+ 		transform(str.begin(), str.end(), str.begin(), ::tolower);
+		
+		if(str == "door")
+			return true;
+		else if(str == "light")
+			return true;
+		
+		return  false;
+	};
+	
+	
+	virtual bool getvalueFromJSON(string_view key, const json &j, string &result){
+	string str;
+	if(getStringFromJSON(key, j, str) && validateArg(str)){
+		result = str;
+		return true;
+	}
+	return false;
+}
+
+};
+
+class RelayStateArgValidator : public ServerCmdArgValidator {
+	
+public:
+		
+	 
+	virtual bool getBoolFromJSON(string_view key, const json &j, bool &result){
+		
+		if( j.contains(key)) {
+			string k = string(key);
+			
+			bool relayState = 0;
+			if(CoopDevices::jsonToRelayState(j.at(k), &relayState)){
+				result = relayState;
+				return true;
+			}
 		}
 		return false;
 	}

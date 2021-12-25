@@ -12,6 +12,8 @@
 constexpr string_view NOUN_VERSION		 		= "version";
 constexpr string_view NOUN_DATE		 			= "date";
 constexpr string_view NOUN_STATE		 			= "state";
+constexpr string_view NOUN_DEVICES	 			= "devices";
+
 constexpr string_view NOUN_SCHEMA	 			= "schema";
 constexpr string_view NOUN_VALUES	 			= "values";
 constexpr string_view NOUN_PROPERTIES	 		= "props";
@@ -58,6 +60,9 @@ constexpr string_view JSON_ARG_DISPLAYSTR	= "display";
 
 constexpr string_view JSON_VAL_START			= "start";
 constexpr string_view JSON_VAL_STOP				= "stop";
+
+constexpr string_view JSON_VAL_STATE			= "state";  // Open/
+
 
 constexpr string_view JSON_ARG_OS_SYSNAME	= "os.sysname";
 constexpr string_view JSON_ARG_OS_NODENAME	= "os.nodename";

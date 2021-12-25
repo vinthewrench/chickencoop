@@ -24,9 +24,15 @@ TMP102::~TMP102(){
 	
 }
 
-bool TMP102::begin(uint8_t deviceAddress,   int * errorOut){
+bool TMP102::begin(uint8_t deviceAddress){
+	int error = 0;
+
+	return begin(deviceAddress, error);
+}
+ 
+bool TMP102::begin(uint8_t deviceAddress,   int &error){
   
-	_isSetup = _i2cPort.begin(deviceAddress, errorOut);
+	_isSetup = _i2cPort.begin(deviceAddress, error);
 	
 // 	LOG_INFO("TMP102(%02x) begin: %s\n", deviceAddress, _isSetup?"OK":"FAIL");
  
