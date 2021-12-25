@@ -32,6 +32,9 @@ bool CoopDevices::begin(int &error){
 
 void CoopDevices::stop(){
  
+	if(_relay.isAvailable()){
+		_relay.stop();
+	}
 }
 
 bool CoopDevices::isConnected(){
