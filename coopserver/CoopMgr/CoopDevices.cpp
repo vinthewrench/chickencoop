@@ -13,6 +13,8 @@
 
 CoopDevices::CoopDevices(){
 	_state = INS_UNKNOWN;
+	_lastQueryTime = {0,0};
+	_resultMap.clear();
 }
 
 CoopDevices::~CoopDevices(){
@@ -21,7 +23,11 @@ CoopDevices::~CoopDevices(){
 
  
 bool CoopDevices::begin(int &error){
- 
+  
+	  _state = INS_IDLE;
+	  _queryDelay = 2;	// seconds
+	  _lastQueryTime = {0,0};
+
 	if(! _relay.begin("/dev/gpiochip0", error )){
 		return false;
 	}
@@ -32,13 +38,15 @@ bool CoopDevices::begin(int &error){
 
 void CoopDevices::stop(){
  
+	_state = INS_INVALID;
+
 	if(_relay.isAvailable()){
 		_relay.stop();
 	}
 }
 
 bool CoopDevices::isConnected(){
-	return  false;
+	return  _relay.isAvailable();
 }
  
 void CoopDevices::reset(){
@@ -47,7 +55,70 @@ void CoopDevices::reset(){
 
 void CoopDevices::idle(){
 	
+ 	if(_state == INS_IDLE){
+		
+		bool shouldQuery = false;
+		
+		if(_lastQueryTime.tv_sec == 0 &&  _lastQueryTime.tv_usec == 0 ){
+			shouldQuery = true;
+		} else {
+			
+			timeval now, diff;
+			gettimeofday(&now, NULL);
+			timersub(&now, &_lastQueryTime, &diff);
+			
+			if(diff.tv_sec >=  _queryDelay  ) {
+				shouldQuery = true;
+			}
+		}
+		
+		if(shouldQuery){
+		
+			this->getLight([=] (bool didSucceed,bool isOn ){
+				if(didSucceed){
+					_resultMap[string(COOP_DEVICE_LIGHT_STATE)] =  to_string(isOn);
+					_state = INS_RESPONSE;
+				}
+			});
+
+			this->getDoor([=] (bool didSucceed, door_state_t state ){
+				if(didSucceed){
+					_resultMap[string(COOP_DEVICE_DOOR_STATE)] =  to_string(state);
+					_state = INS_RESPONSE;
+				}
+			});
+			gettimeofday(&_lastQueryTime, NULL);
+		}
+	}
 }
+
+CoopMgrDevice::response_result_t
+CoopDevices::rcvResponse(std::function<void(map<string,string>)> cb){
+
+	CoopMgrDevice::response_result_t result = NOTHING;
+	
+	if(_state == INS_RESPONSE){
+		result = PROCESS_VALUES;
+		if(cb) (cb)(_resultMap);
+		_state = INS_IDLE;
+	}
+	
+done:
+	
+	if(result == CONTINUE)
+		return result;
+
+	if(result ==  INVALID){
+		uint8_t sav =  LogMgr::shared()->_logFlags;
+		START_VERBOSE;
+		LogMgr::shared()->logTimedStampString("CPUInfo INVALID: ");
+		LogMgr::shared()->_logFlags = sav;
+		return result;
+	}
+	return result;
+}
+
+
 
 CoopMgrDevice::device_state_t CoopDevices::getDeviceState(){
   

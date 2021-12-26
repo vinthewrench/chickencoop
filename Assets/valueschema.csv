@@ -1,2 +1,4 @@
 CPU_TEMP,degC,3,CPU Temp
+LIGHT_STATE,Bool,3,Light State
+DOOR_STATE,Int,3,Door State
 

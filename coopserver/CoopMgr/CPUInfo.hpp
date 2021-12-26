@@ -49,7 +49,6 @@ private:
 		INS_RESPONSE,
 	 
 	}in_state_t;
-
 	
 	in_state_t 			_state;
  	map<string,string> _resultMap;

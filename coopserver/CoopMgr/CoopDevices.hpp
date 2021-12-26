@@ -22,6 +22,9 @@
 using namespace std;
  
 
+constexpr string_view COOP_DEVICE_LIGHT_STATE	= "LIGHT_STATE";
+constexpr string_view COOP_DEVICE_DOOR_STATE		= "DOOR_STATE";
+
 class CoopDevices : public CoopMgrDevice{
 	
 public:
@@ -41,7 +44,9 @@ public:
 	void stop();
 	
 	bool isConnected();
-	
+
+	response_result_t rcvResponse(std::function<void(map<string,string>)> callback = NULL);
+
 	void idle(); 	// called from loop
 	void reset(); 	// reset from timeout
 	
@@ -70,6 +75,11 @@ private:
 	}in_state_t;
 	
 	in_state_t 		_state;
+	map<string,string> _resultMap;
+ 
+	timeval			_lastQueryTime;
+	uint64_t     	_queryDelay;			// how long to wait before next query
+
 	RPi_RelayHat	_relay;
 };
 #endif /* CoopDevices_hpp */

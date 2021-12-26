@@ -67,7 +67,7 @@ int gpiod_line_request_bulk(struct gpiod_line_bulk *bulk,
 
 int gpiod_line_get_value_bulk(struct gpiod_line_bulk *bulk, int *values){
 	
-	printf("gpiod_line_get_value_bulk\n" );
+//	printf("gpiod_line_get_value_bulk\n" );
 
 	for(int i = 0; i < bulk->num_lines; i++){
 		values[i] = 0;

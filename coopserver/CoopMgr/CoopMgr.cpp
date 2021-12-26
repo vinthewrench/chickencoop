@@ -121,7 +121,6 @@ void CoopMgr::run(){
  					_db.insertValues(results);
 				});
 			}
-
 	 
 			if(_cpuInfo.isConnected()){
 				// handle input
@@ -129,7 +128,14 @@ void CoopMgr::run(){
 	 				_db.insertValues(results);
 				});
 			}
-	
+		 
+			if(_coopHW.isConnected()){
+				// handle input
+				_coopHW.rcvResponse([=]( map<string,string> results){
+					_db.insertValues(results);
+				});
+			}
+ 
 			sleep(TIMEOUT_SEC);
 	 
 			_tempSensor1.idle();
