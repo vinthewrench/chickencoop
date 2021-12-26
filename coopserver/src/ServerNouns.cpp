@@ -87,8 +87,65 @@ static bool Devices_NounHandler_GET(ServerCmdQueue* cmdQueue,
  
  
 	json reply;
-
+	auto coopMgr = CoopMgr::shared();
 	
+	if(path.size() == 2) {
+		DeviceNameArgValidator vDevice;
+		RelayStateArgValidator v1;
+		
+		auto deviceStr = path.at(1);
+		
+		if(vDevice.validateArg(deviceStr)){
+	
+			bool queued = false;
+			if(deviceStr == SUBPATH_DOOR){
+				
+				queued = coopMgr->getDoor([=] (bool didSucceed,CoopDevices::door_state_t state ){
+					json reply;
+					
+					if(didSucceed){
+						reply[string(JSON_ARG_DOOR)] = state;
+		 				makeStatusJSON(reply,STATUS_OK);
+						(completion) (reply, STATUS_OK);
+					}
+					else {
+						makeStatusJSON(reply, STATUS_BAD_REQUEST, "Get Failed" );;
+						(completion) (reply, STATUS_BAD_REQUEST);
+					}
+					
+				});
+				
+			}
+			if(deviceStr == SUBPATH_LIGHT){
+				
+				queued = coopMgr->getLight([=] (bool didSucceed,bool isOn ){
+					json reply;
+					
+					if(didSucceed){
+						
+						reply[string(JSON_ARG_LIGHT)]= isOn;
+		
+						makeStatusJSON(reply,STATUS_OK);
+						(completion) (reply, STATUS_OK);
+					}
+					else {
+						makeStatusJSON(reply, STATUS_BAD_REQUEST, "Get Failed" );;
+						(completion) (reply, STATUS_BAD_REQUEST);
+					}
+					
+				});
+				
+			}
+	
+			if(!queued) {
+				makeStatusJSON(reply, STATUS_UNAVAILABLE, "Server is not running" );;
+				(completion) (reply, STATUS_UNAVAILABLE);
+				return false;
+			}
+			return true;
+
+		}
+	}
 	return false;
 
 }
@@ -121,9 +178,9 @@ static bool Devices_NounHandler_PUT(ServerCmdQueue* cmdQueue,
 			if(v1.getBoolFromJSON(JSON_ARG_STATE, url.body(), relayState)){
 				
 				transform(deviceStr.begin(), deviceStr.end(), deviceStr.begin(), ::tolower);
-				
+	
 				bool queued = false;
-				if(deviceStr == "door"){
+				if(deviceStr == SUBPATH_DOOR){
 					queued = coopMgr->setDoor(relayState,[=]( bool didSucceed){
 						
 						json reply;
@@ -140,7 +197,7 @@ static bool Devices_NounHandler_PUT(ServerCmdQueue* cmdQueue,
 					});
 					
 				}
-				else if(deviceStr == "light"){
+				else if(deviceStr == SUBPATH_LIGHT){
 					queued = coopMgr->setLight(relayState,[=]( bool didSucceed){
 						json reply;
 						

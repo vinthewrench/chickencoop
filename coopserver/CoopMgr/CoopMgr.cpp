@@ -248,17 +248,18 @@ bool CoopMgr::setDoor(bool isOpen, boolCallback_t cb){
 	return _coopHW.setDoor(isOpen, cb);
 }
 
-CoopDevices::door_state_t CoopMgr::getDoorState(){
-	return _coopHW.getDoorState();
+bool CoopMgr::getDoor(std::function<void(bool didSucceed, CoopDevices::door_state_t state)> cb){
+	return _coopHW.getDoor(cb);
 }
 
-
+ 
 // light state
 bool CoopMgr::setLight(bool isOpen, boolCallback_t cb){
 	return _coopHW.setLight(isOpen, cb);
 }
 
-bool CoopMgr::getLight(){
-	return _coopHW.getLight();
+bool CoopMgr::getLight(std::function<void(bool didSucceed, bool isOn)>cb){
+	return _coopHW.getLight(cb);
+
 }
  

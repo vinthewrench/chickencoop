@@ -55,7 +55,9 @@ public:
 	bool isAvailable();
 	
 	bool setRelays(relayStates_t states);
-	
+
+	bool getRelays(relayStates_t &states);
+
 private:
  
   	bool 				_isSetup;

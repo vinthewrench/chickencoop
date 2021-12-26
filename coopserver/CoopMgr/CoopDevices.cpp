@@ -85,10 +85,16 @@ bool CoopDevices::setDoor(bool isOpen, boolCallback_t cb){
 
 }
  
-CoopDevices::door_state_t CoopDevices::getDoorState(){
-	return  STATE_UNKNOWN;
-}
+bool CoopDevices::getDoor(std::function<void(bool didSucceed, door_state_t state)> cb){
+	
+	if(!_relay.isAvailable())
+		  return false;
+	  
 
+	if(cb) (cb)(true, STATE_UNKNOWN);
+	return  true;
+
+}
 
 // light state
 bool CoopDevices::setLight(bool isOn, boolCallback_t cb){
@@ -103,12 +109,29 @@ bool CoopDevices::setLight(bool isOn, boolCallback_t cb){
 	return  true;
 }
 
-bool CoopDevices::getLight(){
-	
-	return  false;
 
+bool CoopDevices::getLight(std::function<void(bool didSucceed, bool isOn)> cb){
+	
+	if(!_relay.isAvailable())
+		return false;
+	
+	RPi_RelayHat::relayStates_t  states;
+	
+	if(_relay.getRelays(states)){
+		for(const auto& [relay, state] : states) {
+			
+			if(relay == RPi_RelayHat::CH1) {
+				if(cb) (cb)(true, state);
+				return true;
+			}
+		}
+	}
+	
+	if(cb) (cb)(false, false);
+	return false;
 }
 
+ 
 bool CoopDevices::stringToRelayState(const std::string str, bool* stateOut){
 	bool valid = false;
 

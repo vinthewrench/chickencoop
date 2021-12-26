@@ -49,12 +49,12 @@ public:
 	
 	// door state
 	bool setDoor(bool isOpen, boolCallback_t callback = NULL);
-	door_state_t getDoorState();
-	
+	bool getDoor(std::function<void(bool didSucceed, door_state_t state)> callback = NULL);
+ 
 	// light state
 	bool setLight(bool isOn, boolCallback_t callback = NULL);
-	bool getLight();
-		
+	bool getLight(std::function<void(bool didSucceed, bool isOn)> callback = NULL);
+ 
 	static bool stringToRelayState(const std::string str, bool* stateOut = NULL);
 	static bool jsonToRelayState( nlohmann::json j, bool* stateOut = NULL);
  

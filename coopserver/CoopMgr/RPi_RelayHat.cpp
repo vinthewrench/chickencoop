@@ -63,7 +63,6 @@ bool RPi_RelayHat::setRelays(relayStates_t states){
 	GPIO::gpioStates_t gs;
 	
 	for(const auto& [relay, state] : states) {
-		
 		gs.push_back( make_pair(relay,  state));
 //		printf("Set Relay(%2d), %s\n", relay, state?"ON":"OFF");
 	}
@@ -74,3 +73,23 @@ bool RPi_RelayHat::setRelays(relayStates_t states){
 	return false;
 
 }
+
+bool RPi_RelayHat::getRelays(relayStates_t &states){
+	
+	if(!_isSetup)
+		return false;
+	
+	GPIO::gpioStates_t gs;
+
+	if( _gpio.getRelays(gs)){
+		
+		for(const auto& [relay, state] : gs) {
+			relaysID_t relayID = (relaysID_t)relay;
+			states.push_back( make_pair(relayID,  state));
+		}
+		return true;
+	}
+	
+	return false;
+ }
+ 

@@ -144,3 +144,25 @@ bool GPIO::setRelays(gpioStates_t states){
 	
 }
 
+
+bool GPIO::getRelays(gpioStates_t &states){
+
+	int values[_pins.size()];
+	int  error = 0;
+
+	if(!_isSetup)
+		return false;
+	
+	states.clear();
+	// get the current state of lines
+	error = gpiod_line_get_value_bulk(&_lines, values);
+	if(error) {
+		LOGT_ERROR("Failed get line values GPIO lines: %s \n",strerror(errno));
+		return false;
+	}
+	
+	for(int i = 0; i < _pins.size(); i++){
+		states.push_back(make_pair(_pins[i],values[i] == 0?false:true));
+	}
+	return true;
+ }

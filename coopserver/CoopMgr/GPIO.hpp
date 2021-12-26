@@ -51,6 +51,8 @@ public:
 
 	bool setRelays(gpioStates_t states);
 
+	bool getRelays(gpioStates_t &states);
+
 private:
  
 	vector<uint8_t> 			_pins;
