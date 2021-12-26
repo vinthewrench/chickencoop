@@ -26,7 +26,7 @@ bool RPi_RelayHat::begin(string	path){
  
 bool RPi_RelayHat::begin(string	path,  int &error){
 		
-	_isSetup = _gpio.begin(path, {CH1,CH2, CH3}  ,error);
+	_isSetup = _gpio.begin(path, {CH1,CH2, CH3} , GPIOD_LINE_REQUEST_DIRECTION_OUTPUT , {0,0,0} ,error);
 	
 	return _isSetup;
 }

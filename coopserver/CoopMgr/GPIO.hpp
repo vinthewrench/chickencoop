@@ -35,13 +35,13 @@ class GPIO  {
 	
 public:
 	
-	typedef vector<pair<int, bool>> gpioStates_t;
+	typedef vector<pair<uint8_t, bool>> gpioStates_t;
 
 	GPIO();
 	~GPIO();
 
-	bool begin(string	path, vector<uint8_t> pins);
-	bool begin(string	path, vector<uint8_t> pins, int  &error);
+	bool begin(string	path, vector<uint8_t> pins, int request_type);
+	bool begin(string	path, vector<uint8_t> pins, int request_type, vector<bool> initialValue, int  &error);
  	void stop();
 
 	bool isAvailable();
@@ -50,6 +50,7 @@ public:
 
 private:
  
+	vector<uint8_t> 			_pins;
 	struct gpiod_chip* 		_chip;
 	struct gpiod_line_bulk  _lines;
 	  

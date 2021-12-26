@@ -95,7 +95,7 @@ struct gpiod_line_bulk;
  * @brief Miscellaneous GPIO flags.
  */
 enum {
-	GPIOD_CTXLESS_FLAG_OPEN_DRAIN		= GPIOD_BIT(0),
+	GPIOD_CTXLESS_FLAG_OPEN_DRAN		= GPIOD_BIT(0),
 	/**< The line is an open-drain port. */
 	GPIOD_CTXLESS_FLAG_OPEN_SOURCE		= GPIOD_BIT(1),
 	/**< The line is an open-source port. */

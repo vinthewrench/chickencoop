@@ -45,6 +45,8 @@ int gpiod_chip_get_lines(struct gpiod_chip *chip,
 			 unsigned int *offsets, unsigned int num_offsets,
 			 struct gpiod_line_bulk *bulk){
 	
+	bulk->num_lines = num_offsets;
+	
 	printf("gpiod_chip_get_lines\n" );
 	return 0;
 }
@@ -62,4 +64,29 @@ int gpiod_line_request_bulk(struct gpiod_line_bulk *bulk,
 	return 0;
 }
  
+
+int gpiod_line_get_value_bulk(struct gpiod_line_bulk *bulk, int *values){
+	
+	printf("gpiod_line_get_value_bulk\n" );
+
+	for(int i = 0; i < bulk->num_lines; i++){
+		values[i] = 0;
+	}
+	return 0;
+}
+
+
+int gpiod_line_set_value_bulk(struct gpiod_line_bulk *bulk, const int *values) {
+	
+	printf("gpiod_line_set_value_bulk( " );
+
+ 	for(int i = 0; i < bulk->num_lines; i++){
+		
+		printf("%s ", values[i] == 0?"OFF":"ON");
+ 	}
+ 	printf(")\n");
+	return 0;
+}
+
+
 #endif
