@@ -41,8 +41,11 @@ public:
 	~GPIO();
 
 	bool begin(string	path, vector<uint8_t> pins, int request_type);
-	bool begin(string	path, vector<uint8_t> pins, int request_type, vector<bool> initialValue, int  &error);
- 	void stop();
+	
+	bool begin(string	path, vector<uint8_t> pins, int request_type,
+				 				 int flags, vector<bool> initialValue, int  &error);
+	
+	void stop();
 
 	bool isAvailable();
 

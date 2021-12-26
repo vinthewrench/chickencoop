@@ -23,12 +23,14 @@ GPIO::~GPIO(){
  
 bool GPIO::begin(string	path, vector<uint8_t> lines, int request_type){
 	int error = 0;
+	
+	int flags = 0;
 
-	return begin(path, lines, request_type,  {}, error);
+	return begin(path, lines, request_type, flags, {}, error);
 }
 
 
-bool GPIO::begin(string	path, vector<uint8_t> pins, int request_type, vector<bool> initialValue,  int &error){
+bool GPIO::begin(string	path, vector<uint8_t> pins, int request_type,  int flags,  vector<bool> initialValue,  int &error){
  
 	struct gpiod_line_request_config config;
 
@@ -66,7 +68,7 @@ bool GPIO::begin(string	path, vector<uint8_t> pins, int request_type, vector<boo
 	memset(&config, 0, sizeof(config));
 	config.consumer = "GPIO";
 	config.request_type = request_type;
-	config.flags = 0;
+	config.flags = flags;
 	 
 		// get the bulk lines setting default value to 0
 	error = gpiod_line_request_bulk(&_lines, &config, initial_values);

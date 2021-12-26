@@ -26,10 +26,13 @@ bool RPi_RelayHat::begin(string	path){
  
 bool RPi_RelayHat::begin(string	path,  int &error){
 		
+	// the RPi_RelayHat runs negative logic..  GPIOD_LINE_REQUEST_FLAG_ACTIVE_LOW
+
 	_isSetup = _gpio.begin(path,
 								  {CH1,CH2, CH3} ,
 								  GPIOD_LINE_REQUEST_DIRECTION_OUTPUT ,
-								  {true,true,true} ,error);
+								  GPIOD_LINE_REQUEST_FLAG_ACTIVE_LOW,
+								  {false,false,false} ,error);
 	
 	return _isSetup;
 }
@@ -59,11 +62,9 @@ bool RPi_RelayHat::setRelays(relayStates_t states){
 	
 	GPIO::gpioStates_t gs;
 	
-	
 	for(const auto& [relay, state] : states) {
 		
-		// the RPi_RelayHat runs negative logic..  invert the relay
-		gs.push_back( make_pair(relay, !state));
+		gs.push_back( make_pair(relay,  state));
 //		printf("Set Relay(%2d), %s\n", relay, state?"ON":"OFF");
 	}
 	if(gs.size() > 0){
