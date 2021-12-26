@@ -26,7 +26,10 @@ bool RPi_RelayHat::begin(string	path){
  
 bool RPi_RelayHat::begin(string	path,  int &error){
 		
-	_isSetup = _gpio.begin(path, {CH1,CH2, CH3} , GPIOD_LINE_REQUEST_DIRECTION_OUTPUT , {0,0,0} ,error);
+	_isSetup = _gpio.begin(path,
+								  {CH1,CH2, CH3} ,
+								  GPIOD_LINE_REQUEST_DIRECTION_OUTPUT ,
+								  {true,true,true} ,error);
 	
 	return _isSetup;
 }
@@ -58,7 +61,9 @@ bool RPi_RelayHat::setRelays(relayStates_t states){
 	
 	
 	for(const auto& [relay, state] : states) {
-		gs.push_back( make_pair(relay, state));
+		
+		// the RPi_RelayHat runs negative logic..  invert the relay
+		gs.push_back( make_pair(relay, !state));
 //		printf("Set Relay(%2d), %s\n", relay, state?"ON":"OFF");
 	}
 	if(gs.size() > 0){
