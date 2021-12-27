@@ -109,7 +109,7 @@ void CoopMgr::setActiveConnections(bool isActive){
 
 void CoopMgr::run(){
 	
-	constexpr long TIMEOUT_SEC = 3; //Timeout parameter for select() - in seconds
+	constexpr long SLEEP_SEC = 1;  // idle sleep in seconds
  
 	try{
 		
@@ -136,7 +136,7 @@ void CoopMgr::run(){
 				});
 			}
  
-			sleep(TIMEOUT_SEC);
+			sleep(SLEEP_SEC);
 	 
 			_tempSensor1.idle();
 			_coopHW.idle();
@@ -248,18 +248,28 @@ CoopMgrDevice::device_state_t CoopMgr::CoopDevicesState(){
 	return _coopHW.getDeviceState();
 }
 
-
-// coop door
+// MARK: Coop door
+ 
 bool CoopMgr::setDoor(bool isOpen, boolCallback_t cb){
-	return _coopHW.setDoor(isOpen, cb);
+	
+	if(isOpen) {
+		return _coopHW.doorOpen(cb);
+	}
+	else {
+		return _coopHW.doorClose(cb);
+	}
+}
+
+bool CoopMgr::stopDoor(boolCallback_t cb){
+	return _coopHW.doorStop(cb);
 }
 
 bool CoopMgr::getDoor(std::function<void(bool didSucceed, CoopDevices::door_state_t state)> cb){
 	return _coopHW.getDoor(cb);
 }
-
  
-// light state
+// MARK: Coop light
+
 bool CoopMgr::setLight(bool isOpen, boolCallback_t cb){
 	return _coopHW.setLight(isOpen, cb);
 }

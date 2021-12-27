@@ -18,6 +18,7 @@
 
 #include "CoopMgrDevice.hpp"
 #include "RPi_RelayHat.hpp"
+#include "DoorMgr.hpp"
 
 using namespace std;
  
@@ -26,6 +27,7 @@ constexpr string_view COOP_DEVICE_LIGHT_STATE	= "LIGHT_STATE";
 constexpr string_view COOP_DEVICE_DOOR_STATE		= "DOOR_STATE";
 
 class CoopDevices : public CoopMgrDevice{
+	friend DoorMgr;
 	
 public:
 	
@@ -52,8 +54,13 @@ public:
 	
 	device_state_t getDeviceState();
 	
-	// door state
-	bool setDoor(bool isOpen, boolCallback_t callback = NULL);
+
+	// initiate change in door state
+	bool doorOpen(boolCallback_t callback = NULL);
+	bool doorClose(boolCallback_t callback = NULL);
+	bool doorStop(boolCallback_t callback = NULL);
+
+	// get the actual bits
 	bool getDoor(std::function<void(bool didSucceed, door_state_t state)> callback = NULL);
  
 	// light state
@@ -66,6 +73,10 @@ public:
 	
 private:
 	
+	// call back from DoorMgr
+	bool setDoor(bool isOpen, boolCallback_t callback = NULL);
+	bool stopDoor(boolCallback_t callback = NULL);
+
 	typedef enum  {
 		INS_UNKNOWN = 0,
 		INS_IDLE ,
@@ -81,5 +92,6 @@ private:
 	uint64_t     	_queryDelay;			// how long to wait before next query
 
 	RPi_RelayHat	_relay;
+	DoorMgr 			_doorMgr;
 };
 #endif /* CoopDevices_hpp */

@@ -11,7 +11,9 @@
 #include <regex>
 #include <ctype.h>
 
-CoopDevices::CoopDevices(){
+CoopDevices::CoopDevices():
+						_doorMgr(this)
+{
 	_state = INS_UNKNOWN;
 	_lastQueryTime = {0,0};
 	_resultMap.clear();
@@ -32,6 +34,7 @@ bool CoopDevices::begin(int &error){
 		return false;
 	}
 	
+	_doorMgr.begin();
 
 	return true;
 }
@@ -90,6 +93,7 @@ void CoopDevices::idle(){
 			gettimeofday(&_lastQueryTime, NULL);
 		}
 	}
+	_doorMgr.idle();
 }
 
 CoopMgrDevice::response_result_t
@@ -136,6 +140,38 @@ CoopMgrDevice::device_state_t CoopDevices::getDeviceState(){
 }
 
 // door state
+
+bool CoopDevices::doorOpen(boolCallback_t cb){
+	if(!_relay.isAvailable())
+		return false;
+	
+	_doorMgr.startOpen();
+	if(cb) (cb)(true);
+
+	return true;
+}
+
+bool CoopDevices::doorClose(boolCallback_t cb){
+	if(!_relay.isAvailable())
+		return false;
+	
+	_doorMgr.startClose();
+	if(cb) (cb)(true);
+
+	return true;
+}
+
+bool CoopDevices::doorStop(boolCallback_t cb){
+	if(!_relay.isAvailable())
+		return false;
+
+	_doorMgr.stop();
+	if(cb) (cb)(true);
+
+	return true;
+}
+
+
 bool CoopDevices::setDoor(bool isOpen, boolCallback_t cb){
 	
 	bool didSucceed = false;
@@ -153,14 +189,26 @@ bool CoopDevices::setDoor(bool isOpen, boolCallback_t cb){
 	
 	if(cb) (cb)(didSucceed);
 	return  true;
-
 }
+
+bool CoopDevices::stopDoor(boolCallback_t cb){
+	
+	bool didSucceed = false;
+	
+	if(!_relay.isAvailable())
+		return false;
+	
+	didSucceed = _relay.setRelays({{RPi_RelayHat::CH2, false}, {RPi_RelayHat::CH3, false}});
+	
+	if(cb) (cb)(didSucceed);
+	return  true;
+}
+
  
 bool CoopDevices::getDoor(std::function<void(bool didSucceed, door_state_t state)> cb){
 	
 	if(!_relay.isAvailable())
 		  return false;
-	  
 
 	if(cb) (cb)(true, STATE_UNKNOWN);
 	return  true;

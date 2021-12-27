@@ -29,6 +29,7 @@
 		2EFD14A62772A80A0073F6AD /* QwiicButton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD14A42772A80A0073F6AD /* QwiicButton.cpp */; };
 		2EFD14AD277539670073F6AD /* RPi_RelayHat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD14AB277539670073F6AD /* RPi_RelayHat.cpp */; };
 		2EFD14B5277691BB0073F6AD /* macos_gpiod.c in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD14B4277691BB0073F6AD /* macos_gpiod.c */; };
+		2EFD14BC277A50790073F6AD /* DoorMgr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD14BA277A50790073F6AD /* DoorMgr.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -108,6 +109,8 @@
 		2EFD14AC277539670073F6AD /* RPi_RelayHat.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = RPi_RelayHat.hpp; sourceTree = "<group>"; };
 		2EFD14B327768DCC0073F6AD /* macos_gpiod.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = macos_gpiod.h; sourceTree = "<group>"; };
 		2EFD14B4277691BB0073F6AD /* macos_gpiod.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = macos_gpiod.c; sourceTree = "<group>"; };
+		2EFD14BA277A50790073F6AD /* DoorMgr.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DoorMgr.cpp; sourceTree = "<group>"; };
+		2EFD14BB277A50790073F6AD /* DoorMgr.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DoorMgr.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -199,6 +202,8 @@
 				2EFD1468277102C20073F6AD /* CPUInfo.hpp */,
 				2EFD149D27725F710073F6AD /* CoopDevices.cpp */,
 				2EFD149E27725F710073F6AD /* CoopDevices.hpp */,
+				2EFD14BA277A50790073F6AD /* DoorMgr.cpp */,
+				2EFD14BB277A50790073F6AD /* DoorMgr.hpp */,
 				2EFD14AB277539670073F6AD /* RPi_RelayHat.cpp */,
 				2EFD14AC277539670073F6AD /* RPi_RelayHat.hpp */,
 				2EFD149B27725EC50073F6AD /* GPIO.cpp */,
@@ -320,6 +325,7 @@
 				2EFD1473277108070073F6AD /* ServerNouns.cpp in Sources */,
 				2EFD14AD277539670073F6AD /* RPi_RelayHat.cpp in Sources */,
 				2EFD1493277167BE0073F6AD /* sunset.cpp in Sources */,
+				2EFD14BC277A50790073F6AD /* DoorMgr.cpp in Sources */,
 				2EFD147A27710A770073F6AD /* CoopMgrDB.cpp in Sources */,
 				2EFD149F27725F710073F6AD /* CoopDevices.cpp in Sources */,
 				2EFD146D277106270073F6AD /* I2C.cpp in Sources */,

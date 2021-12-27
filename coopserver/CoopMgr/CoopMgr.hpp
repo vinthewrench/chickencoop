@@ -70,6 +70,7 @@ public:
 	
 	// coop door
 	bool setDoor(bool isOpen, boolCallback_t callback = NULL);
+	bool stopDoor(boolCallback_t callback = NULL);
 	bool getDoor(std::function<void(bool didSucceed, CoopDevices::door_state_t state)> callback = NULL);
  
 	// light state
