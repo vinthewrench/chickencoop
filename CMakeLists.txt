@@ -21,6 +21,7 @@ set(SOURCES
 	coopserver/CoopMgr/ScheduleMgr.cpp
 	coopserver/CoopMgr/CoopMgrDB.cpp
 	coopserver/CoopMgr/CoopDevices.cpp
+	coopserver/CoopMgr/DoorMgr.cpp
 	coopserver/CoopMgr/I2C.cpp
 	coopserver/CoopMgr/TMP102.cpp
 	coopserver/CoopMgr/CPUInfo.cpp
