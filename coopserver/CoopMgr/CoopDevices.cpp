@@ -26,6 +26,8 @@ CoopDevices::~CoopDevices(){
  
 bool CoopDevices::begin(int &error){
   
+	int  errnum = 0;
+
 	  _state = INS_IDLE;
 	  _queryDelay = 2;	// seconds
 	  _lastQueryTime = {0,0};
@@ -34,6 +36,26 @@ bool CoopDevices::begin(int &error){
 		return false;
 	}
 	
+ 	if( _redButton.begin(0x6F, errnum))
+		LOGT_DEBUG("Start RedButton - OK");
+ 	else
+		LOGT_ERROR("Start RedButton  - FAIL %s", string(strerror(errnum)).c_str());
+	
+	
+	if(_redButton.isOpen()){
+		
+		uint8_t  deviceType;
+		uint16_t  version;
+		if(_redButton.getDeviceType(deviceType)){
+		
+			printf("_redButton.getDeviceType() -> %d\n", deviceType);
+		}
+		
+		if(_redButton.getFirmwareVersion(version)){
+			printf("_redButton.getFirmwareVersion() -> %04x\n", version);
+		}
+	}
+
 	_doorMgr.begin();
 
 	return true;

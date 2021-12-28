@@ -24,7 +24,6 @@
 #include "TempSensor.hpp"
 #include "ScheduleMgr.hpp"
 #include "CoopDevices.hpp"
-#include "QwiicButton.hpp"
 
 
 using namespace std;
@@ -94,8 +93,6 @@ public:
 	CoopDevices			_coopHW;
 	CoopMgrDB			_db;
 	
-	QwiicButton			_greenButton;
-	QwiicButton			_redButton;
 
 };
 #endif /* CoopMgr_hpp */

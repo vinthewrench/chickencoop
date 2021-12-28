@@ -19,6 +19,7 @@
 #include "CoopMgrDevice.hpp"
 #include "RPi_RelayHat.hpp"
 #include "DoorMgr.hpp"
+#include "QwiicButton.hpp"
 
 using namespace std;
  
@@ -93,5 +94,8 @@ private:
 
 	RPi_RelayHat	_relay;
 	DoorMgr 			_doorMgr;
+	QwiicButton			_greenButton;
+	QwiicButton			_redButton;
+
 };
 #endif /* CoopDevices_hpp */

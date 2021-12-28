@@ -38,6 +38,20 @@ public:
 	bool LEDoff();                                             //Turns the onboard LED off
 	bool LEDon(uint8_t brightness = 255);                      //Turns the onboard LED on with specified brightness. Set brightness to an integer between 0 and 255, where 0 is off and 255 is max brightness.
 
+	/**
+	 * @brief Get the device type
+	 * @param deviceType 0 if there is no device attached, 1 if a button is attached, 2 if a switch is attached
+	 * @return true if device is connected . false if not connected
+ 	*/
+	bool getDeviceType(uint8_t &deviceType);
+ 
+	/**
+	 * @brief /Returns the firmware version of the attached device as a 16-bit integer.
+	 * @param version The leftmost (high) byte is the major revision number, and the rightmost (low) byte is the minor revision number..
+	 * @return true if device is connected . false if not connected
+ 	*/
+	bool getFirmwareVersion(uint16_t & version);
+ 
 private:
 	
 	I2C 		_i2cPort;
