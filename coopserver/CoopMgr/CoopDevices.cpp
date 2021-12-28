@@ -48,7 +48,7 @@ bool CoopDevices::begin(int &error){
 		uint16_t  version;
 		if(_redButton.getDeviceType(deviceType)){
 		
-			printf("_redButton.getDeviceType() -> %d\n", deviceType);
+			printf("_redButton.getDeviceType() -> %02x\n", deviceType);
 		}
 		
 		if(_redButton.getFirmwareVersion(version)){

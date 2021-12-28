@@ -6,6 +6,7 @@
 //
 
 #include "QwiicButton.hpp"
+#include "LogMgr.hpp"
 
 //Register Pointer Map
 enum Qwiic_Button_Register : uint8_t
@@ -80,10 +81,20 @@ bool QwiicButton::begin(uint8_t deviceAddress){
  
 bool QwiicButton::begin(uint8_t deviceAddress,   int &error){
   
-	_isSetup = _i2cPort.begin(deviceAddress, error);
+	uint8_t  deviceType = 0;
+	_isSetup = false;
 	
-// 	LOG_INFO("QwiicButton(%02x) begin: %s\n", deviceAddress, _isSetup?"OK":"FAIL");
- 
+	if( _i2cPort.begin(deviceAddress, error) ) {
+		if(getDeviceType(deviceType) && deviceType == 0x5d) {
+			_isSetup = true;
+ 		}
+		else {
+			LOGT_INFO("QwiicButton(%02x) unexpected device type = %02x\n", deviceAddress, deviceType );
+			error = ENODEV;
+ 		}
+	}
+ // 	LOG_INFO("QwiicButton(%02x) begin: %s\n", deviceAddress, _isSetup?"OK":"FAIL");
+  
   return _isSetup;
 }
  
@@ -135,7 +146,7 @@ bool QwiicButton::LEDon(uint8_t brightness ){
 		return false;
 
 	 uint8_t registerByte[1] = {0};
-	 if(_i2cPort.readBytes(registerByte, 1) != 1){
+	 if(_i2cPort.readBytes(ID, registerByte, 1) != 1){
 		 return false;
 	 }
  
@@ -149,11 +160,11 @@ bool QwiicButton::LEDon(uint8_t brightness ){
 		 return false;
    
 	 uint8_t registerBytes[2] = {0,0};
-	 if(_i2cPort.readBytes(registerBytes, 2) != 2){
+	 if(_i2cPort.readBytes(FIRMWARE_MINOR, registerBytes, 2) != 2){
 		 return false;
 	 }
  
-	 version = ((registerBytes[0]) << 8) | (registerBytes[1]);
+	 version = ((registerBytes[1]) << 8) | (registerBytes[0]);
 	 return true;
 
 }
