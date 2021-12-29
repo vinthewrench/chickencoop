@@ -100,7 +100,7 @@ static bool Devices_NounHandler_GET(ServerCmdQueue* cmdQueue,
 			bool queued = false;
 			if(deviceStr == SUBPATH_DOOR){
 				
-				queued = coopMgr->getDoor([=] (bool didSucceed,CoopDevices::door_state_t state ){
+				queued = coopMgr->getDoor([=] (bool didSucceed, DoorMgr::state_t state ){
 					json reply;
 					
 					if(didSucceed){

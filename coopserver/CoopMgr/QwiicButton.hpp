@@ -30,8 +30,26 @@ public:
  
 	uint8_t	getDevAddr();
 
-	bool isPressed();                       //Returns 1 if the button/switch is pressed, and 0 otherwise
+	 	//Button status/config
 
+	/**
+	 * @brief test button/switch is pressed
+	 * @return Returns 1 if the button/switch is pressed, and 0 otherwise
+	*/
+	bool isPressed();                      
+
+	/**
+	 * @brief test button/switch is clicked
+	 * @return Returns 1 if the button/switch is clicked, and 0 otherwise
+	*/
+	bool hasBeenClicked();
+ 
+	/**
+	 * @brief Sets isPressed, hasBeenClicked, and eventAvailable to zero
+	 * @return Returns true if set is sucessfull
+	*/
+	bool clearEventBits();
+ 
 	
 	bool LEDconfig(uint8_t brightness, uint16_t cycleTime,
 						uint16_t offTime, uint8_t granularity = 1); //Configures the LED with the given max brightness, granularity (1 is fine for most applications), cycle time, and off time.

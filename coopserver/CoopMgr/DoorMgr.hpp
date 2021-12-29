@@ -27,20 +27,6 @@ class DoorMgr {
 	
 	
 public:
-	DoorMgr(CoopDevices *coopDev);
-	~DoorMgr();
-
-	
-	bool begin();
-
-	void startOpen();
-	void startClose();
-	void stop(boolCallback_t callback = NULL);
-
-	void idle(); 	// called from loop
-	void reset(); 	// reset from timeout
-	
-private:
 
 	typedef enum  {
 		STATE_UNKNOWN = 0,
@@ -54,6 +40,24 @@ private:
 
 	}state_t;
 
+	DoorMgr(CoopDevices *coopDev);
+	~DoorMgr();
+
+	
+	bool begin();
+
+	void startOpen();
+	void startClose();
+	void stop(boolCallback_t callback = NULL);
+
+	state_t doorState() { return _currentState;};
+	
+	void idle(); 	// called from loop
+	void reset(); 	// reset from timeout
+	
+
+private:
+
 	typedef enum {
 		EV_NONE = 0,
 		EV_INIT,			// Init system
@@ -62,6 +66,7 @@ private:
 		EV_CLOSE,
 	} event_t ;
 
+	
 	typedef enum {
 		FN_INIT = 0,
 		FN_NULL,
@@ -71,7 +76,6 @@ private:
 		FN_CLOSING,
 		FN_BUTTON,	//toggle button
 	} action_t ;
-	
 
 	typedef struct
 	{
@@ -97,7 +101,6 @@ private:
 	bool action_closing();
 	bool action_opening();
 	bool action_null();
-
 
 	bool doOpen(boolCallback_t callback = NULL);
 	bool doClose(boolCallback_t callback = NULL);

@@ -102,6 +102,18 @@ void CoopDevices::reset(){
 
 void CoopDevices::idle(){
 	
+	DoorMgr::state_t doorState =  _doorMgr.doorState();
+	
+	if(_greenButton.isPressed()
+		&& doorState != DoorMgr::STATE_OPENING ) {
+		_doorMgr.startOpen();
+		}
+
+	if(_redButton.isPressed()
+		&& doorState != DoorMgr::STATE_CLOSING ) {
+		_doorMgr.startClose();
+	}
+
  	if(_state == INS_IDLE){
 		
 		bool shouldQuery = false;
@@ -128,7 +140,7 @@ void CoopDevices::idle(){
 				}
 			});
 
-			this->getDoor([=] (bool didSucceed, door_state_t state ){
+			this->getDoor([=] (bool didSucceed, DoorMgr::state_t state ){
 				if(didSucceed){
 					_resultMap[string(COOP_DEVICE_DOOR_STATE)] =  to_string(state);
 					_state = INS_RESPONSE;
@@ -256,12 +268,12 @@ bool CoopDevices::stopDoor(boolCallback_t cb){
 }
 
  
-bool CoopDevices::getDoor(std::function<void(bool didSucceed, door_state_t state)> cb){
+bool CoopDevices::getDoor(std::function<void(bool didSucceed, DoorMgr::state_t state)> cb){
 	
 	if(!_relay.isAvailable())
 		  return false;
-
-	if(cb) (cb)(true, STATE_UNKNOWN);
+	 
+	if(cb) (cb)(true, _doorMgr.doorState());
 	return  true;
 
 }

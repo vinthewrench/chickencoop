@@ -19,6 +19,7 @@
 #include "CoopMgrCommon.h"
 #include "CoopMgrDevice.hpp"
 #include "CoopMgrDB.hpp"
+#include "DoorMgr.hpp"
 
 #include "CPUInfo.hpp"
 #include "TempSensor.hpp"
@@ -70,7 +71,7 @@ public:
 	// coop door
 	bool setDoor(bool isOpen, boolCallback_t callback = NULL);
 	bool stopDoor(boolCallback_t callback = NULL);
-	bool getDoor(std::function<void(bool didSucceed, CoopDevices::door_state_t state)> callback = NULL);
+	bool getDoor(std::function<void(bool didSucceed, DoorMgr::state_t state)> callback = NULL);
  
 	// light state
 	bool setLight(bool isOn, boolCallback_t callback = NULL);

@@ -24,6 +24,9 @@
 #define I2C_BUS_DEV_FILE_PATH "/dev/i2c-1"
 #endif /* I2C_SLAVE */
 
+#ifndef I2C_SMBUS_BLOCK_MAX
+#define I2C_SMBUS_BLOCK_MAX     32      /* As specified in SMBus standard */
+#endif /* I2C_SMBUS_BLOCK_MAX */
 
 
 
@@ -100,12 +103,53 @@ bool I2C::isAvailable(){
 	return true;
 }
 
-ssize_t I2C::writeBytes(const uint8_t* buf, size_t nbyte){
+bool I2C::writeByte(uint8_t regAddr, uint8_t b1){
+	
+	uint8_t buffer[2] = {regAddr, b1};
+	
+//	printf("i2cset -y 1 0x%02x 0x%02x 0x%02x\n",_devAddr,
+//			 registerBytes[0] , registerBytes[1]);
+	return (write(buffer, 2) == 2);
+}
+
+bool I2C::writeWord(uint8_t regAddr, uint16_t word){
+	
+	uint8_t buffer[3] = {regAddr, (uint8_t) (word & 0xff), (uint8_t) ((word >> 8) & 0xff)} ;
+	
+//	printf("i2cset -y 1 0x%02x 0x%02x 0x%02x 0x%02x\n",_devAddr,
+//			 registerBytes[0], registerBytes[1], registerBytes[2]);
+
+	return (write(buffer, 3) == 3);
+}
+
+
+bool I2C::writeData(uint8_t regAddr, void *buf, size_t nbyte){
+	
+	uint8_t buffer[I2C_SMBUS_BLOCK_MAX] = {0};
+	
+	if(nbyte > I2C_SMBUS_BLOCK_MAX - 1)
+		return false;
+	
+	buffer[0] = regAddr;
+	uint8_t* p = (uint8_t*)buf;
+	
+	for (int i = 0; i < nbyte; i++ ){
+		buffer[i+1] = *p++;
+	}
+
+	return (write(buffer, nbyte+1) == nbyte+1);
+}
+
+
+ssize_t I2C::write(const uint8_t* buf, size_t nbyte){
 	
 	ssize_t count = 0;
 
 	if(!_isSetup)
-		return -1;
+		return ENXIO;
+
+	if(nbyte > I2C_SMBUS_BLOCK_MAX )
+		return EMSGSIZE;
 
 	if (::ioctl(_fd, I2C_SLAVE, _devAddr) < 0)
 	{
@@ -126,83 +170,6 @@ ssize_t I2C::writeBytes(const uint8_t* buf, size_t nbyte){
 }
 
 
-
-ssize_t I2C::writeBytes(uint8_t regAddr, const uint8_t* buf, size_t nbyte){
-	
-	ssize_t count = 0;
-
-	if(!_isSetup)
-		return -1;
-
-	if (::ioctl(_fd, I2C_SLAVE, _devAddr) < 0)
-	{
-		LOGT_ERROR("Failed to select I2C  device(%02X): %s\n", _devAddr,strerror(errno));
-		return -1;
-	}
- 
-	if (::write(_fd, &regAddr, 1) != 1) {
-		LOGT_ERROR( "Failed to write reg(%02x) on device(%02X) : %s\n", regAddr, _devAddr,strerror(errno));
-		return(-1);
-	}
-	
-	count =  ::write(_fd, buf, nbyte);
-	if (count < 0) {
-			LOGT_ERROR( "Failed to write %d bytes to device(%02x, %02x): %s\n", nbyte, _devAddr, regAddr, strerror(errno));
-		return(-1);
-	} else if (count != nbyte) {
-		LOGT_ERROR( "Short write from device(%02x): expected %d, got %d \n", regAddr, nbyte, count);
-		return(-1);
-	}
-	
-	return count;
-}
-
-
-ssize_t I2C::writeByte(uint8_t regAddr, const uint8_t data){
-	return writeBytes(regAddr, &data, 1);
-}
-
-ssize_t I2C::writeByte(const uint8_t data){
-	
-	ssize_t count = 0;
-
-	if(!_isSetup)
-		return -1;
-
-	if (::ioctl(_fd, I2C_SLAVE, _devAddr) < 0)
-	{
-		LOGT_ERROR("Failed to select I2C  device(%02X): %s\n", _devAddr,strerror(errno));
-		return -1;
-	}
- 
-	count = ::write(_fd, &data, 1);
-	if (count != 1) {
-			LOGT_ERROR( "Failed to write byte to device(%02x): %s\n", _devAddr, strerror(errno));
-		return(-1);
-	}
-	
-	return count;
-}
-
-
-bool I2C::writeByteRegister(uint8_t regAddr, uint8_t b1){
- 	
-	uint8_t registerBytes[2] = {regAddr, b1};
-	
-//	printf("i2cset -y 1 0x%02x 0x%02x 0x%02x\n",_devAddr,
-//			 registerBytes[0] , registerBytes[1]);
-	return (writeBytes(registerBytes, 2) == 2);
-}
-
-bool I2C::writeWordRegister(uint8_t regAddr, uint16_t word){
-	
-	uint8_t registerBytes[3] = {regAddr, (uint8_t) (word & 0xff), (uint8_t) ((word >> 8) & 0xff)} ;
-	
-//	printf("i2cset -y 1 0x%02x 0x%02x 0x%02x 0x%02x\n",_devAddr,
-//			 registerBytes[0], registerBytes[1], registerBytes[2]);
-
-	return (writeBytes(regAddr, registerBytes, 3) == 3);
-}
 
 
 

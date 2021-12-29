@@ -32,14 +32,7 @@ class CoopDevices : public CoopMgrDevice{
 	
 public:
 	
-	typedef enum  {
-		STATE_UNKNOWN = 0,
-		STATE_OPEN,
-		STATE_OPENING,
-		STATE_CLOSED,
-		STATE_CLOSING,
-	}door_state_t;
-	
+ 
 	CoopDevices();
 	~CoopDevices();
 	
@@ -62,7 +55,7 @@ public:
 	bool doorStop(boolCallback_t callback = NULL);
 
 	// get the actual bits
-	bool getDoor(std::function<void(bool didSucceed, door_state_t state)> callback = NULL);
+	bool getDoor(std::function<void(bool didSucceed, DoorMgr::state_t state)> callback = NULL);
  
 	// light state
 	bool setLight(bool isOn, boolCallback_t callback = NULL);

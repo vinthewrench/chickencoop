@@ -118,7 +118,46 @@ uint8_t	QwiicButton::getDevAddr(){
 
 bool QwiicButton::isPressed()
 {
-	return false;
+	statusRegisterBitField buttonStatus;
+
+ 	if(_i2cPort.readBytes(BUTTON_STATUS, &buttonStatus.byteWrapped, 1) != 1){
+		return false;
+	}
+
+	return buttonStatus.isPressed;
+}
+
+bool QwiicButton::hasBeenClicked()
+{
+	statusRegisterBitField buttonStatus;
+
+	if(_i2cPort.readBytes(BUTTON_STATUS, &buttonStatus.byteWrapped, 1) != 1){
+		return false;
+	}
+
+	return buttonStatus.hasBeenClicked;
+}
+
+
+bool QwiicButton::clearEventBits()
+{
+	
+	statusRegisterBitField buttonStatus;
+	statusRegisterBitField buttonStatus1;
+
+	if(_i2cPort.readBytes(BUTTON_STATUS, &buttonStatus.byteWrapped, 1) != 1){
+		return false;
+	}
+
+	buttonStatus.isPressed = 0;
+	buttonStatus.hasBeenClicked = 0;
+	buttonStatus.eventAvailable = 0;
+
+	bool success = _i2cPort.writeByte(BUTTON_STATUS, buttonStatus.byteWrapped);
+	success &= (_i2cPort.readBytes(BUTTON_STATUS, &buttonStatus1.byteWrapped, 1) != 1);
+	success &= (buttonStatus1.byteWrapped == buttonStatus.byteWrapped);
+	 
+	return success;
 }
 
 
@@ -130,10 +169,10 @@ bool QwiicButton::LEDconfig(uint8_t brightness,
 	if(!isOpen())
 		return false;
 
-	bool success = _i2cPort.writeByteRegister(LED_BRIGHTNESS, brightness);
-	success &= _i2cPort.writeByteRegister(LED_PULSE_GRANULARITY, granularity);
-	success &= _i2cPort.writeWordRegister(LED_PULSE_CYCLE_TIME, cycleTime);
-	success &= _i2cPort.writeWordRegister(LED_PULSE_OFF_TIME, offTime);
+	bool success = _i2cPort.writeByte(LED_BRIGHTNESS, brightness);
+	success &= _i2cPort.writeByte(LED_PULSE_GRANULARITY, granularity);
+	success &= _i2cPort.writeWord(LED_PULSE_CYCLE_TIME, cycleTime);
+	success &= _i2cPort.writeWord(LED_PULSE_OFF_TIME, offTime);
  	return success;
 }
 

@@ -264,7 +264,7 @@ bool CoopMgr::stopDoor(boolCallback_t cb){
 	return _coopHW.doorStop(cb);
 }
 
-bool CoopMgr::getDoor(std::function<void(bool didSucceed, CoopDevices::door_state_t state)> cb){
+bool CoopMgr::getDoor(std::function<void(bool didSucceed, DoorMgr::state_t state)> cb){
 	return _coopHW.getDoor(cb);
 }
  
