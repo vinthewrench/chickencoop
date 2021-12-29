@@ -185,6 +185,27 @@ ssize_t I2C::writeByte(const uint8_t data){
 }
 
 
+bool I2C::writeByteRegister(uint8_t regAddr, uint8_t b1){
+ 	
+	uint8_t registerBytes[2] = {regAddr, b1};
+	
+//	printf("i2cset -y 1 0x%02x 0x%02x 0x%02x\n",_devAddr,
+//			 registerBytes[0] , registerBytes[1]);
+	return (writeBytes(registerBytes, 2) == 2);
+}
+
+bool I2C::writeWordRegister(uint8_t regAddr, uint16_t word){
+	
+	uint8_t registerBytes[3] = {regAddr, (uint8_t) (word & 0xff), (uint8_t) ((word >> 8) & 0xff)} ;
+	
+//	printf("i2cset -y 1 0x%02x 0x%02x 0x%02x 0x%02x\n",_devAddr,
+//			 registerBytes[0], registerBytes[1], registerBytes[2]);
+
+	return (writeBytes(regAddr, registerBytes, 3) == 3);
+}
+
+
+
 ssize_t I2C::readBytes(void *buf, size_t nbyte){
 	
 	ssize_t count = 0;

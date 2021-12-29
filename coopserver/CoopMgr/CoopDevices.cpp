@@ -36,25 +36,47 @@ bool CoopDevices::begin(int &error){
 		return false;
 	}
 	
- 	if( _redButton.begin(0x6F, errnum))
+ 	if( _redButton.begin(0x6E, errnum))
 		LOGT_DEBUG("Start RedButton - OK");
  	else
 		LOGT_ERROR("Start RedButton  - FAIL %s", string(strerror(errnum)).c_str());
 	
 	
-	if(_redButton.isOpen()){
-		
-		uint8_t  deviceType;
-		uint16_t  version;
-		if(_redButton.getDeviceType(deviceType)){
-		
-			printf("_redButton.getDeviceType() -> %02x\n", deviceType);
-		}
-		
-		if(_redButton.getFirmwareVersion(version)){
-			printf("_redButton.getFirmwareVersion() -> %04x\n", version);
-		}
-	}
+//	if(_redButton.isOpen()){
+//
+//		uint8_t  deviceType;
+//		uint16_t  version;
+//		if(_redButton.getDeviceType(deviceType)){
+//
+//			printf("_redButton.getDeviceType() -> %02x\n", deviceType);
+//		}
+//
+//		if(_redButton.getFirmwareVersion(version)){
+//			printf("_redButton.getFirmwareVersion() -> %04x\n", version);
+//		}
+//
+//	}
+	
+	if( _greenButton.begin(0x6F, errnum))
+		LOGT_DEBUG("Start GreenButton - OK");
+	else
+		LOGT_ERROR("Start GreenButton  - FAIL %s", string(strerror(errnum)).c_str());
+
+//	if(_greenButton.isOpen()){
+//
+//		uint8_t  deviceType;
+//		uint16_t  version;
+//		if(_greenButton.getDeviceType(deviceType)){
+//
+//			printf("_greenButton.getDeviceType() -> %02x\n", deviceType);
+//		}
+//
+//		if(_greenButton.getFirmwareVersion(version)){
+//			printf("_greenButton.getFirmwareVersion() -> %04x\n", version);
+//		}
+//
+//	}
+
 
 	_doorMgr.begin();
 
@@ -202,10 +224,14 @@ bool CoopDevices::setDoor(bool isOpen, boolCallback_t cb){
 		return false;
 	
 	if(isOpen){
+		_greenButton.LEDconfig(0x1f, 500, 100);
+		_redButton.LEDoff();
 		didSucceed = _relay.setRelays({{RPi_RelayHat::CH2, true}, {RPi_RelayHat::CH3, false}});
 	}
 	else
 	{
+		_redButton.LEDconfig(0x1f, 500, 100);
+		_greenButton.LEDoff();
 		didSucceed = _relay.setRelays({{RPi_RelayHat::CH2, false}, {RPi_RelayHat::CH3, true}});
 	}
 	
@@ -217,6 +243,9 @@ bool CoopDevices::stopDoor(boolCallback_t cb){
 	
 	bool didSucceed = false;
 	
+	_redButton.LEDoff();
+	_greenButton.LEDoff();
+
 	if(!_relay.isAvailable())
 		return false;
 	
@@ -243,7 +272,7 @@ bool CoopDevices::setLight(bool isOn, boolCallback_t cb){
 
 	if(!_relay.isAvailable())
 		return false;
-
+ 
 	didSucceed = _relay.setRelays({{RPi_RelayHat::CH1, isOn}});
 
 	if(cb) (cb)(didSucceed);

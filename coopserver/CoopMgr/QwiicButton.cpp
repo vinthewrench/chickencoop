@@ -85,12 +85,12 @@ bool QwiicButton::begin(uint8_t deviceAddress,   int &error){
 	_isSetup = false;
 	
 	if( _i2cPort.begin(deviceAddress, error) ) {
-		if(getDeviceType(deviceType) && deviceType == 0x5d) {
-			_isSetup = true;
- 		}
-		else {
+		_isSetup = true;
+
+ 		if(getDeviceType(deviceType) && deviceType != 0x5d) {
 			LOGT_INFO("QwiicButton(%02x) unexpected device type = %02x\n", deviceAddress, deviceType );
 			error = ENODEV;
+			_isSetup = false;
  		}
 	}
  // 	LOG_INFO("QwiicButton(%02x) begin: %s\n", deviceAddress, _isSetup?"OK":"FAIL");
@@ -127,18 +127,22 @@ bool QwiicButton::LEDconfig(uint8_t brightness,
 									 uint16_t cycleTime,
 									 uint16_t offTime,
 									 uint8_t granularity){
-	return false;
+	if(!isOpen())
+		return false;
 
+	bool success = _i2cPort.writeByteRegister(LED_BRIGHTNESS, brightness);
+	success &= _i2cPort.writeByteRegister(LED_PULSE_GRANULARITY, granularity);
+	success &= _i2cPort.writeWordRegister(LED_PULSE_CYCLE_TIME, cycleTime);
+	success &= _i2cPort.writeWordRegister(LED_PULSE_OFF_TIME, offTime);
+ 	return success;
 }
 
 bool QwiicButton::LEDoff(){
-	return false;
-
+	return LEDconfig(0, 0, 0);
 }
 
 bool QwiicButton::LEDon(uint8_t brightness ){
-	return false;
-
+	return LEDconfig(brightness, 0, 0);
 }
 
  bool QwiicButton::getDeviceType(uint8_t &deviceType){

@@ -34,6 +34,9 @@ public:
 
 	bool isAvailable();
 	
+	bool writeByteRegister(uint8_t regAddr, uint8_t byte);
+	bool writeWordRegister(uint8_t regAddr, uint16_t word);
+
 	ssize_t readBytes(uint8_t regAddr, void *buf, size_t nbyte);
 	ssize_t readByte(uint8_t regAddr,  void *buf);
 	ssize_t readBytes(void *buf, size_t nbyte);
