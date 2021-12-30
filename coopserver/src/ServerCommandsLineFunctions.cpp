@@ -242,7 +242,6 @@ static bool STARTSTOPCmdHandler( stringvector line,
 	using namespace rest;
 	TCPClientInfo cInfo = mgr->getClientInfo();
 
-	using namespace rest;
 	string errorStr;
 	string command = line[0];
 	

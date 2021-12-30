@@ -18,7 +18,6 @@
 		2EFD147727710A490073F6AD /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 2EFD147627710A490073F6AD /* libsqlite3.tbd */; };
 		2EFD147A27710A770073F6AD /* CoopMgrDB.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD147827710A770073F6AD /* CoopMgrDB.cpp */; };
 		2EFD147D277111C20073F6AD /* CoopMgrAPISecretMgr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD147B277111C20073F6AD /* CoopMgrAPISecretMgr.cpp */; };
-		2EFD1480277118BE0073F6AD /* coopmgr.props.csv in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2EFD147F2771184B0073F6AD /* coopmgr.props.csv */; };
 		2EFD148227711BC60073F6AD /* ServerCommandsLineFunctions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD148127711BC60073F6AD /* ServerCommandsLineFunctions.cpp */; };
 		2EFD148627711D7E0073F6AD /* helpfile.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2EFD148527711D410073F6AD /* helpfile.txt */; };
 		2EFD14892771213F0073F6AD /* valueschema.csv in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2EFD1488277121250073F6AD /* valueschema.csv */; };
@@ -30,6 +29,9 @@
 		2EFD14AD277539670073F6AD /* RPi_RelayHat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD14AB277539670073F6AD /* RPi_RelayHat.cpp */; };
 		2EFD14B5277691BB0073F6AD /* macos_gpiod.c in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD14B4277691BB0073F6AD /* macos_gpiod.c */; };
 		2EFD14BC277A50790073F6AD /* DoorMgr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD14BA277A50790073F6AD /* DoorMgr.cpp */; };
+		2EFD14C3277D1E270073F6AD /* Action.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD14C1277D1E270073F6AD /* Action.cpp */; };
+		2EFD14C6277D276A0073F6AD /* Event.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD14C4277D276A0073F6AD /* Event.cpp */; };
+		2EFD14CA277E46920073F6AD /* coopmgr.props.json in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2EFD14C9277E46580073F6AD /* coopmgr.props.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -56,9 +58,9 @@
 			dstPath = "";
 			dstSubfolderSpec = 16;
 			files = (
-				2EFD1480277118BE0073F6AD /* coopmgr.props.csv in CopyFiles */,
 				2EFD148627711D7E0073F6AD /* helpfile.txt in CopyFiles */,
 				2EFD14892771213F0073F6AD /* valueschema.csv in CopyFiles */,
+				2EFD14CA277E46920073F6AD /* coopmgr.props.json in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -89,7 +91,6 @@
 		2EFD147927710A770073F6AD /* CoopMgrDB.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CoopMgrDB.hpp; sourceTree = "<group>"; };
 		2EFD147B277111C20073F6AD /* CoopMgrAPISecretMgr.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CoopMgrAPISecretMgr.cpp; sourceTree = "<group>"; };
 		2EFD147C277111C20073F6AD /* CoopMgrAPISecretMgr.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CoopMgrAPISecretMgr.hpp; sourceTree = "<group>"; };
-		2EFD147F2771184B0073F6AD /* coopmgr.props.csv */ = {isa = PBXFileReference; lastKnownFileType = text; path = coopmgr.props.csv; sourceTree = "<group>"; };
 		2EFD148127711BC60073F6AD /* ServerCommandsLineFunctions.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ServerCommandsLineFunctions.cpp; sourceTree = "<group>"; };
 		2EFD148527711D410073F6AD /* helpfile.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = helpfile.txt; sourceTree = "<group>"; };
 		2EFD1488277121250073F6AD /* valueschema.csv */ = {isa = PBXFileReference; lastKnownFileType = text; path = valueschema.csv; sourceTree = "<group>"; };
@@ -111,6 +112,11 @@
 		2EFD14B4277691BB0073F6AD /* macos_gpiod.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = macos_gpiod.c; sourceTree = "<group>"; };
 		2EFD14BA277A50790073F6AD /* DoorMgr.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DoorMgr.cpp; sourceTree = "<group>"; };
 		2EFD14BB277A50790073F6AD /* DoorMgr.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DoorMgr.hpp; sourceTree = "<group>"; };
+		2EFD14C1277D1E270073F6AD /* Action.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Action.cpp; sourceTree = "<group>"; };
+		2EFD14C2277D1E270073F6AD /* Action.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Action.hpp; sourceTree = "<group>"; };
+		2EFD14C4277D276A0073F6AD /* Event.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Event.cpp; sourceTree = "<group>"; };
+		2EFD14C5277D276A0073F6AD /* Event.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Event.hpp; sourceTree = "<group>"; };
+		2EFD14C9277E46580073F6AD /* coopmgr.props.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = coopmgr.props.json; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -198,6 +204,10 @@
 				2EFD147C277111C20073F6AD /* CoopMgrAPISecretMgr.hpp */,
 				2EFD14942771680B0073F6AD /* ScheduleMgr.cpp */,
 				2EFD14952771680B0073F6AD /* ScheduleMgr.hpp */,
+				2EFD14C1277D1E270073F6AD /* Action.cpp */,
+				2EFD14C2277D1E270073F6AD /* Action.hpp */,
+				2EFD14C4277D276A0073F6AD /* Event.cpp */,
+				2EFD14C5277D276A0073F6AD /* Event.hpp */,
 				2EFD1467277102C20073F6AD /* CPUInfo.cpp */,
 				2EFD1468277102C20073F6AD /* CPUInfo.hpp */,
 				2EFD149D27725F710073F6AD /* CoopDevices.cpp */,
@@ -227,7 +237,7 @@
 		2EFD147E277117EB0073F6AD /* Assets */ = {
 			isa = PBXGroup;
 			children = (
-				2EFD147F2771184B0073F6AD /* coopmgr.props.csv */,
+				2EFD14C9277E46580073F6AD /* coopmgr.props.json */,
 				2EFD148527711D410073F6AD /* helpfile.txt */,
 				2EFD1488277121250073F6AD /* valueschema.csv */,
 			);
@@ -322,12 +332,14 @@
 				2EFD1392276FF5DF0073F6AD /* main.cpp in Sources */,
 				2EFD147D277111C20073F6AD /* CoopMgrAPISecretMgr.cpp in Sources */,
 				2EFD1463277101D10073F6AD /* CoopMgr.cpp in Sources */,
+				2EFD14C3277D1E270073F6AD /* Action.cpp in Sources */,
 				2EFD1473277108070073F6AD /* ServerNouns.cpp in Sources */,
 				2EFD14AD277539670073F6AD /* RPi_RelayHat.cpp in Sources */,
 				2EFD1493277167BE0073F6AD /* sunset.cpp in Sources */,
 				2EFD14BC277A50790073F6AD /* DoorMgr.cpp in Sources */,
 				2EFD147A27710A770073F6AD /* CoopMgrDB.cpp in Sources */,
 				2EFD149F27725F710073F6AD /* CoopDevices.cpp in Sources */,
+				2EFD14C6277D276A0073F6AD /* Event.cpp in Sources */,
 				2EFD146D277106270073F6AD /* I2C.cpp in Sources */,
 				2EFD14962771680B0073F6AD /* ScheduleMgr.cpp in Sources */,
 				2EFD148227711BC60073F6AD /* ServerCommandsLineFunctions.cpp in Sources */,

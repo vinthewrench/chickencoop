@@ -17,15 +17,18 @@ constexpr string_view NOUN_DEVICES	 			= "devices";
 constexpr string_view NOUN_SCHEMA	 			= "schema";
 constexpr string_view NOUN_VALUES	 			= "values";
 constexpr string_view NOUN_PROPERTIES	 		= "props";
-constexpr string_view NOUN_HISTORY 	 			= "history";
+constexpr string_view NOUN_VALUE_HISTORY 	 	= "valuehistory";
 constexpr string_view NOUN_LOG	 				= "log";
-constexpr string_view NOUN_EVENTS	 	 		= "events";
+constexpr string_view NOUN_HISTORY	 	 		= "history";
+constexpr string_view NOUN_EVENTS				= "events";
+
 
 constexpr string_view SUBPATH_FILE	 			= "file";
 constexpr string_view SUBPATH_STATE	 			= "state";
 constexpr string_view SUBPATH_DOOR 				= "door";
 constexpr string_view SUBPATH_LIGHT 			= "light";
- 
+constexpr string_view SUBPATH_RUN_ACTION		= "run.actions";
+
 constexpr string_view JSON_ARG_FILEPATH		= "filepath";
 constexpr string_view JSON_ARG_LOGFLAGS		= "logflags";
 constexpr string_view JSON_ARG_MESSAGE		= "message";			// for logfile
@@ -49,11 +52,20 @@ constexpr string_view JSON_ARG_PROPERTIES	= "properties";
 
 constexpr string_view JSON_ARG_SCHEMA			= "schema";
 constexpr string_view JSON_ARG_VALUES			= "values";
-constexpr string_view JSON_ARG_EVENTS			= "events";
+constexpr string_view JSON_ARG_HISTORICAL_EVENTS			= "historicalevents";
 
 constexpr string_view JSON_ARG_DAYS			= "days";
 constexpr string_view JSON_ARG_LIMIT			= "limit";
  
+constexpr string_view JSON_ARG_EVENTIDS		= "eventIDs";
+constexpr string_view JSON_ARG_ACTIONID 		= "actionID";
+constexpr string_view JSON_ARG_EVENTID 		= "eventID";
+constexpr string_view JSON_ARG_ACTION			= "action";
+constexpr string_view JSON_ARG_TRIGGER			= "trigger";
+constexpr string_view JSON_ARG_TIMED_EVENTS	= "events.timed";
+constexpr string_view JSON_ARG_FUTURE_EVENTS	= "events.future";
+constexpr string_view JSON_ARG_ACTIONS		= "actions";
+
 
 constexpr string_view JSON_ARG_NAME			= "name";
 constexpr string_view JSON_ARG_TRACKING		= "tracking";

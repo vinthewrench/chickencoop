@@ -67,7 +67,12 @@ public:
 	
 	void setActiveConnections(bool isActive);
 	
-	
+	bool runAction(Action action,
+						std::function<void(bool didSucceed)> callback = NULL);
+	// events
+	bool executeEvent(eventID_t eventID,
+						 std::function<void(bool didSucceed)> callback = NULL);
+
 	// coop door
 	bool setDoor(bool isOpen, boolCallback_t callback = NULL);
 	bool stopDoor(boolCallback_t callback = NULL);

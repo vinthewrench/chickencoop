@@ -25,6 +25,8 @@
 #include <sqlite3.h>
  
 #include "CoopMgrCommon.h"
+#include "Action.hpp"
+#include "Event.hpp"
 
 using namespace std;
 using namespace nlohmann;
@@ -47,9 +49,8 @@ public:
 	constexpr static string_view PROP_TELNET_PORT				= "telnet-port";
 	constexpr static string_view PROP_REST_PORT					= "rest-port";
 	constexpr static string_view PROP_ALLOW_REMOTE_TELNET		= "allow-remote-telnet";
+	constexpr static string_view PROP_EVENT		= "events";	// event data follows
 
-	 
-	
 	typedef enum {
 		INVALID = 0,
 		BOOL,				// Bool ON/OFF
@@ -70,13 +71,14 @@ public:
 		TR_DONT_TRACK =  3 // use latest value, dont track
 	}valueTracking_t;
 
+	// historical event
 	// dont change these numbers, they persist in database
 	typedef enum {
 		EV_UNKNOWN 				= 0,
 		EV_START					= 1,
 		EV_SHUTDOWN				= 2,
 		
-	}ph_event_t;
+	}h_event_t;
 
 private:
 	
@@ -92,12 +94,12 @@ public:
 	constexpr static string_view JSON_ARG_UNITS			= "units";
 	constexpr static string_view JSON_ARG_SUFFIX			= "suffix";
 	constexpr static string_view JSON_ARG_VALUE			= "value";
-	constexpr static string_view JSON_ARG_EVENT			= "event";
+	constexpr static string_view JSON_ARG_HISTORICAL_EVENT			= "historicalevent";
 	constexpr static string_view JSON_ARG_TIME			= "time";
 	constexpr static string_view JSON_ARG_DISPLAYSTR		= "display";
 	
 	typedef vector<pair<time_t, string>> historicValues_t;
-	typedef vector<pair<time_t, ph_event_t>> historicEvents_t;
+	typedef vector<pair<time_t, h_event_t>> historicEvents_t;
 
 	CoopMgrDB();
   ~CoopMgrDB();
@@ -134,11 +136,11 @@ public:
 	bool 	removeHistoryForKey(string key, float days);
 
 
-	// MARK: - Events
-	bool logEvent(ph_event_t evt, time_t when = 0);
+	// MARK: - History
+	bool logHistoricalEvent(h_event_t evt, time_t when = 0);
 	bool historyForEvents( historicEvents_t &events, float days = 0.0, int limit = 0);
-	bool removeHistoryForEvents(float days);
-	string displayStringForEvent(ph_event_t evt);
+	bool trimHistory(float days);
+	string displayStringForHistoricalEvent(h_event_t evt);
 
 	// MARK: - properties
 	
@@ -155,6 +157,21 @@ public:
 
 	bool removeProperty(string key);
 	map<string ,string> getProperties();
+
+	// MARK: -   events
+	bool eventsIsValid(eventID_t eventID);
+	bool eventSave(Event event, eventID_t* eventIDOut = NULL);
+	bool eventFind(string name, eventID_t* eventID);
+	bool eventDelete(eventID_t eventID);
+	bool eventSetName(eventID_t eventID, string name);
+	string eventGetName(eventID_t eventID);
+	optional<reference_wrapper<Event>> eventsGetEvent(eventID_t eventID);
+	vector<eventID_t> allEventsIDs();
+//	vector<eventID_t> matchingEventIDs(EventTrigger trig);
+	vector<eventID_t> eventsMatchingAppEvent(EventTrigger::app_event_t appEvent);
+	vector<eventID_t> eventsThatNeedToRun(solarTimes_t &solar, time_t localNow);
+	vector<eventID_t> eventsInTheFuture(solarTimes_t &solar, time_t localNow);
+	bool eventSetLastRunTime(eventID_t eventID, time_t localNow);
 
  
 private:
@@ -176,21 +193,21 @@ private:
 	bool 		valueShouldUpdate(string key, string value);
 
 	bool		restoreValuesFromDB();
+	 
 	bool		insertValueToDB(string key, string value, time_t time );
 	bool		saveUniqueValueToDB(string key, string value, time_t time );
 		map<string, pair<time_t, string>> _values;
  
 	map<string,valueSchemaUnits_t>  _schemaMap;
 	map<string, valueSchema_t>	_schema;
+	map<eventID_t, Event> 		_events;
 	map<string, eTag_t> 			_etagMap;
 	eTag_t							_eTag;		// last change tag
 
 	map<string,string> 			_properties;
 	string 						_propertyFilePath;
-
-	double		_longitude;
-	double 		_latitude;
-
+  
+	mt19937						_rng;
 
 };
 #endif /* CoopMgrDB_hpp */

@@ -73,7 +73,7 @@ bool CoopMgr::initDataBase(string schemaFilePath,
 
 	if(success) {
 		_state = CoopMgrDevice::DEVICE_STATE_DISCONNECTED;
-		_db.logEvent(CoopMgrDB::EV_START );
+		_db.logHistoricalEvent(CoopMgrDB::EV_START );
 		
 	}
  
@@ -228,7 +228,6 @@ void CoopMgr::startCoopDevices( std::function<void(bool didSucceed, std::string 
 	int  errnum = 0;
 	bool didSucceed = false;
 	
-	
 	didSucceed =  _coopHW.begin(errnum);
 	if(didSucceed){
 		LOGT_DEBUG("Start CoopDevices - OK");
@@ -279,3 +278,51 @@ bool CoopMgr::getLight(std::function<void(bool didSucceed, bool isOn)>cb){
 
 }
  
+
+//MARK: -  events / actions
+
+bool CoopMgr::executeEvent(eventID_t eventID,
+										std::function<void(bool didSucceed)> cb){
+ 	if(!_db.eventsIsValid(eventID))
+		return false;
+	
+	auto ref = _db.eventsGetEvent(eventID);
+	if(!ref)
+		return false;
+	
+	Event event = ref->get();
+	Action action = event.getAction();
+	
+	bool handled = runAction(action, [=](bool didSucceed){
+		if(cb) (cb)( didSucceed);
+	});
+
+
+	return handled;
+}
+
+bool CoopMgr::runAction(Action action,
+									std::function<void(bool didSucceed)> cb){
+	
+	bool handled = false;
+
+	switch(action.cmd()){
+		case Action::ACTION_DOOR:
+			handled = setDoor(action.relayState(), cb);
+			break;
+			
+		case Action::ACTION_LIGHT:
+			handled = setLight(action.relayState(), cb);
+			break;
+
+		case Action::ACTION_NONE:
+			if(cb) (cb)( true);
+			handled = true;
+			break;
+
+		default:
+			break;
+	}
+	
+	return handled;
+}

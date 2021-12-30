@@ -380,9 +380,9 @@ static void Values_Handler(ServerCmdQueue* cmdQueue,
 };
 
 
-// MARK: HISTORY NOUN HANDLER
+// MARK: VALUE_HISTORY NOUN HANDLER
 
-static bool History_NounHandler_GET(ServerCmdQueue* cmdQueue,
+static bool ValueHistory_NounHandler_GET(ServerCmdQueue* cmdQueue,
 											  REST_URL url,
 											  TCPClientInfo cInfo,
 											  ServerCmdQueue::cmdCallback_t completion) {
@@ -450,7 +450,7 @@ static bool History_NounHandler_GET(ServerCmdQueue* cmdQueue,
 	return true;
 }
 
-static bool History_NounHandler_DELETE(ServerCmdQueue* cmdQueue,
+static bool ValueHistory_NounHandler_DELETE(ServerCmdQueue* cmdQueue,
 											  REST_URL url,
 											  TCPClientInfo cInfo,
 													ServerCmdQueue::cmdCallback_t completion) {
@@ -502,7 +502,7 @@ static bool History_NounHandler_DELETE(ServerCmdQueue* cmdQueue,
 	return false;
 }
 
-static void History_NounHandler(ServerCmdQueue* cmdQueue,
+static void ValueHistory_NounHandler(ServerCmdQueue* cmdQueue,
 										  REST_URL url,
 										  TCPClientInfo cInfo,
 										  ServerCmdQueue::cmdCallback_t completion) {
@@ -523,23 +523,23 @@ static void History_NounHandler(ServerCmdQueue* cmdQueue,
 
 	switch(url.method()){
 		case HTTP_GET:
-			isValidURL = History_NounHandler_GET(cmdQueue,url,cInfo, completion);
+			isValidURL = ValueHistory_NounHandler_GET(cmdQueue,url,cInfo, completion);
 			break;
 			
 //		case HTTP_PUT:
-//			isValidURL = History_NounHandler_PUT(cmdQueue,url,cInfo, completion);
+//			isValidURL = ValueHistory_NounHandler_PUT(cmdQueue,url,cInfo, completion);
 //			break;
 
 //		case HTTP_PATCH:
-//			isValidURL = History_NounHandler_PATCH(cmdQueue,url,cInfo, completion);
+//			isValidURL = ValueHistory_NounHandler_PATCH(cmdQueue,url,cInfo, completion);
 //			break;
 
 //		case HTTP_POST:
-//			isValidURL = History_NounHandler_POST(cmdQueue,url,cInfo, completion);
+//			isValidURL = ValueHistory_NounHandler_POST(cmdQueue,url,cInfo, completion);
 //			break;
 //
 		case HTTP_DELETE:
-			isValidURL = History_NounHandler_DELETE(cmdQueue,url,cInfo, completion);
+			isValidURL = ValueHistory_NounHandler_DELETE(cmdQueue,url,cInfo, completion);
 			break;
   
 		default:
@@ -552,9 +552,9 @@ static void History_NounHandler(ServerCmdQueue* cmdQueue,
 	}
 };
 
-// MARK:  EVENTS NOUN HANDLER
+// MARK:  HISTORY NOUN HANDLER
  
-static bool Events_NounHandler_GET(ServerCmdQueue* cmdQueue,
+static bool History_NounHandler_GET(ServerCmdQueue* cmdQueue,
 											  REST_URL url,
 											  TCPClientInfo cInfo,
 											  ServerCmdQueue::cmdCallback_t completion) {
@@ -596,12 +596,12 @@ static bool Events_NounHandler_GET(ServerCmdQueue* cmdQueue,
 		for (auto& entry : events) {
 			
 			json j1;
-			j1[string(CoopMgrDB::JSON_ARG_EVENT)] 		=  entry.second;
+			j1[string(CoopMgrDB::JSON_ARG_HISTORICAL_EVENT)] 		=  entry.second;
 			j1[string(CoopMgrDB::JSON_ARG_TIME)] 		=   entry.first;
 			j.push_back(j1);
 		}
 		
-		reply[string(JSON_ARG_EVENTS)] = j;
+		reply[string(JSON_ARG_HISTORICAL_EVENTS)] = j;
 	}
 	else {
 		return false;
@@ -613,7 +613,7 @@ static bool Events_NounHandler_GET(ServerCmdQueue* cmdQueue,
 	return true;
 }
 
-static bool Events_NounHandler_DELETE(ServerCmdQueue* cmdQueue,
+static bool History_NounHandler_DELETE(ServerCmdQueue* cmdQueue,
 											  REST_URL url,
 											  TCPClientInfo cInfo,
 												  ServerCmdQueue::cmdCallback_t completion) {
@@ -642,7 +642,7 @@ static bool Events_NounHandler_DELETE(ServerCmdQueue* cmdQueue,
 	}
 	
 	
-	if(db->removeHistoryForEvents(days)){
+	if(db->trimHistory(days)){
 		makeStatusJSON(reply,STATUS_NO_CONTENT);
 		(completion) (reply, STATUS_NO_CONTENT);
 		return true;
@@ -651,7 +651,7 @@ static bool Events_NounHandler_DELETE(ServerCmdQueue* cmdQueue,
 	return false;
 }
 
-static void Events_NounHandler(ServerCmdQueue* cmdQueue,
+static void History_NounHandler(ServerCmdQueue* cmdQueue,
 										  REST_URL url,
 										  TCPClientInfo cInfo,
 										  ServerCmdQueue::cmdCallback_t completion) {
@@ -672,7 +672,7 @@ static void Events_NounHandler(ServerCmdQueue* cmdQueue,
 
 	switch(url.method()){
 		case HTTP_GET:
-			isValidURL = Events_NounHandler_GET(cmdQueue,url,cInfo, completion);
+			isValidURL = History_NounHandler_GET(cmdQueue,url,cInfo, completion);
 			break;
 			
 //		case HTTP_PUT:
@@ -688,7 +688,7 @@ static void Events_NounHandler(ServerCmdQueue* cmdQueue,
 //			break;
 //
 		case HTTP_DELETE:
-			isValidURL = Events_NounHandler_DELETE(cmdQueue,url,cInfo, completion);
+			isValidURL = History_NounHandler_DELETE(cmdQueue,url,cInfo, completion);
 			break;
   
 		default:
@@ -911,6 +911,434 @@ static void Properties_NounHandler(ServerCmdQueue* cmdQueue,
 		(completion) (reply, STATUS_NOT_FOUND);
 	}
 };
+
+// MARK:  EVENTS NOUN HANDLERS
+
+
+static bool Events_NounHandler_GET(ServerCmdQueue* cmdQueue,
+											  REST_URL url,
+											  TCPClientInfo cInfo,
+											  ServerCmdQueue::cmdCallback_t completion) {
+	using namespace rest;
+
+	auto path = url.path();
+	auto queries = url.queries();
+	auto headers = url.headers();
+	json reply;
+
+	auto coopMgr = CoopMgr::shared();
+	auto db = coopMgr->getDB();
+
+	// GET /events
+	if(path.size() == 1) {
+	 
+		json eventList;
+		
+		auto eventIDs = db->allEventsIDs();
+
+		for(auto eventID : eventIDs){
+			json entry;
+			
+			entry[string(JSON_ARG_NAME)] =  db->eventGetName(eventID);
+			
+			auto ref = db->eventsGetEvent(eventID);
+			if(ref) {
+				Event event = ref->get();
+				Action act = event.getAction();
+				if(act.isValid()){
+					entry[string(JSON_ARG_ACTION)]= act.JSON();
+				}
+
+				EventTrigger trig = event.getEventTrigger();
+				if(trig.isValid()){
+					entry[string(JSON_ARG_TRIGGER)]= trig.JSON();
+				}
+			}
+			
+			eventList[ to_hex<unsigned short>(eventID)] = entry;
+		}
+		
+		reply[string(JSON_ARG_EVENTIDS)] = eventList;
+
+		// create a sorted vector of timed events
+		vector<std::pair<string, int16_t>> timedEvents;
+		solarTimes_t solar;
+		coopMgr->getSolarEvents(solar);
+
+		time_t now = time(NULL);
+		struct tm* tm = localtime(&now);
+		time_t localNow  = (now + tm->tm_gmtoff);
+		vector<eventID_t> fEvents  = db->eventsInTheFuture(solar, localNow);
+
+		vector<string> futureEvents;
+			for(auto eventID : fEvents){
+				futureEvents.push_back(to_hex<unsigned short>(eventID));
+		}
+
+		if(futureEvents.size()){
+			reply[string(JSON_ARG_FUTURE_EVENTS	)] = futureEvents;
+		}
+
+		for(auto eventID : eventIDs){
+			auto ref = db->eventsGetEvent(eventID);
+			if(ref) {
+				Event event = ref->get();
+				EventTrigger trig = event.getEventTrigger();
+				if(trig.isTimed()){
+
+					int16_t minsFromMidnight = 0;
+					if(trig.calculateTriggerTime(solar,minsFromMidnight)) {
+						timedEvents.push_back(make_pair( event.idString(), minsFromMidnight));
+					}
+				}
+			}
+		}
+		if(timedEvents.size() > 0){
+			sort(timedEvents.begin(), timedEvents.end(),
+				  [] (const pair<string, int16_t>& a,
+						const pair<string, int16_t>& b) { return a.second < b.second; });
+
+			reply[string(JSON_ARG_TIMED_EVENTS)] = timedEvents;
+		}
+
+		makeStatusJSON(reply,STATUS_OK);
+		(completion) (reply, STATUS_OK);
+		return true;
+
+	}
+		// GET /events/XXXX
+		else if(path.size() == 2) {
+			
+			eventID_t eventID;
+			
+			if( !str_to_EventID(path.at(1).c_str(), &eventID) || !db->eventsIsValid(eventID))
+				return false;
+	 
+			auto ref = db->eventsGetEvent(eventID);
+			if(ref) {
+				Event event = ref->get();
+				Action act = event.getAction();
+				if(act.isValid()){
+					reply[string(JSON_ARG_ACTION)]= act.JSON();
+				}
+				
+				EventTrigger trig = event.getEventTrigger();
+				if(trig.isValid()){
+					reply[string(JSON_ARG_TRIGGER)]= trig.JSON();
+				}
+
+				reply[string(JSON_ARG_EVENTID)] = event.idString();
+				reply[string(JSON_ARG_NAME)] 	=  db->eventGetName(eventID);
+				makeStatusJSON(reply,STATUS_OK);
+				(completion) (reply, STATUS_OK);
+			}
+		
+ //			json actions;
+//			auto acts = db->actionGroupGetActions(agID);
+//			for(auto ref :acts){
+//				Action a1 = ref.get();
+//				actions[a1.idString()] =  a1.JSON();
+//			}
+//			reply[string(JSON_ARG_ACTIONS)] = actions;
+	}
+ 
+	return false;
+}
+
+static bool Events_NounHandler_PUT(ServerCmdQueue* cmdQueue,
+												REST_URL url,
+												TCPClientInfo cInfo,
+													  ServerCmdQueue::cmdCallback_t completion) {
+	
+	using namespace rest;
+	auto path = url.path();
+	auto queries = url.queries();
+	auto headers = url.headers();
+	json reply;
+	
+	auto coopMgr = CoopMgr::shared();
+	auto db = coopMgr->getDB();
+
+	string subpath;
+	
+	if(path.size() > 1){
+		subpath =   path.at(1);
+	}
+	
+	 if(path.size() == 3) {
+		if( subpath == SUBPATH_RUN_ACTION) {
+			
+			eventID_t eventID;
+			
+			if( !str_to_EventID(path.at(2).c_str(), &eventID) || !db->eventsIsValid(eventID))
+				return false;
+	 
+		 
+				bool queued = coopMgr->executeEvent(eventID, [=]( bool didSucceed){
+				json reply;
+				
+				if(didSucceed){
+					reply[string(JSON_ARG_EVENTID)] = to_hex<unsigned short>(eventID);
+					makeStatusJSON(reply,STATUS_OK);
+					(completion) (reply, STATUS_OK);
+				}
+				else {
+					reply[string(JSON_ARG_EVENTID)] = to_hex<unsigned short>(eventID);
+					makeStatusJSON(reply, STATUS_BAD_REQUEST, "Run Event Failed" );;
+					(completion) (reply, STATUS_BAD_REQUEST);
+				}
+			});
+			
+			if(!queued) {
+				makeStatusJSON(reply, STATUS_UNAVAILABLE, "Server is not running" );;
+				(completion) (reply, STATUS_UNAVAILABLE);
+				return true;
+			}
+			return true;
+		}
+	}
+	return false;
+}
+
+static bool Events_NounHandler_PATCH(ServerCmdQueue* cmdQueue,
+											  REST_URL url,
+											  TCPClientInfo cInfo,
+												 ServerCmdQueue::cmdCallback_t completion) {
+	using namespace rest;
+	
+	auto path = url.path();
+	auto queries = url.queries();
+	auto headers = url.headers();
+	
+	json reply;
+	
+	ServerCmdArgValidator v1;
+	auto coopMgr = CoopMgr::shared();
+	auto db = coopMgr->getDB();
+
+	if(path.size() == 2) {
+		
+		eventID_t eventID;
+		
+		if( !str_to_EventID(path.at(1).c_str(), &eventID) || !db->eventsIsValid(eventID))
+			return false;
+		
+		string name;
+	 	// set name
+		
+			if(v1.getStringFromJSON(JSON_ARG_NAME, url.body(), name)
+			&& (db->eventSetName(eventID, name))) {
+			reply[string(JSON_ARG_EVENTID)] = to_hex<unsigned short>(eventID);
+			reply[string(JSON_ARG_NAME)] = name;
+			
+			makeStatusJSON(reply,STATUS_OK);
+			(completion) (reply, STATUS_OK);
+		}
+		else {
+			reply[string(JSON_ARG_EVENTID)] = to_hex<unsigned short>(eventID);
+			makeStatusJSON(reply, STATUS_BAD_REQUEST, "Set Failed" );;
+			(completion) (reply, STATUS_BAD_REQUEST);
+		}
+	}
+
+	return false;
+	
+}
+
+static bool createEventFromJSON( json  &j, Event& event) {
+	
+	bool statusOK = false;
+	Event evt;
+	
+	ServerCmdArgValidator 	v1;
+ 	string str;
+	
+	Action action;
+	EventTrigger trigger;
+	
+	if( j.contains(JSON_ARG_ACTION)
+		&& j.at(string(JSON_ARG_ACTION)).is_object()){
+		auto a = j.at(string(JSON_ARG_ACTION));
+		action = Action(a);
+	}
+	
+	if(action.isValid()
+		&&  j.contains(JSON_ARG_TRIGGER)
+		&& j.at(string(JSON_ARG_TRIGGER)).is_object()){
+		auto t = j.at(string(JSON_ARG_TRIGGER));
+		trigger = EventTrigger(t);
+	};
+	
+	evt = Event(trigger, action);
+	statusOK = evt.isValid();
+	
+	if(statusOK){
+		event = evt;
+	}
+	
+	return statusOK;
+}
+
+ 
+static bool Events_NounHandler_POST(ServerCmdQueue* cmdQueue,
+											  REST_URL url,
+											  TCPClientInfo cInfo,
+												ServerCmdQueue::cmdCallback_t completion) {
+	using namespace rest;
+	auto path = url.path();
+	auto queries = url.queries();
+	auto headers = url.headers();
+	
+	json reply;
+	
+	ServerCmdArgValidator v1;
+
+	auto coopMgr = CoopMgr::shared();
+	auto db = coopMgr->getDB();
+
+	if(path.size() == 1) {
+		
+		string name;
+		// Create event
+		
+		if(v1.getStringFromJSON(JSON_ARG_NAME, url.body(), name)){
+			
+			eventID_t eventID;
+			if(db->eventFind(name, &eventID)){
+				name = db->eventGetName(eventID);
+				
+				reply[string(JSON_ARG_NAME)] = name;
+				reply[string(JSON_ARG_EVENTID)] = to_hex<unsigned short>(eventID);
+				makeStatusJSON(reply, STATUS_CONFLICT, "Name already used" );;
+				(completion) (reply, STATUS_CONFLICT);
+				return true;
+			}
+			else {
+				
+				Event event;
+				 
+				if(!createEventFromJSON(url.body(), event ) || !event.isValid())
+				{
+					makeStatusJSON(reply, STATUS_BAD_REQUEST, "Create Failed" );;
+					(completion) (reply, STATUS_BAD_REQUEST);
+					return true;
+				}
+					
+				event.setName(name);
+				
+				if (db->eventSave(event, &eventID)) {
+					reply[string(JSON_ARG_EVENTID)] = to_hex<unsigned short>(eventID);
+					reply[string(JSON_ARG_NAME)] = name;
+					makeStatusJSON(reply,STATUS_OK);
+					(completion) (reply, STATUS_OK);
+					return true;
+				}
+				else {
+					makeStatusJSON(reply, STATUS_BAD_REQUEST, "Set Failed" );;
+					(completion) (reply, STATUS_BAD_REQUEST);
+					return true;
+				}
+			}
+		}
+	}
+	
+	
+	return false;
+}
+
+
+static bool Events_NounHandler_DELETE(ServerCmdQueue* cmdQueue,
+											  REST_URL url,
+											  TCPClientInfo cInfo,
+														  ServerCmdQueue::cmdCallback_t completion) {
+	using namespace rest;
+	auto path = url.path();
+	auto queries = url.queries();
+	auto headers = url.headers();
+	
+	json reply;
+	
+	ServerCmdArgValidator v1;
+	auto coopMgr = CoopMgr::shared();
+	auto db = coopMgr->getDB();
+ 
+	eventID_t eventID;
+	
+	if( !str_to_EventID(path.at(1).c_str(), &eventID) || !db->eventsIsValid(eventID))
+		return false;
+
+	if(path.size() == 2) {
+		if(db->eventDelete(eventID)){
+			makeStatusJSON(reply,STATUS_NO_CONTENT);
+			(completion) (reply, STATUS_NO_CONTENT);
+		}
+		else {
+			reply[string(JSON_ARG_EVENTID)] = to_hex<unsigned short>(eventID);
+			makeStatusJSON(reply, STATUS_BAD_REQUEST, "Delete Failed" );;
+			(completion) (reply, STATUS_BAD_REQUEST);
+		}
+		return true;
+		
+	}
+	return false;
+}
+
+static void Events_NounHandler(ServerCmdQueue* cmdQueue,
+										 REST_URL url,
+										 TCPClientInfo cInfo,
+										 ServerCmdQueue::cmdCallback_t completion) {
+	using namespace rest;
+	json reply;
+	
+	auto path = url.path();
+	auto queries = url.queries();
+	auto headers = url.headers();
+	string noun;
+	
+	bool isValidURL = false;
+	
+	if(path.size() > 0) {
+		noun = path.at(0);
+	}
+		
+//	// is server available?
+//	if(!insteon.serverAvailable()) {
+//		makeStatusJSON(reply, STATUS_UNAVAILABLE, "Server is unavailable" );;
+//		(completion) (reply, STATUS_UNAVAILABLE);
+//		return;
+//	}
+	
+	switch(url.method()){
+		case HTTP_GET:
+			isValidURL = Events_NounHandler_GET(cmdQueue,url,cInfo, completion);
+			break;
+			
+		case HTTP_PUT:
+			isValidURL = Events_NounHandler_PUT(cmdQueue,url,cInfo, completion);
+			break;
+			
+		case HTTP_PATCH:
+			isValidURL = Events_NounHandler_PATCH(cmdQueue,url,cInfo, completion);
+			break;
+	 
+		case HTTP_POST:
+			isValidURL = Events_NounHandler_POST(cmdQueue,url,cInfo, completion);
+			break;
+ 
+		case HTTP_DELETE:
+			isValidURL = Events_NounHandler_DELETE(cmdQueue,url,cInfo, completion);
+			break;
+  
+		default:
+			(completion) (reply, STATUS_INVALID_METHOD);
+			return;
+	}
+	
+	if(!isValidURL) {
+		(completion) (reply, STATUS_NOT_FOUND);
+	}
+	
+}
 
 // MARK:  STATE NOUN HANDLERS
 
@@ -1263,8 +1691,10 @@ void registerServerNouns() {
 
 	cmdQueue->registerNoun(NOUN_PROPERTIES, Properties_NounHandler);
 	cmdQueue->registerNoun(NOUN_LOG, 		Log_NounHandler);
-	cmdQueue->registerNoun(NOUN_HISTORY,	 History_NounHandler);
-	cmdQueue->registerNoun(NOUN_EVENTS, 	Events_NounHandler);
+	cmdQueue->registerNoun(NOUN_VALUE_HISTORY,	 ValueHistory_NounHandler);
+	cmdQueue->registerNoun(NOUN_HISTORY, 	History_NounHandler);
+	cmdQueue->registerNoun(NOUN_EVENTS,		 Events_NounHandler);
+
 }
 
 
