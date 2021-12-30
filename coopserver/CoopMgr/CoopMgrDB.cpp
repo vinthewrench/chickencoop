@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <algorithm> 
 #include <regex>
+#include <limits.h>
 
 using namespace timestamp;
 
