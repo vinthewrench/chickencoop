@@ -18,7 +18,7 @@ set(SOURCES
 	coopserver/CoopMgr/CoopMgrDB.cpp
 	coopserver/CoopMgr/CoopMgrAPISecretMgr.cpp
 	coopserver/CoopMgr/sunset.cpp
-	coopserver/CoopMgr/ScheduleMgr.cpp
+	coopserver/CoopMgr/SolarTimeMgr.cpp
 	coopserver/CoopMgr/CoopMgrDB.cpp
 	coopserver/CoopMgr/CoopDevices.cpp
 	coopserver/CoopMgr/Action.cpp

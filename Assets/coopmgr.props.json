@@ -2,23 +2,54 @@
 	 "allow-remote-telnet": "true",
 	 "api-key": "test",
 	 "api-secret": "40v)ywv*e2e&$k(6",
+	 "event.groups": [
+		  {
+				"eventIDs": [
+					 "2d86",
+					 "d95a"
+				],
+				"groupID": "f1a6",
+				"name": "Timed door group"
+		  }
+	 ],
+	 "events": [
+		  {
+				"action": {
+					 "light": "on"
+				},
+				"eventID": "10d1",
+				"name": "startup",
+				"trigger": {
+					 "event": "startup"
+				}
+		  },
+		  {
+				"action": {
+					 "door": "open"
+				},
+				"eventID": "2d86",
+				"name": "sunrise open door",
+				"trigger": {
+					 "mins": 0,
+					 "timeBase": 2
+				}
+		  },
+		  {
+				"action": {
+					 "door": "close"
+				},
+				"eventID": "d95a",
+				"name": "sunset close door",
+				"trigger": {
+					 "mins": 0,
+					 "timeBase": 3
+				}
+		  }
+	 ],
 	 "lat-long": "42.235389 -122.865947",
 	 "log-filepath": "logfile.txt",
 	 "log-flags": "0x0f",
 	 "random-thing": "foobar the dog",
 	 "rest-port": "8081",
-	 "telnet-port": "2020",
-	 "events": [
-			{
-				 "action": {
-					  "door": "close"
-				 },
-				 "eventID": "9b0f",
-				 "name": "startup door close",
-				 "trigger": {
-					  "event": "startup"
-				 }
-			}
-	  ]
-
+	 "telnet-port": "2020"
 }

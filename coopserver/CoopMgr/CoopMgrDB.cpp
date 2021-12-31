@@ -9,7 +9,7 @@
   
 #include "TimeStamp.hpp"
 #include "LogMgr.hpp"
-#include "ScheduleMgr.hpp"
+#include "SolarTimeMgr.hpp"
 
 #include "Utils.hpp"
 #include <stdlib.h>
@@ -367,7 +367,7 @@ void CoopMgrDB::dumpMap(){
 				 );
 	}
 }
-// MARK: - Events
+// MARK: - Historical Events
 bool CoopMgrDB::logHistoricalEvent(h_event_t evt, time_t when ){
 	
 	if(when == 0)
@@ -426,8 +426,8 @@ bool CoopMgrDB::refreshSolarEvents(){
 		int n;
 
 		if( sscanf(str.c_str(), "%lf %lf%n", &latitude, &longitude, &n) == 2) {
-			ScheduleMgr::shared()->setLatLong(latitude ,longitude);
-			return ScheduleMgr::shared()->calculateSolarEvents();
+			SolarTimeMgr::shared()->setLatLong(latitude ,longitude);
+			return SolarTimeMgr::shared()->calculateSolarEvents();
 		}
 	}
 		return false;
@@ -825,7 +825,7 @@ bool CoopMgrDB::removeProperty(string key){
 		savePropertiesToFile();
 		
 		if(key ==  CoopMgrDB::PROP_LATLONG){
-			ScheduleMgr::shared()->setLatLong(numeric_limits<double>::max() ,numeric_limits<double>::max());
+			SolarTimeMgr::shared()->setLatLong(numeric_limits<double>::max() ,numeric_limits<double>::max());
  		}
 	 
 		return true;
@@ -914,6 +914,67 @@ bool  CoopMgrDB::getBoolProperty(string key, bool * valOut){
 }
 
 
+//MARK: - Database Persistent opeeration
+bool CoopMgrDB::restoreEventGroupFromJSON(json j){
+	bool  statusOk = false;
+	
+	if(j.is_object()){
+		if( j.contains(string(PROP_ARG_EVENT_GROUPID))
+			&& j.at(string(PROP_ARG_EVENT_GROUPID)).is_string()){
+			string egID = j.at(string(PROP_ARG_EVENT_GROUPID));
+			eventGroupID_t eventGroupID;
+			
+			if( str_to_EventGroupID(egID.c_str(), &eventGroupID )
+				&& !eventGroupIsValid(eventGroupID)){
+				
+				eventGroupInfo_t info;
+				info.eventIDs.clear();
+				//						_eventsGroups[eventGroupID] = info;
+				
+				if( j.contains(string(JSON_ARG_NAME))
+					&& j.at(string(JSON_ARG_NAME)).is_string()){
+					info.name = j.at(string(JSON_ARG_NAME));
+				}
+				
+				if( j.contains(string(PROP_ARG_EVENTIDS))
+					&& j.at(string(PROP_ARG_EVENTIDS)).is_array()){
+					auto eventIDs = j.at(string(PROP_ARG_EVENTIDS));
+					for(string str : eventIDs){
+						eventID_t eventID;
+						if( str_to_EventID(str.c_str(), &eventID )){
+							info.eventIDs.insert(eventID);
+						}
+					}
+				}
+				
+				_eventsGroups[eventGroupID] = info;
+				statusOk = true;
+			}
+		}
+	}
+	return statusOk;
+};
+
+
+bool 	CoopMgrDB::saveEventGroupToJSON(eventGroupID_t eventGroupID, json &j ){
+	
+	bool  statusOk = false;
+	
+	if(eventGroupIsValid(eventGroupID)){
+		eventGroupInfo_t* eg =  &_eventsGroups[eventGroupID];
+		
+		j[string(PROP_ARG_EVENT_GROUPID)] = to_hex<unsigned short>(eventGroupID);
+		if(!eg->name.empty()) j[string(JSON_ARG_NAME)] =  eg->name;
+		vector<string> eventIDs;
+		eventIDs.clear();
+		for(auto e : eg->eventIDs) eventIDs.push_back( EventGroupID_to_string(e));
+		j[string(PROP_ARG_EVENTIDS)]  = eventIDs;
+		statusOk = true;
+  	}
+	
+	return statusOk;
+}
+
 bool CoopMgrDB::restorePropertiesFromFile(string filePath){
 
 	std::ifstream	ifs;
@@ -946,6 +1007,11 @@ bool CoopMgrDB::restorePropertiesFromFile(string filePath){
 							_events[evt._rawEventID] = evt;
 						}
 					}
+				}
+			}
+			if( it.key() == PROP_EVENT_GROUPS && it.value().is_array()){
+				for (auto& el : it.value()) {
+					restoreEventGroupFromJSON(el);
 				}
 			}
 			else if( it.value().is_string()){
@@ -995,17 +1061,27 @@ bool CoopMgrDB::savePropertiesToFile(string filePath){
 		}
 
 		if(_events.size() > 0){
-			
-			json jEvents;
-			
+			json j;
 			for (const auto& [eventID, _] : _events) {
 				Event* evt =  &_events[eventID];
-				jEvents.push_back(evt->JSON());
+				j.push_back(evt->JSON());
 			}
-	 
-			jP[string(PROP_EVENT)] = jEvents;
+			jP[string(PROP_EVENT)] = j;
  		}
 		
+
+		if(_eventsGroups.size() > 0){
+			json j;
+			for (const auto& [eventGroupID, _] : _eventsGroups) {
+				json jEG;
+				
+				if(saveEventGroupToJSON(eventGroupID, jEG)){
+					j.push_back(jEG);
+ 				}
+			}
+			jP[string(PROP_EVENT_GROUPS)] = j;
+		}
+
 		string jsonStr = jP.dump(4);
 		ofs << jsonStr << "\n";
 		
@@ -1159,7 +1235,7 @@ vector<eventID_t> CoopMgrDB::eventsThatNeedToRun(solarTimes_t &solar, time_t loc
 	vector<eventID_t> events;
 
 	for (auto& [key, evt] : _events) {
-		if(evt._trigger	.shouldTriggerFromTimeEvent(solar, localNow))
+		if(evt._trigger.shouldTriggerFromTimeEvent(solar, localNow))
 			events.push_back( key);
 	};
 		
@@ -1186,7 +1262,206 @@ bool CoopMgrDB::eventSetLastRunTime(eventID_t eventID, time_t localNow){
 	return evt->_trigger.setLastRun(localNow);
 }
 
+//MARK: - event group API
+ 
+bool str_to_EventGroupID(const char* str, eventGroupID_t *eventGroupIDOut){
+	bool status = false;
+	
+	eventID_t val = 0;
+	status = sscanf(str, "%hx", &val) == 1;
+	
+	if(eventGroupIDOut)  {
+		*eventGroupIDOut = val;
+	}
+	
+	return status;
+};
+ 
+string  EventGroupID_to_string(eventGroupID_t eventGroupID){
+		return to_hex<unsigned short>(eventGroupID);
+}
 
+// event groups
+bool CoopMgrDB::eventGroupIsValid(eventGroupID_t eventGroupID){
+	return (_eventsGroups.count(eventGroupID) > 0);
+}
+
+bool CoopMgrDB::eventGroupCreate(eventGroupID_t* eventGroupIDOut, const string name){
+	
+	std::uniform_int_distribution<long> distribution(LONG_MIN,LONG_MAX);
+	eventGroupID_t eventGroupID;
+
+	do {
+		eventGroupID = distribution(_rng);
+	}while( _eventsGroups.count(eventGroupID) > 0);
+
+	eventGroupInfo_t info;
+	info.name = name;
+	info.eventIDs.clear();
+	_eventsGroups[eventGroupID] = info;
+ 
+	savePropertiesToFile();
+	
+	if(eventGroupIDOut)
+		*eventGroupIDOut = eventGroupID;
+	return true;
+}
+
+bool CoopMgrDB::eventGroupDelete(eventGroupID_t eventGroupID){
+ 
+	if(_eventsGroups.count(eventGroupID) == 0)
+		return false;
+
+	_eventsGroups.erase(eventGroupID);
+	savePropertiesToFile();
+
+	return true;
+}
+
+
+bool CoopMgrDB::eventGroupFind(string name, eventGroupID_t* eventGroupIDOut){
+	
+	for(auto g : _eventsGroups) {
+		auto info = &g.second;
+		
+		if (strcasecmp(name.c_str(), info->name.c_str()) == 0){
+			if(eventGroupIDOut){
+				*eventGroupIDOut =  g.first;
+			}
+			return true;
+		}
+	}
+	return false;
+}
+
+
+bool CoopMgrDB::eventGroupSetName(eventGroupID_t eventGroupID, string name){
+
+	if(_eventsGroups.count(eventGroupID) == 0)
+		return false;
+ 
+	eventGroupInfo_t* info  =  &_eventsGroups[eventGroupID];
+	info->name = name;
+
+	savePropertiesToFile();
+	return true;
+}
+
+
+string CoopMgrDB::eventGroupGetName(eventGroupID_t eventGroupID){
+
+	if(_eventsGroups.count(eventGroupID) == 0)
+		return "";
+ 
+	eventGroupInfo_t* info  =  &_eventsGroups[eventGroupID];
+	return info->name;
+}
+
+
+
+bool CoopMgrDB::eventGroupAddEvent(eventGroupID_t eventGroupID,  eventID_t eventID){
+
+	if(_eventsGroups.count(eventGroupID) == 0)
+		return false;
+
+	if(!eventsIsValid(eventID))
+		return false;
+
+	eventGroupInfo_t* info  =  &_eventsGroups[eventGroupID];
+	info->eventIDs.insert(eventID);
+	
+	savePropertiesToFile();
+
+	return true;
+}
+
+bool CoopMgrDB::eventGroupRemoveEvent(eventGroupID_t eventGroupID, eventID_t eventID){
+	
+	if(_eventsGroups.count(eventGroupID) == 0)
+		return false;
+	
+	eventGroupInfo_t* info  =  &_eventsGroups[eventGroupID];
+	
+	if(info->eventIDs.count(eventID) == 0)
+		return false;
+
+	info->eventIDs.erase(eventID);
+
+	savePropertiesToFile();
+	return true;
+}
+
+bool CoopMgrDB::eventGroupContainsEventID(eventGroupID_t eventGroupID, eventID_t eventID){
+	
+	if(_eventsGroups.count(eventGroupID) == 0)
+		return false;
+	
+	eventGroupInfo_t* info  =  &_eventsGroups[eventGroupID];
+	
+	return(info->eventIDs.count(eventID) != 0);
+}
+ 
+vector<eventID_t> CoopMgrDB::eventGroupGetEventIDs(eventGroupID_t eventGroupID){
+	vector<eventID_t> eventIDs;
+
+	if(_eventsGroups.count(eventGroupID) != 0){
+		eventGroupInfo_t* info  =  &_eventsGroups[eventGroupID];
+		std::copy(info->eventIDs.begin(), info->eventIDs.end(), std::back_inserter(eventIDs));
+	}
+
+	return eventIDs;
+}
+
+vector<eventGroupID_t> CoopMgrDB::allEventGroupIDs(){
+	vector<eventGroupID_t> eventGroupIDs;
+ 
+ for (const auto& [key, _] : _eventsGroups) {
+	 eventGroupIDs.push_back( key);
+	}
+	
+	return eventGroupIDs;
+}
+
+
+void CoopMgrDB::reconcileEventGroups(const solarTimes_t &solar, time_t localNow){
+
+	// event groups prevent us from running needless events when we reboot.
+	// we only run the last elligable one for setting a steady state
+	
+	long nowMins = (localNow - solar.previousMidnight) / SECS_PER_MIN;
+
+	for (const auto& [eventGroupID, _] : _eventsGroups) {
+		eventGroupInfo_t* info  =  &_eventsGroups[eventGroupID];
+
+		// create a map all all events that need to run
+		map <int16_t, eventID_t> eventMap;
+		
+		for(auto eventID : info->eventIDs ){
+			Event* evt =  &_events[eventID];
+			int16_t minsFromMidnight = 0;
+			
+			if(evt->_trigger.calculateTriggerTime(solar,minsFromMidnight)){
+				if(minsFromMidnight <= nowMins){
+					eventMap[minsFromMidnight] = eventID;
+				}
+			}
+		};
+	 
+		if(eventMap.size() > 0){
+			// delete the last one
+			eventMap.erase(prev(eventMap.end()));
+			
+		// mark the rest as ran
+			for(auto item : eventMap ){
+				auto eventID  = item.second;
+				eventSetLastRunTime(eventID, localNow);
+			}
+
+		}
+	}
+	
+}
+ 
 
 // MARK: -  API Secrets
 bool CoopMgrDB::apiSecretCreate(string APIkey, string APISecret){

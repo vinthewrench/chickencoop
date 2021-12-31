@@ -22,7 +22,7 @@
 		2EFD148627711D7E0073F6AD /* helpfile.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2EFD148527711D410073F6AD /* helpfile.txt */; };
 		2EFD14892771213F0073F6AD /* valueschema.csv in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2EFD1488277121250073F6AD /* valueschema.csv */; };
 		2EFD1493277167BE0073F6AD /* sunset.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD1491277167BE0073F6AD /* sunset.cpp */; };
-		2EFD14962771680B0073F6AD /* ScheduleMgr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD14942771680B0073F6AD /* ScheduleMgr.cpp */; };
+		2EFD14962771680B0073F6AD /* SolarTimeMgr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD14942771680B0073F6AD /* SolarTimeMgr.cpp */; };
 		2EFD149C27725EC50073F6AD /* GPIO.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD149B27725EC50073F6AD /* GPIO.cpp */; };
 		2EFD149F27725F710073F6AD /* CoopDevices.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD149D27725F710073F6AD /* CoopDevices.cpp */; };
 		2EFD14A62772A80A0073F6AD /* QwiicButton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD14A42772A80A0073F6AD /* QwiicButton.cpp */; };
@@ -98,8 +98,8 @@
 		2EFD148E277124C40073F6AD /* sync.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = sync.sh; path = ../sync.sh; sourceTree = "<group>"; };
 		2EFD1491277167BE0073F6AD /* sunset.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sunset.cpp; sourceTree = "<group>"; };
 		2EFD1492277167BE0073F6AD /* sunset.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sunset.h; sourceTree = "<group>"; };
-		2EFD14942771680B0073F6AD /* ScheduleMgr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScheduleMgr.cpp; sourceTree = "<group>"; };
-		2EFD14952771680B0073F6AD /* ScheduleMgr.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ScheduleMgr.hpp; sourceTree = "<group>"; };
+		2EFD14942771680B0073F6AD /* SolarTimeMgr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SolarTimeMgr.cpp; sourceTree = "<group>"; };
+		2EFD14952771680B0073F6AD /* SolarTimeMgr.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SolarTimeMgr.hpp; sourceTree = "<group>"; };
 		2EFD149A27725EC50073F6AD /* GPIO.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = GPIO.hpp; sourceTree = "<group>"; };
 		2EFD149B27725EC50073F6AD /* GPIO.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GPIO.cpp; sourceTree = "<group>"; };
 		2EFD149D27725F710073F6AD /* CoopDevices.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CoopDevices.cpp; sourceTree = "<group>"; };
@@ -202,8 +202,8 @@
 				2EFD1462277101390073F6AD /* CoopMgrDevice.hpp */,
 				2EFD147B277111C20073F6AD /* CoopMgrAPISecretMgr.cpp */,
 				2EFD147C277111C20073F6AD /* CoopMgrAPISecretMgr.hpp */,
-				2EFD14942771680B0073F6AD /* ScheduleMgr.cpp */,
-				2EFD14952771680B0073F6AD /* ScheduleMgr.hpp */,
+				2EFD14942771680B0073F6AD /* SolarTimeMgr.cpp */,
+				2EFD14952771680B0073F6AD /* SolarTimeMgr.hpp */,
 				2EFD14C1277D1E270073F6AD /* Action.cpp */,
 				2EFD14C2277D1E270073F6AD /* Action.hpp */,
 				2EFD14C4277D276A0073F6AD /* Event.cpp */,
@@ -341,7 +341,7 @@
 				2EFD149F27725F710073F6AD /* CoopDevices.cpp in Sources */,
 				2EFD14C6277D276A0073F6AD /* Event.cpp in Sources */,
 				2EFD146D277106270073F6AD /* I2C.cpp in Sources */,
-				2EFD14962771680B0073F6AD /* ScheduleMgr.cpp in Sources */,
+				2EFD14962771680B0073F6AD /* SolarTimeMgr.cpp in Sources */,
 				2EFD148227711BC60073F6AD /* ServerCommandsLineFunctions.cpp in Sources */,
 				2EFD146F2771062D0073F6AD /* TMP102.cpp in Sources */,
 				2EFD149C27725EC50073F6AD /* GPIO.cpp in Sources */,

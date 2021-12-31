@@ -27,7 +27,9 @@ CoopMgr::CoopMgr(){
 	signal(SIGTERM, sigHandler);
 //	signal(SIGINT, sigHandler);
  
-	ScheduleMgr::shared();   // initialize the schedule manager - for uptime
+	SolarTimeMgr::shared();   // initialize the schedule manager - for uptime
+
+	_shouldRunStartupEvents = true;
 
 	// start the thread running
 	_running = true;
@@ -141,6 +143,8 @@ void CoopMgr::run(){
 			_tempSensor1.idle();
 			_coopHW.idle();
 			_cpuInfo.idle();
+			
+			idleLoop();
 		};
 	}
 	catch ( const CoopException& e)  {
@@ -155,11 +159,11 @@ void CoopMgr::run(){
 // MARK: -   utilities
 
 long CoopMgr::upTime(){
-	return ScheduleMgr::shared()->upTime();
+	return SolarTimeMgr::shared()->upTime();
 }
 
 bool CoopMgr::getSolarEvents(solarTimes_t &solar){
-	return ScheduleMgr::shared()->getSolarEvents(solar);
+	return SolarTimeMgr::shared()->getSolarEvents(solar);
 }
 
 
@@ -326,3 +330,75 @@ bool CoopMgr::runAction(Action action,
 	
 	return handled;
 }
+//MARK: -  idle loop
+
+void CoopMgr::idleLoop() {
+
+
+	
+	// limit this to once a minute
+		
+	static time_t lastRun = 0;
+
+	time_t now = time(NULL);
+	struct tm* tm = localtime(&now);
+	time_t localNow  = (now + tm->tm_gmtoff);
+
+	if(localNow > (lastRun + SECS_PER_MIN * 1))
+	{
+		lastRun = localNow;
+		
+ 		if(_state == CoopMgrDevice::DEVICE_STATE_CONNECTED) {
+		
+		// process startup events first
+			if(_shouldRunStartupEvents) {
+				
+				auto eventIDs =  _db.eventsMatchingAppEvent(EventTrigger::APP_EVENT_STARTUP);
+				
+				if(eventIDs.size() > 0){
+					size_t* taskCount  = (size_t*) malloc(sizeof(size_t));
+					*taskCount = eventIDs.size();
+		 
+					// run startup events.
+			 			for (auto eventID : eventIDs) {
+						string name = 	_db.eventGetName(eventID);
+						LOGT_INFO("RUN STARTUP EVENT %04x - \"%s\"", eventID, name.c_str());
+
+						executeEvent(eventID, [=]( bool didSucceed) {
+							
+							if(--(*taskCount) == 0) {
+								free(taskCount);
+							 
+							}
+						});
+					}
+				}
+				
+				_shouldRunStartupEvents = false;
+			}
+			
+			static bool didReconcileEvents = false;
+
+			// good place to check for events.
+			solarTimes_t solar;
+			if(SolarTimeMgr::shared()->getSolarEvents(solar)){
+				
+				// combine any unrun events.
+				if(!didReconcileEvents) {
+					_db.reconcileEventGroups(solar, localNow);
+				}
+				
+				auto eventIDs = _db.eventsThatNeedToRun(solar, localNow);
+				
+				for (auto eventID : eventIDs) {
+					string name = 	_db.eventGetName(eventID);
+					LOGT_INFO("RUN EVENT %04x - \"%s\"", eventID, name.c_str());
+
+					executeEvent(eventID, [=]( bool didSucceed) {
+						_db.eventSetLastRunTime(eventID, localNow);
+					});
+				}
+			}
+ 		}
+	}
+ };

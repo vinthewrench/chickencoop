@@ -21,6 +21,7 @@ constexpr string_view JSON_TIME_OFFSET		 	= "mins";
 constexpr string_view JSON_ARG_EVENT			= "event";
 constexpr string_view JSON_EVENT_STARTUP		= "startup";
 
+
 // MARK: - EventTrigger()
 
 
@@ -163,7 +164,7 @@ const std::string EventTrigger:: printString(){
 	 if(_eventType == EVENT_TYPE_TIME){
 
 		 solarTimes_t solar;
-		 ScheduleMgr::shared()->getSolarEvents(solar);
+		 SolarTimeMgr::shared()->getSolarEvents(solar);
 			int16_t minsFromMidnight = 0;
 		 
 		 // when does it need to run today

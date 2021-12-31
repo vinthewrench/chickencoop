@@ -1,12 +1,12 @@
 //
-//  ScheduleMgr.hpp
+//  SolarTimeMgr.hpp
 
 //
 //  Created by Vincent Moscaritolo on 5/26/21.
 //
 
-#ifndef ScheduleMgr_hpp
-#define ScheduleMgr_hpp
+#ifndef SolarTimeMgr_hpp
+#define SolarTimeMgr_hpp
 
 #include <stdio.h>
 #include <time.h>
@@ -59,20 +59,20 @@ typedef struct {
 
 //class InsteonMgr;
 
-class ScheduleMgr {
+class SolarTimeMgr {
 
 	public:
  
-	static ScheduleMgr *shared() {
+	static SolarTimeMgr *shared() {
 		if(!sharedInstance){
-			sharedInstance = new ScheduleMgr;
+			sharedInstance = new SolarTimeMgr;
 		}
 		return sharedInstance;
 	}
 
 //	friend InsteonMgr;
 
-	ScheduleMgr();
+	SolarTimeMgr();
 
 	void setLatLong(double latitude, double longitude);
 	bool getSolarEvents(solarTimes_t& events);
@@ -82,7 +82,7 @@ class ScheduleMgr {
 	
 private:
 	
-	static ScheduleMgr *sharedInstance;
+	static SolarTimeMgr *sharedInstance;
 
 
 	SunSet 			_sun;
@@ -95,4 +95,4 @@ private:
 
 };
 
-#endif /* ScheduleMgr_hpp */
+#endif /* SolarTimeMgr_hpp */

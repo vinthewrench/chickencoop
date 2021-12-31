@@ -1,32 +1,32 @@
 //
-//  ScheduleMgr.cpp
+//  SolarTimeMgr.cpp
 
 //
 //  Created by Vincent Moscaritolo on 5/26/21.
 //
 
-#include "ScheduleMgr.hpp"
+#include "SolarTimeMgr.hpp"
 
 #include "sunset.h"
 using namespace std;
 
 
-ScheduleMgr *ScheduleMgr::sharedInstance = NULL;
+SolarTimeMgr *SolarTimeMgr::sharedInstance = NULL;
 
-ScheduleMgr::ScheduleMgr(){
+SolarTimeMgr::SolarTimeMgr(){
 	_cachedSolar.previousMidnight = 0;
 	_latitude = numeric_limits<double>::max();
 	_longitude = numeric_limits<double>::max();
 	_startTime = time(NULL);
 }
 
-void ScheduleMgr::setLatLong(double latitude, double longitude){
+void SolarTimeMgr::setLatLong(double latitude, double longitude){
 	_cachedSolar.previousMidnight = 0;
 	_latitude = latitude;
 	_longitude = longitude;
 }
 
-bool  ScheduleMgr::calculateSolarEvents(){
+bool  SolarTimeMgr::calculateSolarEvents(){
 	
 	if(_latitude == numeric_limits<double>::max()
 		|| _longitude == numeric_limits<double>::max())
@@ -56,7 +56,7 @@ bool  ScheduleMgr::calculateSolarEvents(){
 	return true;
 }
 
-bool ScheduleMgr::getSolarEvents(solarTimes_t& events){
+bool SolarTimeMgr::getSolarEvents(solarTimes_t& events){
 
 	bool success = true;
 
@@ -77,7 +77,7 @@ bool ScheduleMgr::getSolarEvents(solarTimes_t& events){
 }
 
 
-long ScheduleMgr::upTime(){
+long SolarTimeMgr::upTime(){
 	time_t now = time(NULL);
 	return ( now - _startTime);
 }

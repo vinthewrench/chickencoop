@@ -19,7 +19,7 @@
 #include "json.hpp"
 
 #include "Action.hpp"
-#include "ScheduleMgr.hpp"
+#include "SolarTimeMgr.hpp"
 
 using namespace std;
 
@@ -193,5 +193,6 @@ private:
  	EventTrigger			_trigger;
 	Action					_action;
 };
+
 
 #endif /* Event_hpp */

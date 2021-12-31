@@ -1340,6 +1340,338 @@ static void Events_NounHandler(ServerCmdQueue* cmdQueue,
 	
 }
 
+// MARK:  EVENT GROUPS NOUN HANDLERS
+
+static bool EventGroups_NounHandler_GET(ServerCmdQueue* cmdQueue,
+											  REST_URL url,
+											  TCPClientInfo cInfo,
+											  ServerCmdQueue::cmdCallback_t completion) {
+	using namespace rest;
+	
+	auto path = url.path();
+	auto queries = url.queries();
+	auto headers = url.headers();
+	json reply;
+	
+	auto coopMgr = CoopMgr::shared();
+	auto db = coopMgr->getDB();
+
+	// GET /event.groups
+	if(path.size() == 1) {;
+		
+		json groupsList;
+		auto groupIDs = db->allEventGroupIDs();
+		for(auto groupID : groupIDs){
+			json entry;
+			
+			entry[string(JSON_ARG_NAME)] =  db->eventGroupGetName(groupID);
+			groupsList[ EventGroupID_to_string(groupID)] = entry;
+		}
+		
+		reply[string(JSON_ARG_GROUPIDS)] = groupsList;
+		makeStatusJSON(reply,STATUS_OK);
+		(completion) (reply, STATUS_OK);
+		return true;
+		
+	}
+		// GET /event.groups/XXXX
+		else if(path.size() == 2) {
+			 
+			eventGroupID_t groupID;
+			
+			if( !str_to_EventGroupID(path.at(1).c_str(), &groupID) || !db->eventGroupIsValid(groupID))
+				return false;
+	 
+			reply[string(JSON_ARG_GROUPID)] = EventGroupID_to_string(groupID);
+			reply[string(JSON_ARG_NAME)] =  db->eventGroupGetName(groupID);
+			auto eventIDS = db->eventGroupGetEventIDs(groupID);
+			
+			vector<string> ids;
+			for (auto evtID : eventIDS) {
+				ids.push_back(EventID_to_string(evtID));
+			}
+			reply[string(JSON_ARG_EVENTID	)] = ids;
+
+			makeStatusJSON(reply,STATUS_OK);
+			(completion) (reply, STATUS_OK);
+
+	}
+	else {
+		
+	}
+	
+	return false;
+}
+
+
+static bool EventGroups_NounHandler_PUT(ServerCmdQueue* cmdQueue,
+												REST_URL url,
+												TCPClientInfo cInfo,
+													  ServerCmdQueue::cmdCallback_t completion) {
+	
+	using namespace rest;
+	auto path = url.path();
+	auto queries = url.queries();
+	auto headers = url.headers();
+	json reply;
+	
+	auto coopMgr = CoopMgr::shared();
+	auto db = coopMgr->getDB();
+
+	ServerCmdArgValidator v1;
+ 
+	eventGroupID_t groupID;
+ 
+	  if(path.size() < 1) {
+		  return false;
+	  }
+	  
+	  if( !str_to_EventGroupID(path.at(1).c_str(), &groupID)
+		  || !db->eventGroupIsValid(groupID))
+		  return false;
+	
+	
+	string str;
+	if(v1.getStringFromJSON(JSON_ARG_EVENTID, url.body(), str)){
+		eventID_t eventID;
+		
+		if( ! str_to_EventID(str.c_str(), &eventID) || !db->eventsIsValid(eventID))
+			return false;
+	 
+		if(db->eventGroupAddEvent(groupID, eventID)){
+			reply[string(JSON_ARG_GROUPID)] = EventGroupID_to_string(groupID);
+			reply[string(JSON_ARG_EVENTID)] = EventID_to_string(eventID);
+			makeStatusJSON(reply,STATUS_OK);
+			(completion) (reply, STATUS_OK);
+			
+		}
+		else {
+			reply[string(JSON_ARG_GROUPID)] = EventGroupID_to_string(groupID);
+			reply[string(JSON_ARG_EVENTID)] = EventID_to_string(eventID);
+	
+			makeStatusJSON(reply, STATUS_BAD_REQUEST, "Set Failed" );;
+			(completion) (reply, STATUS_BAD_REQUEST);
+		}
+		return  true;
+	}
+
+	return false;
+}
+
+static bool EventGroups_NounHandler_PATCH(ServerCmdQueue* cmdQueue,
+											  REST_URL url,
+											  TCPClientInfo cInfo,
+												 ServerCmdQueue::cmdCallback_t completion) {
+	using namespace rest;
+	
+	auto path = url.path();
+	auto queries = url.queries();
+	auto headers = url.headers();
+	
+	json reply;
+	
+	ServerCmdArgValidator v1;
+	auto coopMgr = CoopMgr::shared();
+	auto db = coopMgr->getDB();
+
+	eventGroupID_t groupID;
+
+	if(path.size() < 1) {
+		return false;
+	}
+	
+	if( !str_to_EventGroupID(path.at(1).c_str(), &groupID)
+		|| !db->eventGroupIsValid(groupID))
+		return false;
+ 
+	
+	if(path.size() == 2) {
+		string name;
+		// set name
+		if(v1.getStringFromJSON(JSON_ARG_NAME, url.body(), name)){
+			if(db->eventGroupSetName(groupID, name)) {
+				reply[string(JSON_ARG_GROUPID)] =  EventGroupID_to_string(groupID);
+				reply[string(JSON_ARG_NAME)] = name;
+				
+				makeStatusJSON(reply,STATUS_OK);
+				(completion) (reply, STATUS_OK);
+			}
+			else {
+				reply[string(JSON_ARG_GROUPID)] =  EventGroupID_to_string(groupID);
+				makeStatusJSON(reply, STATUS_BAD_REQUEST, "Set Failed" );;
+				(completion) (reply, STATUS_BAD_REQUEST);
+			}
+		}
+	}
+	return false;
+	
+}
+
+static bool EventGroups_NounHandler_POST(ServerCmdQueue* cmdQueue,
+											  REST_URL url,
+											  TCPClientInfo cInfo,
+												 ServerCmdQueue::cmdCallback_t completion) {
+	using namespace rest;
+	auto path = url.path();
+	auto queries = url.queries();
+	auto headers = url.headers();
+	
+	json reply;
+	
+	ServerCmdArgValidator v1;
+	auto coopMgr = CoopMgr::shared();
+	auto db = coopMgr->getDB();
+	
+	if(path.size() == 1) {
+		
+		string name;
+		// Create group
+		if(v1.getStringFromJSON(JSON_ARG_NAME, url.body(), name)){
+			
+			eventGroupID_t groupID;
+			if(db->eventGroupFind(name, &groupID)){
+				name = db->eventGroupGetName(groupID);
+			}
+			else {
+				if (! db->eventGroupCreate(&groupID, name)) {
+					reply[string(JSON_ARG_NAME)] = name;
+					makeStatusJSON(reply, STATUS_BAD_REQUEST, "Set Failed" );;
+					(completion) (reply, STATUS_BAD_REQUEST);
+					return true;
+				}
+			}
+		 
+			reply[string(JSON_ARG_GROUPID)] = EventGroupID_to_string(groupID);
+			reply[string(JSON_ARG_NAME)] = name;
+			makeStatusJSON(reply,STATUS_OK);
+			(completion) (reply, STATUS_OK);
+			return true;
+		}
+	}
+
+	return false;
+}
+
+
+
+static bool EventGroups_NounHandler_DELETE(ServerCmdQueue* cmdQueue,
+											  REST_URL url,
+											  TCPClientInfo cInfo,
+														  ServerCmdQueue::cmdCallback_t completion) {
+	using namespace rest;
+	auto path = url.path();
+	auto queries = url.queries();
+	auto headers = url.headers();
+	
+	json reply;
+	
+	ServerCmdArgValidator v1;
+	auto coopMgr = CoopMgr::shared();
+	auto db = coopMgr->getDB();
+
+	eventGroupID_t groupID;
+
+	if(path.size() < 1) {
+		return false;
+	}
+	
+	if( !str_to_EventGroupID(path.at(1).c_str(), &groupID)
+		|| !db->eventGroupIsValid(groupID))
+		return false;
+ 
+	if(path.size() == 2) {
+		if(db->eventGroupDelete(groupID)){
+			makeStatusJSON(reply,STATUS_NO_CONTENT);
+			(completion) (reply, STATUS_NO_CONTENT);
+		}
+		else {
+			reply[string(JSON_ARG_GROUPID)] = EventGroupID_to_string(groupID);
+			makeStatusJSON(reply, STATUS_BAD_REQUEST, "Delete Failed" );;
+			(completion) (reply, STATUS_BAD_REQUEST);
+		}
+		return true;
+	}
+	else if(path.size() == 3) {
+		
+		eventID_t eventID;
+		
+		if( !str_to_EventID(path.at(2).c_str(), &eventID)
+			|| !db->eventsIsValid(eventID))
+			return false;
+		
+		if(db->eventGroupRemoveEvent(groupID, eventID)){
+			makeStatusJSON(reply,STATUS_NO_CONTENT);
+			(completion) (reply, STATUS_NO_CONTENT);
+		}
+		else {
+			reply[string(JSON_ARG_GROUPID)] = EventGroupID_to_string(groupID);
+			reply[string(JSON_ARG_EVENTID)] = EventID_to_string(eventID);
+			makeStatusJSON(reply, STATUS_BAD_REQUEST, "Delete Failed" );;
+			(completion) (reply, STATUS_BAD_REQUEST);
+		}
+	}
+	return false;
+}
+
+static void EventGroups_NounHandler(ServerCmdQueue* cmdQueue,
+										 REST_URL url,
+										 TCPClientInfo cInfo,
+										 ServerCmdQueue::cmdCallback_t completion) {
+	using namespace rest;
+	json reply;
+	
+	auto path = url.path();
+	auto queries = url.queries();
+	auto headers = url.headers();
+	string noun;
+	
+	bool isValidURL = false;
+	
+	if(path.size() > 0) {
+		noun = path.at(0);
+	}
+	
+	
+//	// is server available?
+//	if(!insteon.serverAvailable()) {
+//		makeStatusJSON(reply, STATUS_UNAVAILABLE, "Server is unavailable" );;
+//		(completion) (reply, STATUS_UNAVAILABLE);
+//		return;
+//	}
+	
+	switch(url.method()){
+		case HTTP_GET:
+			isValidURL = EventGroups_NounHandler_GET(cmdQueue,url,cInfo, completion);
+			break;
+			
+		case HTTP_PUT:
+			isValidURL = EventGroups_NounHandler_PUT(cmdQueue,url,cInfo, completion);
+			break;
+			
+		case HTTP_PATCH:
+			isValidURL = EventGroups_NounHandler_PATCH(cmdQueue,url,cInfo, completion);
+			break;
+	 
+		case HTTP_POST:
+			isValidURL = EventGroups_NounHandler_POST(cmdQueue,url,cInfo, completion);
+			break;
+ 
+		case HTTP_DELETE:
+			isValidURL = EventGroups_NounHandler_DELETE(cmdQueue,url,cInfo, completion);
+			break;
+  
+		default:
+			(completion) (reply, STATUS_INVALID_METHOD);
+			return;
+	}
+	
+	if(!isValidURL) {
+		(completion) (reply, STATUS_NOT_FOUND);
+	}
+	
+}
+
+
 // MARK:  STATE NOUN HANDLERS
 
 static bool State_NounHandler_GET(ServerCmdQueue* cmdQueue,
@@ -1694,6 +2026,7 @@ void registerServerNouns() {
 	cmdQueue->registerNoun(NOUN_VALUE_HISTORY,	 ValueHistory_NounHandler);
 	cmdQueue->registerNoun(NOUN_HISTORY, 	History_NounHandler);
 	cmdQueue->registerNoun(NOUN_EVENTS,		 Events_NounHandler);
+	cmdQueue->registerNoun(NOUN_EVENTS_GROUPS,  EventGroups_NounHandler);
 
 }
 

@@ -32,6 +32,11 @@ using namespace std;
 using namespace nlohmann;
 
 typedef  unsigned long eTag_t;
+ 
+typedef  unsigned short eventGroupID_t;
+bool str_to_EventGroupID(const char* str, eventGroupID_t *eventGroupIDOut = NULL);
+string  EventGroupID_to_string(eventGroupID_t eventGroupID);
+
 
 class CoopMgrDB {
  
@@ -50,7 +55,10 @@ public:
 	constexpr static string_view PROP_REST_PORT					= "rest-port";
 	constexpr static string_view PROP_ALLOW_REMOTE_TELNET		= "allow-remote-telnet";
 	constexpr static string_view PROP_EVENT		= "events";	// event data follows
-
+	constexpr static string_view PROP_EVENT_GROUPS		= "event.groups";	// event data follows
+	constexpr static string_view PROP_ARG_EVENT_GROUPID		= "groupID";	// event data follows
+	constexpr static string_view PROP_ARG_EVENTIDS				= "eventIDs";	// event data follows
+ 
 	typedef enum {
 		INVALID = 0,
 		BOOL,				// Bool ON/OFF
@@ -173,6 +181,21 @@ public:
 	vector<eventID_t> eventsInTheFuture(solarTimes_t &solar, time_t localNow);
 	bool eventSetLastRunTime(eventID_t eventID, time_t localNow);
 
+	
+	// MARK: -  event groups
+	bool eventGroupIsValid(eventGroupID_t eventGroupID);
+	bool eventGroupCreate(eventGroupID_t* eventGroupID, const string name);
+	bool eventGroupDelete(eventGroupID_t eventGroupID);
+	bool eventGroupFind(string name, eventGroupID_t* eventGroupID);
+	bool eventGroupSetName(eventGroupID_t eventGroupID, string name);
+	string eventGroupGetName(eventGroupID_t eventGroupID);
+	bool eventGroupAddEvent(eventGroupID_t eventGroupID,  eventID_t eventID);
+	bool eventGroupRemoveEvent(eventGroupID_t eventGroupID, eventID_t eventID);
+	bool eventGroupContainsEventID(eventGroupID_t eventGroupID, eventID_t eventID);
+	vector<eventID_t> eventGroupGetEventIDs(eventGroupID_t eventGroupID);
+	vector<eventGroupID_t> allEventGroupIDs();
+	void reconcileEventGroups(const solarTimes_t &solar, time_t localNow);
+
  
 private:
 	
@@ -193,14 +216,25 @@ private:
 	bool 		valueShouldUpdate(string key, string value);
 
 	bool		restoreValuesFromDB();
-	 
+	bool 		restoreEventGroupFromJSON(json j);
+	bool 		saveEventGroupToJSON(eventGroupID_t, json &j );
+
 	bool		insertValueToDB(string key, string value, time_t time );
 	bool		saveUniqueValueToDB(string key, string value, time_t time );
-		map<string, pair<time_t, string>> _values;
- 
+
+	
+	map<string, pair<time_t, string>> _values;
 	map<string,valueSchemaUnits_t>  _schemaMap;
 	map<string, valueSchema_t>	_schema;
 	map<eventID_t, Event> 		_events;
+	
+	typedef struct {
+		string name;
+		set<eventID_t>  eventIDs;
+	} eventGroupInfo_t;
+
+	map<eventGroupID_t, eventGroupInfo_t> 		_eventsGroups;
+
 	map<string, eTag_t> 			_etagMap;
 	eTag_t							_eTag;		// last change tag
 

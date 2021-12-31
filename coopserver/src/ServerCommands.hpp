@@ -21,7 +21,7 @@ constexpr string_view NOUN_VALUE_HISTORY 	 	= "valuehistory";
 constexpr string_view NOUN_LOG	 				= "log";
 constexpr string_view NOUN_HISTORY	 	 		= "history";
 constexpr string_view NOUN_EVENTS				= "events";
-
+constexpr string_view NOUN_EVENTS_GROUPS		= "event.groups";
 
 constexpr string_view SUBPATH_FILE	 			= "file";
 constexpr string_view SUBPATH_STATE	 			= "state";
@@ -57,9 +57,12 @@ constexpr string_view JSON_ARG_HISTORICAL_EVENTS			= "historicalevents";
 constexpr string_view JSON_ARG_DAYS			= "days";
 constexpr string_view JSON_ARG_LIMIT			= "limit";
  
-constexpr string_view JSON_ARG_EVENTIDS		= "eventIDs";
 constexpr string_view JSON_ARG_ACTIONID 		= "actionID";
 constexpr string_view JSON_ARG_EVENTID 		= "eventID";
+constexpr string_view JSON_ARG_EVENTIDS		= "eventIDs";
+constexpr string_view JSON_ARG_GROUPID 		= "groupID";
+constexpr string_view JSON_ARG_GROUPIDS		= "groupIDs";
+
 constexpr string_view JSON_ARG_ACTION			= "action";
 constexpr string_view JSON_ARG_TRIGGER			= "trigger";
 constexpr string_view JSON_ARG_TIMED_EVENTS	= "events.timed";
