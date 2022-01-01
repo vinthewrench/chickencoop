@@ -27,9 +27,10 @@ CoopMgr::CoopMgr(){
 	signal(SIGTERM, sigHandler);
 //	signal(SIGINT, sigHandler);
  
-	SolarTimeMgr::shared();   // initialize the schedule manager - for uptime
+	_shouldRunStartupEvents = false;
+	_shouldReconcileEvents	= false;
 
-	_shouldRunStartupEvents = true;
+	SolarTimeMgr::shared();   // initialize the schedule manager - for uptime
 
 	// start the thread running
 	_running = true;
@@ -53,7 +54,8 @@ bool CoopMgr::initDataBase(string schemaFilePath,
 
 	bool success = false;
 	_db.clear();
- 
+	_db.resetAllEventsLastRun();
+
 	_db.restorePropertiesFromFile();
 
 	// setup logfile path
@@ -83,6 +85,9 @@ bool CoopMgr::initDataBase(string schemaFilePath,
 }
 
 void CoopMgr::start(){
+	
+	LOGT_DEBUG("Start Coop");
+
 	initDataBase();
 
  	startTempSensor();
@@ -90,6 +95,8 @@ void CoopMgr::start(){
 		
 		if(didSucceed){
 			_state = CoopMgrDevice::DEVICE_STATE_CONNECTED;
+ 
+			_shouldRunStartupEvents = true;
 		}
 		else {
 			_state = CoopMgrDevice::DEVICE_STATE_ERROR;
@@ -98,9 +105,14 @@ void CoopMgr::start(){
  }
 
 void CoopMgr::stop(){
+	
+	LOGT_DEBUG("Stop Coop");
+
  	stopTempSensor();
 	stopCoopDevices();
 	_state = CoopMgrDevice::DEVICE_STATE_DISCONNECTED;
+	_shouldRunStartupEvents = false;
+	_shouldReconcileEvents = false;
 }
 
 
@@ -334,9 +346,7 @@ bool CoopMgr::runAction(Action action,
 
 void CoopMgr::idleLoop() {
 
-
-	
-	// limit this to once a minute
+	// limit this twice a minute
 		
 	static time_t lastRun = 0;
 
@@ -344,7 +354,7 @@ void CoopMgr::idleLoop() {
 	struct tm* tm = localtime(&now);
 	time_t localNow  = (now + tm->tm_gmtoff);
 
-	if(localNow > (lastRun + SECS_PER_MIN * 1))
+	if(localNow > (lastRun + 30 ))  // 30 seconds delay
 	{
 		lastRun = localNow;
 		
@@ -368,24 +378,28 @@ void CoopMgr::idleLoop() {
 							
 							if(--(*taskCount) == 0) {
 								free(taskCount);
-							 
+								
+								_shouldReconcileEvents = true;
 							}
 						});
 					}
+				}
+				else {
+					_shouldReconcileEvents = true;
 				}
 				
 				_shouldRunStartupEvents = false;
 			}
 			
-			static bool didReconcileEvents = false;
-
+ 
 			// good place to check for events.
 			solarTimes_t solar;
 			if(SolarTimeMgr::shared()->getSolarEvents(solar)){
 				
 				// combine any unrun events.
-				if(!didReconcileEvents) {
+				if(_shouldReconcileEvents) {
 					_db.reconcileEventGroups(solar, localNow);
+					_shouldReconcileEvents = false;
 				}
 				
 				auto eventIDs = _db.eventsThatNeedToRun(solar, localNow);

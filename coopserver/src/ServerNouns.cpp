@@ -1708,20 +1708,6 @@ static bool State_NounHandler_GET(ServerCmdQueue* cmdQueue,
 
 	reply[string(JSON_ARG_TEMP_SENSOR1)]	= coopMgr->tempSensor1State();
 	reply[string(JSON_ARG_COOP_DEVICE)]		= coopMgr->coopState();
-	
-	solarTimes_t solar;
-	if( coopMgr->getSolarEvents(solar)) {
-		reply["civilSunRise"] = solar.civilSunRiseMins;
-		reply["sunRise"] = solar.sunriseMins;
-		reply["sunSet"] = solar.sunSetMins;
-		reply["civilSunSet"] = solar.civilSunSetMins;
-		reply["latitude"] = solar.latitude;
-		reply["longitude"] = solar.longitude;
-		reply["gmtOffset"] = solar.gmtOffset;
-		reply["timeZone"] = solar.timeZoneString;
-		reply["midnight"] = solar.previousMidnight;
-	}
-
  
 	double temp;
 	if(getCPUTemp(temp)){
@@ -1754,21 +1740,63 @@ static bool State_NounHandler_PUT(ServerCmdQueue* cmdQueue,
 	auto headers = url.headers();
 	
 	ServerCmdArgValidator v1;
-	//	auto db = coopMgr->getDB();
-	
+	auto coopMgr = CoopMgr::shared();
+
 	string noun;
 	json reply;
 	
+	CoopMgrDevice::device_state_t coopState =  coopMgr->coopState();
+	
+
 	if(path.size() > 0) {
 		noun = path.at(0);
+		
 	}
 	
-	if(path.size() == 2) {
-		
+	if(path.size() == 1) {
+		string str;
+	
+		if(v1.getStringFromJSON(JSON_ARG_STATE, url.body(), str)){
+			std::transform(str.begin(), str.end(), str.begin(), ::tolower);
+			
+			if(str == JSON_VAL_START){
+			 
+				if(coopState == CoopMgrDevice::DEVICE_STATE_CONNECTED){
+					makeStatusJSON(reply,
+										STATUS_BAD_REQUEST, "Coop in wrong state",
+										"Coop is " + CoopMgrDevice::stateString(coopMgr->coopState())  );
+					(completion) (reply, STATUS_BAD_REQUEST);
+					return true;
+				}
+				
+				coopMgr->start();
+				makeStatusJSON(reply,STATUS_OK);
+				(completion) (reply, STATUS_OK);
+				return true;
+	
+			}else if(str == JSON_VAL_STOP){
+
+				if(coopState == CoopMgrDevice::DEVICE_STATE_DISCONNECTED){
+					makeStatusJSON(reply,
+										STATUS_BAD_REQUEST, "Coop in wrong state",
+										"Coop is " + CoopMgrDevice::stateString(coopMgr->coopState())  );
+					(completion) (reply, STATUS_BAD_REQUEST);
+					return true;
+				}
+				
+				coopMgr->stop();
+				makeStatusJSON(reply,STATUS_OK);
+				(completion) (reply, STATUS_OK);
+				return true;
+
+			}
+		}
+	}
+	else if(path.size() == 2) {
 		string subpath =   path.at(1);
 		string str;
- 
-	}
+ 	}
+	
 	
 	
 	return false;
@@ -1824,6 +1852,58 @@ static void State_NounHandler(ServerCmdQueue* cmdQueue,
 		(completion) (reply, STATUS_NOT_FOUND);
 	}
 };
+
+// MARK: Date - NOUN HANDLER
+
+static void Date_NounHandler(ServerCmdQueue* cmdQueue,
+									  REST_URL url,
+									  TCPClientInfo cInfo,
+									  ServerCmdQueue::cmdCallback_t completion) {
+	
+	using namespace rest;
+	using namespace timestamp;
+	auto coopMgr = CoopMgr::shared();
+	json reply;
+ 
+
+	// CHECK METHOD
+	if(url.method() != HTTP_GET ) {
+		(completion) (reply, STATUS_INVALID_METHOD);
+		return;
+	}
+	
+	auto path = url.path();
+	string noun;
+	
+	if(path.size() > 0) {
+		noun = path.at(0);
+	}
+	
+	// CHECK sub paths
+	if(noun != NOUN_DATE){
+		(completion) (reply, STATUS_NOT_FOUND);
+		return;
+	}
+	
+	reply[string(JSON_ARG_DATE)] = TimeStamp().RFC1123String();
+	reply[string(JSON_ARG_UPTIME)]	= coopMgr->upTime();
+
+	solarTimes_t solar;
+	if( coopMgr->getSolarEvents(solar)) {
+		reply["civilSunRise"] = solar.civilSunRiseMins;
+		reply["sunRise"] = solar.sunriseMins;
+		reply["sunSet"] = solar.sunSetMins;
+		reply["civilSunSet"] = solar.civilSunSetMins;
+		reply["latitude"] = solar.latitude;
+		reply["longitude"] = solar.longitude;
+		reply["gmtOffset"] = solar.gmtOffset;
+		reply["timeZone"] = solar.timeZoneString;
+		reply["midnight"] = solar.previousMidnight;
+	}
+
+	makeStatusJSON(reply,STATUS_OK);
+	(completion) (reply, STATUS_OK);
+}
 
 // MARK: LOG - NOUN HANDLER
 
@@ -2017,6 +2097,8 @@ void registerServerNouns() {
 	auto cmdQueue = ServerCmdQueue::shared();
 
 	cmdQueue->registerNoun(NOUN_STATE, 	State_NounHandler);
+	cmdQueue->registerNoun(NOUN_DATE, 		Date_NounHandler);
+
 	cmdQueue->registerNoun(NOUN_SCHEMA, 	Schema_NounHandler);
 	cmdQueue->registerNoun(NOUN_VALUES, 	Values_Handler);
 	cmdQueue->registerNoun(NOUN_DEVICES, 	Devices_NounHandler);

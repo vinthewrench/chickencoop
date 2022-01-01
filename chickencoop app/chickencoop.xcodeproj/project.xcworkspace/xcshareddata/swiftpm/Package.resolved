@@ -1,0 +1,34 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "AnyFormatKit",
+        "repositoryURL": "https://github.com/luximetr/AnyFormatKit.git",
+        "state": {
+          "branch": null,
+          "revision": "27b35c984c1c81e74c8be5273f7b2dc5250cb5cc",
+          "version": "2.5.1"
+        }
+      },
+      {
+        "package": "SwiftRadix",
+        "repositoryURL": "https://github.com/orchetect/SwiftRadix",
+        "state": {
+          "branch": null,
+          "revision": "8d223195d2aca10b326b43fba0c5c11d9494e397",
+          "version": "1.0.3"
+        }
+      },
+      {
+        "package": "Toast",
+        "repositoryURL": "https://github.com/BastiaanJansen/Toast-Swift",
+        "state": {
+          "branch": null,
+          "revision": "dcd6e1ff17c732033eaecbfff1c55954f670b2f9",
+          "version": "1.0.4"
+        }
+      }
+    ]
+  },
+  "version": 1
+}

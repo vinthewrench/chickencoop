@@ -180,8 +180,8 @@ public:
 	vector<eventID_t> eventsThatNeedToRun(solarTimes_t &solar, time_t localNow);
 	vector<eventID_t> eventsInTheFuture(solarTimes_t &solar, time_t localNow);
 	bool eventSetLastRunTime(eventID_t eventID, time_t localNow);
+	void resetAllEventsLastRun();
 
-	
 	// MARK: -  event groups
 	bool eventGroupIsValid(eventGroupID_t eventGroupID);
 	bool eventGroupCreate(eventGroupID_t* eventGroupID, const string name);

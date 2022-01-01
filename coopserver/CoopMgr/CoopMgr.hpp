@@ -85,8 +85,9 @@ public:
 private:
 	
 	void		idleLoop();		// do stuff here when we are not busy.
-	bool				_shouldRunStartupEvents;	// we still need to run startup events.
-
+	bool			_shouldRunStartupEvents;	// we still need to run startup events.
+	bool			_shouldReconcileEvents;		// part of startup  combine any unrun events.
+	
 	static CoopMgr *sharedInstance;
 	
 	CoopMgrDevice::device_state_t	_state;

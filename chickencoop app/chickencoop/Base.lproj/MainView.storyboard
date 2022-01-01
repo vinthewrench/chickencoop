@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
+        <capability name="Image references" minToolsVersion="12.0"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <customFonts key="customFonts">
+        <array key="Quicksand-Bold.otf">
+            <string>Quicksand-Bold</string>
+        </array>
+    </customFonts>
+    <scenes>
+        <!--Main View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController storyboardIdentifier="MainViewController" id="BYZ-38-t0r" customClass="MainViewController" customModule="chickencoop" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="4eV-Ru-LhS">
+                                <rect key="frame" x="0.0" y="100" width="414" height="713"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                            </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ZdG-UW-yfG">
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="100"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Chicken Coop" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Gsu-GR-q1g">
+                                        <rect key="frame" x="10" y="62" width="167.5" height="28"/>
+                                        <fontDescription key="fontDescription" name="Quicksand-Bold" family="Quicksand" pointSize="24"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="orH-ip-fFD">
+                                        <rect key="frame" x="367" y="63" width="27" height="26"/>
+                                        <state key="normal" image="gear" catalog="system">
+                                            <preferredSymbolConfiguration key="preferredSymbolConfiguration" scale="large"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="SetupUpClicked:" destination="BYZ-38-t0r" eventType="touchUpInside" id="ZPW-YN-3Dj"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="z1H-U7-IS2">
+                                        <rect key="frame" x="185.5" y="64" width="25" height="24"/>
+                                        <state key="normal">
+                                            <imageReference key="image" image="plus.circle" catalog="system" symbolScale="large"/>
+                                            <preferredSymbolConfiguration key="preferredSymbolConfiguration" scale="large" weight="light"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="addBtnUpClicked:" destination="BYZ-38-t0r" eventType="touchUpInside" id="amB-yK-Qzs"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                                <viewLayoutGuide key="safeArea" id="ZI1-bI-iOv"/>
+                                <color key="backgroundColor" systemColor="systemGray6Color"/>
+                                <constraints>
+                                    <constraint firstAttribute="bottom" secondItem="Gsu-GR-q1g" secondAttribute="bottom" constant="10" id="0eZ-VJ-kqy"/>
+                                    <constraint firstAttribute="trailing" secondItem="orH-ip-fFD" secondAttribute="trailing" constant="20" symbolic="YES" id="0wY-fB-33A"/>
+                                    <constraint firstAttribute="height" constant="100" id="ChH-Ww-ZXP"/>
+                                    <constraint firstItem="Gsu-GR-q1g" firstAttribute="leading" secondItem="ZdG-UW-yfG" secondAttribute="leading" constant="10" id="J5p-8L-ngb"/>
+                                    <constraint firstItem="z1H-U7-IS2" firstAttribute="centerY" secondItem="Gsu-GR-q1g" secondAttribute="centerY" id="QE1-qu-ktb"/>
+                                    <constraint firstItem="z1H-U7-IS2" firstAttribute="leading" secondItem="Gsu-GR-q1g" secondAttribute="trailing" constant="8" symbolic="YES" id="RaG-Q9-nMs"/>
+                                    <constraint firstItem="orH-ip-fFD" firstAttribute="centerY" secondItem="Gsu-GR-q1g" secondAttribute="centerY" id="qZx-z7-Fij"/>
+                                </constraints>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
+                                        <real key="value" value="0.0"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
+                            </view>
+                            <tabBar contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="qtX-ZG-OgH">
+                                <rect key="frame" x="0.0" y="813" width="414" height="83"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <items>
+                                    <tabBarItem title="Coop" image="coop_tabbar" id="mQh-PD-oI3" userLabel="Coop"/>
+                                    <tabBarItem tag="1" title="Schedules" image="clock" catalog="system" id="kUD-ut-011"/>
+                                </items>
+                                <connections>
+                                    <outlet property="delegate" destination="BYZ-38-t0r" id="J8V-T1-jiU"/>
+                                </connections>
+                            </tabBar>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="qtX-ZG-OgH" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="24C-8c-zPm"/>
+                            <constraint firstItem="4eV-Ru-LhS" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="Bqe-fj-4Me"/>
+                            <constraint firstItem="ZdG-UW-yfG" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="HQS-iq-4gW"/>
+                            <constraint firstItem="ZdG-UW-yfG" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="VWD-rX-Qif"/>
+                            <constraint firstAttribute="bottom" secondItem="qtX-ZG-OgH" secondAttribute="bottom" id="aEW-6I-QDa"/>
+                            <constraint firstItem="qtX-ZG-OgH" firstAttribute="top" secondItem="4eV-Ru-LhS" secondAttribute="bottom" id="acf-fd-6W0"/>
+                            <constraint firstAttribute="trailing" secondItem="qtX-ZG-OgH" secondAttribute="trailing" id="hpy-Vh-AJq"/>
+                            <constraint firstItem="ZdG-UW-yfG" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="oTx-WL-jfY"/>
+                            <constraint firstItem="4eV-Ru-LhS" firstAttribute="top" secondItem="ZdG-UW-yfG" secondAttribute="bottom" id="ucW-Rx-mmu"/>
+                            <constraint firstItem="4eV-Ru-LhS" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="v8M-RR-EzN"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="btnAdd" destination="z1H-U7-IS2" id="fzZ-66-t2O"/>
+                        <outlet property="lbTitle" destination="Gsu-GR-q1g" id="8ss-H3-B3d"/>
+                        <outlet property="tabBar" destination="qtX-ZG-OgH" id="WiS-XQ-WDN"/>
+                        <outlet property="vwContainer" destination="4eV-Ru-LhS" id="itc-Ma-xO7"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="24.637681159420293" y="83.705357142857139"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="clock" catalog="system" width="128" height="121"/>
+        <image name="coop_tabbar" width="25" height="25"/>
+        <image name="gear" catalog="system" width="128" height="119"/>
+        <image name="plus.circle" catalog="system" width="128" height="121"/>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+        <systemColor name="systemGray6Color">
+            <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+    </resources>
+</document>

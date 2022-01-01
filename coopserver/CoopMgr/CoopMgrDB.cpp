@@ -1246,7 +1246,7 @@ vector<eventID_t> CoopMgrDB::eventsInTheFuture(solarTimes_t &solar, time_t local
 	vector<eventID_t> events;
 
 	for (auto& [key, evt] : _events) {
-		if(evt._trigger	.shouldTriggerInFuture(solar, localNow))
+		if(evt._trigger.shouldTriggerInFuture(solar, localNow))
 			events.push_back( key);
 	};
 		
@@ -1262,6 +1262,14 @@ bool CoopMgrDB::eventSetLastRunTime(eventID_t eventID, time_t localNow){
 	return evt->_trigger.setLastRun(localNow);
 }
 
+void CoopMgrDB::resetAllEventsLastRun() {
+	
+	for (auto& [_, evt] : _events) {
+		evt._trigger.setLastRun(0);
+	}
+};
+		
+ 
 //MARK: - event group API
  
 bool str_to_EventGroupID(const char* str, eventGroupID_t *eventGroupIDOut){

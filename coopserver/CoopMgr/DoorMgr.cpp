@@ -123,23 +123,25 @@ bool DoorMgr::do_action(action_t action){
 bool DoorMgr::action_init(){
 	
 	
-	stop([=]( bool didSucceed) {
-		// close the door
-		
-		action_close();
- 
-//
-//		// if the door is closed keep it that way
-//		if(door.isClosed()) {
-//			self.currentState = STATE_CLOSED;
-//		}
-//		// open it.
-//		else {
-//			Open_Action(self);
-//		}
 	
-	});
- 
+	// starting the door manager we close for safety
+//	stop([=]( bool didSucceed) {
+//		// close the door
+//		
+//		action_close();
+// 
+////
+////		// if the door is closed keep it that way
+////		if(door.isClosed()) {
+////			self.currentState = STATE_CLOSED;
+////		}
+////		// open it.
+////		else {
+////			Open_Action(self);
+////		}
+//	
+//	});
+// 
 	
 	return true;
 }
