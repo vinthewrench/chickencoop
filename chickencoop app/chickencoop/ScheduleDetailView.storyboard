@@ -18,13 +18,13 @@
         <!--Schedule Detail View Controller-->
         <scene sceneID="s0d-6b-0kx">
             <objects>
-                <viewController storyboardIdentifier="ScheduleDetailViewController" id="Y6W-OH-hqX" customClass="ScheduleDetailViewController" customModule="Home2" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="ScheduleDetailViewController" id="Y6W-OH-hqX" customClass="ScheduleDetailViewController" customModule="chickencoop" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="5EZ-qb-Rvc">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Event Name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="VBm-Rh-RVd" customClass="EditableUILabel" customModule="Home2" customModuleProvider="target">
-                                <rect key="frame" x="20" y="64" width="131" height="28"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Event Name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="VBm-Rh-RVd" customClass="EditableUILabel" customModule="chickencoop" customModuleProvider="target">
+                                <rect key="frame" x="20" y="64" width="144.5" height="28"/>
                                 <fontDescription key="fontDescription" name="Quicksand-Bold" family="Quicksand" pointSize="24"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
@@ -32,7 +32,6 @@
                             <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="K3I-0m-8fJ">
                                 <rect key="frame" x="10" y="129" width="384" height="32"/>
                                 <segments>
-                                    <segment title="Device"/>
                                     <segment title="Time"/>
                                     <segment title="App"/>
                                 </segments>
@@ -107,7 +106,7 @@
         <!--Trigger Device View Controller-->
         <scene sceneID="RF9-Ml-Jcx">
             <objects>
-                <viewController storyboardIdentifier="TriggerDeviceViewController" id="2cu-SJ-dSv" customClass="TriggerDeviceViewController" customModule="Home2" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="TriggerDeviceViewController" id="2cu-SJ-dSv" customClass="TriggerDeviceViewController" customModule="chickencoop" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="LAA-sk-Mpa">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -184,7 +183,7 @@
         <!--Trigger Event View Controller-->
         <scene sceneID="ffO-mh-VIA">
             <objects>
-                <viewController storyboardIdentifier="TriggerEventViewController" id="Zsh-VK-lfm" customClass="TriggerEventViewController" customModule="Home2" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="TriggerEventViewController" id="Zsh-VK-lfm" customClass="TriggerEventViewController" customModule="chickencoop" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="gMG-5w-w06">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -220,7 +219,7 @@
         <!--Trigger Time View Controller-->
         <scene sceneID="n4z-gt-j77">
             <objects>
-                <viewController storyboardIdentifier="TriggerTimeViewController" id="2VR-aF-UL4" customClass="TriggerTimeViewController" customModule="Home2" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="TriggerTimeViewController" id="2VR-aF-UL4" customClass="TriggerTimeViewController" customModule="chickencoop" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="i8s-Fk-arM">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>

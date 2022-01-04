@@ -397,18 +397,14 @@ class ScheduleDetailViewController :UIViewController,
 			self.lblTitle.text = event.name
 
 			switch(eventType){
-			
-			case .device:
-				segEvent.selectedSegmentIndex = 0
-				newVC = TriggerDeviceViewController.create(withEvent: event)
-				
+					
 			case .timed:
-				segEvent.selectedSegmentIndex = 1
+				segEvent.selectedSegmentIndex = 0
 				newVC = TriggerTimeViewController.create(withEvent: event)
 				
 				
 			case .event:
-				segEvent.selectedSegmentIndex = 2
+				segEvent.selectedSegmentIndex = 1
 				newVC = TriggerEventViewController.create(withEvent: event)
 				
 			default:
@@ -468,12 +464,9 @@ class ScheduleDetailViewController :UIViewController,
 	@objc func segmentedValueChanged(_ sender:UISegmentedControl!) {
 		switch( sender.selectedSegmentIndex) {
 		case 0:
-			eventType = .device
-			
-		case 1:
 			eventType = .timed
 			
-		case 2:
+		case 1:
 			eventType = .event
 			
 		default: break

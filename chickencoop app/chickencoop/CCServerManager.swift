@@ -434,170 +434,25 @@ struct RESTTimeSpanItem: Codable {
 //
 
 struct RESTEventAction: Codable {
-	var cmd			 	:String?
-	var action_group 	:String?
-	var insteon_group 	:String?
+	var cmd			 		:String?
 	var deviceID			:String?
-	var keypadID			:String?
-	var groupID 	:String?
-	var level 			:String?
-	var value 			:String?
 
 	enum CodingKeys: String, CodingKey {
 		case cmd
 		case deviceID
-		case keypadID
-		case groupID
-		case level
-		case value
-		case action_group = "action.group"
-		case insteon_group = "insteon.groups"
-	}
-	
-	enum nounClass_t: Int {
-		case unknown = 0
-		case deviceID
-		case groupID
-		case keypadID
-		case actionGroup
-		case insteonGroup
-	}
-	
-	func nounClass() -> nounClass_t{
-		
-		var result:nounClass_t = .unknown
-		
-		if deviceID != nil {
-			result = .deviceID
-		}
-		else if groupID != nil {
-			result  = .groupID
-		}
-		else if keypadID != nil {
-			result = .keypadID
-		}
-		else if action_group != nil {
-			result  = .actionGroup
-			
-		} else if insteon_group != nil {
-			result  = .insteonGroup
-		}
-		
-		return result
-	}
-	
-	
-	
-	func noun() -> String{
-		var result:String?
-		
-		switch(self.nounClass()){
-		case .deviceID:
-			result = deviceID
-		case .groupID:
-			result = groupID
-		case .keypadID:
-			result = keypadID
-		case .actionGroup:
-			result = action_group
-		case .insteonGroup:
-			result = insteon_group
-		case .unknown:
-			result = "Unknown"
-		}
-		return result ?? ""
-	}
-	
-	func nounDescription() -> String{
-		var result:String?
-		
-		switch(self.nounClass()){
-		case .deviceID:
-			result = "DeviceID"
-		case .groupID:
-			result = "GroupID"
-		case .keypadID:
-			result = "KeyPad:"
-		case .actionGroup:
-			result = "Action Group"
-		case .insteonGroup:
-			result = "Insteon Group"
-		case .unknown:
-			result = "Unknown"
-			
-		}
-		return result ?? ""
-	}
-	
-	func image() -> UIImage {
-		var image:UIImage? =  nil
-		
-		switch(self.nounClass()){
-		case .deviceID:
-			image = UIImage(systemName: "lightbulb")
-			
-		case .groupID:
-			image = UIImage(systemName: "g.circle")
-			
-		case .keypadID:
-			image = UIImage(named: "keypad")
-			
-		case .actionGroup:
-			image = UIImage(systemName: "a.circle")
-			
-		case .insteonGroup:
-			image = UIImage(systemName: "i.circle")
-			
-		default:
-			image =   UIImage(systemName: "questionmark")
-		}
-		
-		return image ?? UIImage()
-	}
-	
-	func verb() -> String{
-		var result:String?
-		
-		if let cmd = cmd {
-			
-//			if cmd == "set"  && level != nil {
-//				result = level?.onLevel().onLevelString()
-//			}
-//			else if cmd == "backlight"  && level != nil {
-//				
-//				let levStr =   level!.backLightLevel().backlightLevelString()
-//				result =  "backlight \(levStr)"
-//			}
-//			else if cmd == "keypad.mask"  && value != nil {
-//				result = "mask = \(value!)"
-//			}
-//			else {
-//				result = cmd
-//			}
-		}
-
-		return result ?? ""
-
 	}
 }
 
 struct RESTEventTrigger: Codable {
 	var mins 				:Int?
 	var timeBase			:Int?
-	var cmd			 	:String?
-	var action_group 	:String?
-	var insteon_group 	:String?
-	var deviceID			:String?
+	var cmd			 		:String?
 	var event				:String?
 
 	enum CodingKeys: String, CodingKey {
 		case mins
 		case timeBase
-		case cmd
-		case deviceID
 		case event
-		case action_group = "action.group"
-		case insteon_group = "insteon.group"
 	}
 	
 	func triggerDate(_ solarTimes: ServerDateInfo ) ->Date {
@@ -658,20 +513,13 @@ struct RESTEvent: Codable {
 	func isTimedEvent() -> Bool {
 		return (self.trigger.timeBase != nil) && (self.trigger.mins != nil)
 	}
-	
-	func isDeviceEvent() -> Bool {
-		return (self.trigger.deviceID != nil)
-			|| (self.trigger.action_group != nil)
-			||  (self.trigger.cmd != nil)
-	}
-	
+	 
 	func isAppEvent() -> Bool {
 		return (self.trigger.event != nil)
 	}
  
 	enum eventType: Int {
 		case unknown = 0
-		case device
 		case timed
 		case event
 	}
@@ -719,9 +567,6 @@ struct RESTEvent: Codable {
 		if(self.isTimedEvent()) {
 			return .timed
 		}
-		else 	if(self.isDeviceEvent()) {
-			return .device
-		}
 		else 	if(self.isAppEvent()) {
 			return .event
 		}
@@ -739,9 +584,6 @@ struct RESTEvent: Codable {
 				let timedTrigger = timedEventTimeBase(rawValue: timebase)   {
 				str = timedTrigger.description()
 			}
-			
-		case .device:
-			str = "Device"
 			
 		case .event:
 			if self.trigger.event == "startup" {
@@ -768,11 +610,7 @@ struct RESTEvent: Codable {
 				let timedTrigger = timedEventTimeBase(rawValue: timebase)   {
 				image = timedTrigger.image()
 			}
-			
-		case .device:
-	//		str = "Device"
-			break
-			
+
 		case .event:
 			if self.trigger.event == "startup" {
 				image = UIImage(systemName: "power")
