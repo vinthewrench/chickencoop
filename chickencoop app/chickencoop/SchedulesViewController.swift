@@ -104,6 +104,8 @@ class SchedulesViewController: MainSubviewViewController,
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
 		
+		mainView?.title = "Coop Schedule"
+	
 	//	mainView?.btnAdd.isHidden = false
 
 		self.refreshSchedules()

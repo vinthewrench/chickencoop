@@ -67,6 +67,63 @@ extension device_state_t: Codable {
 	}
 }
 
+
+enum  DoorState :Int{
+	case
+		unknown = 0,
+		open,
+		opening,
+		closed,
+		closing
+}
+ 
+extension DoorState: Codable {
+	
+	enum Key: CodingKey {
+		case rawValue
+	}
+	
+	enum CodingError: Error {
+		case unknownValue
+	}
+	
+	init(from decoder: Decoder) throws {
+		let container = try decoder.container(keyedBy: Key.self)
+		let rawValue = try container.decode(Int.self, forKey: .rawValue)
+		switch rawValue {
+		case 0:
+			self = .unknown
+		case 1:
+			self = .open
+		case 2:
+			self = .opening
+		case 3:
+			self = .closed
+		case 4:
+			self = .closing
+		default:
+			self = .unknown
+		}
+	}
+	
+	func encode(to encoder: Encoder) throws {
+		var container = encoder.container(keyedBy: Key.self)
+		switch self {
+		case .unknown:
+			try container.encode(0, forKey: .rawValue)
+		case .open:
+			try container.encode(1, forKey: .rawValue)
+		case .opening:
+			try container.encode(2, forKey: .rawValue)
+		case .closed:
+			try container.encode(3, forKey: .rawValue)
+		case .closing:
+			try container.encode(4, forKey: .rawValue)
+		}
+	}
+}
+
+
 class RESTErrorInfo: Codable {
 	let code: Int
 	let message: String
@@ -213,19 +270,9 @@ struct RESTValuesList: Codable {
 	var values:  Dictionary<String, RESTValueDetails>
 	var ETag: 	Int?
 	
-	var inverter: Int
-	let inverterLastTime : Int
-	var battery: Int
-	let batteryLastTime : Int
-
-	
 	enum CodingKeys: String, CodingKey {
 		case values = "values"
 		case ETag = "ETag"
-		case inverter 		= "inverter"
-		case battery 		= "battery"
-		case inverterLastTime 		= "inverter.lastTime"
-		case batteryLastTime 		= "battery.lastTime"
 	}
   }
 
@@ -809,6 +856,94 @@ class CCServerManager: ObservableObject {
 	
 	init () {
 		
+	}
+	
+	func setLight(_ isOn: Bool,  
+					  completion: @escaping (Error?) -> Void)  {
+		
+			let urlPath = "devices/light"
+			
+			if let requestUrl: URL = AppData.serverInfo.url ,
+				let apiKey = AppData.serverInfo.apiKey,
+				let apiSecret = AppData.serverInfo.apiSecret {
+				let unixtime = String(Int(Date().timeIntervalSince1970))
+				
+				let urlComps = NSURLComponents(string: requestUrl.appendingPathComponent(urlPath).absoluteString)!
+				//			if let queries = queries {
+				//				urlComps.queryItems = queries
+				//			}
+				var request = URLRequest(url: urlComps.url!)
+				
+				
+				let json = ["state":isOn]
+				let jsonData = try? JSONSerialization.data(withJSONObject: json)
+				request.httpBody = jsonData
+		
+				// Specify HTTP Method to use
+				request.httpMethod = "PUT"
+				request.setValue(apiKey,forHTTPHeaderField: "X-auth-key")
+				request.setValue(String(unixtime),forHTTPHeaderField: "X-auth-date")
+				let sig =  calculateSignature(forRequest: request, apiSecret: apiSecret)
+				request.setValue(sig,forHTTPHeaderField: "Authorization")
+				
+				// Send HTTP Request
+				request.timeoutInterval = 10
+				
+				let session = URLSession(configuration: .ephemeral, delegate: nil, delegateQueue: .main)
+				
+				let task = session.dataTask(with: request) { (data, response, urlError) in
+					
+					completion(urlError	)
+				}
+				task.resume()
+			}
+				else {
+					completion(ServerError.invalidURL)
+				}
+	}
+	
+	func setDoor(_ shouldOpen: Bool,
+					  completion: @escaping (Error?) -> Void)  {
+		
+			let urlPath = "devices/door"
+			
+			if let requestUrl: URL = AppData.serverInfo.url ,
+				let apiKey = AppData.serverInfo.apiKey,
+				let apiSecret = AppData.serverInfo.apiSecret {
+				let unixtime = String(Int(Date().timeIntervalSince1970))
+				
+				let urlComps = NSURLComponents(string: requestUrl.appendingPathComponent(urlPath).absoluteString)!
+				//			if let queries = queries {
+				//				urlComps.queryItems = queries
+				//			}
+				var request = URLRequest(url: urlComps.url!)
+				
+				
+				let json = ["state":shouldOpen]
+				let jsonData = try? JSONSerialization.data(withJSONObject: json)
+				request.httpBody = jsonData
+		
+				// Specify HTTP Method to use
+				request.httpMethod = "PUT"
+				request.setValue(apiKey,forHTTPHeaderField: "X-auth-key")
+				request.setValue(String(unixtime),forHTTPHeaderField: "X-auth-date")
+				let sig =  calculateSignature(forRequest: request, apiSecret: apiSecret)
+				request.setValue(sig,forHTTPHeaderField: "Authorization")
+				
+				// Send HTTP Request
+				request.timeoutInterval = 10
+				
+				let session = URLSession(configuration: .ephemeral, delegate: nil, delegateQueue: .main)
+				
+				let task = session.dataTask(with: request) { (data, response, urlError) in
+					
+					completion(urlError	)
+				}
+				task.resume()
+			}
+				else {
+					completion(ServerError.invalidURL)
+				}
 	}
 	
 	

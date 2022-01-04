@@ -46,7 +46,7 @@ bool GPIO::begin(string	path, vector<uint8_t> pins, int request_type,  int flags
 	 std::transform( initialValue.begin(),  initialValue.end(),  initial_values, [](const auto & elem){  return elem; });
 	
 // debug
-	for(auto x: offsets) { 	printf("Setup GPIO(%2d)\n", x); }
+//	for(auto x: offsets) { 	printf("Setup GPIO(%2d)\n", x); }
 //
 
 	// open the device

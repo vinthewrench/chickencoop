@@ -8,6 +8,8 @@
 #include "Action.hpp"
 #include "CoopDevices.hpp"
 #include "Utils.hpp"
+#include <regex>
+
 using namespace nlohmann;
 using namespace std;
 
@@ -27,36 +29,16 @@ bool str_to_ActionID(const char* str, actionID_t *actionIDOut){
 	return status;
 }
 
-//static std::string stringForCmd(Action::actionCmd_t cmd) {
-//	
-//	string str = "";
-//	
-//	switch(cmd) {
-//		case Action::ACTION_NONE:
-//			str = Action::JSON_CMD_NONE;
-//			break;
-//		case Action::ACTION_DOOR:
-//			str = Action::JSON_CMD_DOOR;
-//			break;
-//		case Action::ACTION_LIGHT:
-//			str = Action::JSON_CMD_LIGHT;
-//			break;
-//
-//		default:;
-//	}
-//	return  str;
-//}
-
 Action::Action(){
-	_cmd = ACTION_INALID;
-	_relayState = false;
+	_cmd = string();
+	_deviceID = string();
 }
 
-Action::Action(actionCmd_t cmd, bool relayState){
- 	_cmd = cmd;
-	_relayState = relayState;
+Action::Action(string deviceID, string cmd){
+	_cmd = cmd;
+	_deviceID = deviceID;
 }
-
+ 
 
 Action::Action(json j) {
 	initWithJSON(j);
@@ -65,8 +47,8 @@ Action::Action(json j) {
 
 Action::Action(std::string str){
 	
-	_cmd = ACTION_NONE;
-	_relayState = false;
+	_cmd = string();
+	_deviceID = string();
 	
 	json j;
 	j  = json::parse(str);
@@ -80,68 +62,53 @@ std::string Action::idString() const {
 }
 
 void Action::initWithJSON(nlohmann::json j){
-	_cmd = ACTION_NONE;
-	_relayState = false;
+	_cmd = string();
+	_deviceID = string();
+ 
+	if( j.contains(string(JSON_CMD))
+		&& j.at(string(JSON_CMD)).is_string()){
+ 		string str  = j.at(string(JSON_CMD));
+ 		std::transform(str.begin(), str.end(), str.begin(), ::tolower);
+		_cmd = str;
+
+	}
 	
-	if( j.contains(string(JSON_CMD_LIGHT))){
-		
-		bool relayState = false;
-		if(CoopDevices::jsonToRelayState(j.at(string(JSON_CMD_LIGHT)), &relayState)){
-			_cmd  = ACTION_LIGHT;
-			_relayState = relayState;
-		}
+	if( j.contains(string(JSON_DEVICEID))
+		&& j.at(string(JSON_DEVICEID)).is_string()){
+		string str  = j.at(string(JSON_DEVICEID));
+		std::transform(str.begin(), str.end(), str.begin(), ::tolower);
+		_deviceID = str;
 	}
-	else 	if( j.contains(string(JSON_CMD_DOOR))){
+	if( j.contains(string(JSON_ACTIONID))
+		&& j.at(string(JSON_ACTIONID)).is_string()){
+		string str = j.at(string(JSON_ACTIONID));
 		
-		bool relayState = false;
-		if(CoopDevices::jsonToRelayState(j.at(string(JSON_CMD_DOOR)), &relayState)){
-			_cmd  = ACTION_DOOR;
-			_relayState = relayState;
+		actionID_t actionID = 0;
+		if( regex_match(string(str), std::regex("^[A-Fa-f0-9]{4}$"))
+			&& ( std::sscanf(str.c_str(), "%hd", &actionID) == 1)){
+			_actionID = actionID;
+
 		}
+		else if( regex_match(string(str), std::regex("^0?[xX][0-9a-fA-F]{4}$"))
+				  && ( std::sscanf(str.c_str(), "%hx", &actionID) == 1)){
+			_actionID = actionID;
+		}
+		 
 	}
-}
+ }
 	
 const nlohmann::json Action::JSON(){
 	json j;
 	
-	switch (_cmd) {
-		case ACTION_DOOR:
-			j[string(JSON_CMD_DOOR)] = _relayState?"open":"close";
-			break;
-			
-		case ACTION_LIGHT:
-			j[string(JSON_CMD_LIGHT)] = _relayState?"on":"off";
-			break;
-
-		case ACTION_NONE:
-			j[string(JSON_CMD_NONE)] = NULL;
-			break;
-
-		default: break;
-	}
- 
+	j[string(JSON_DEVICEID)] = _deviceID;
+	j[string(JSON_CMD)] = _cmd;
 	return j;
 }
 
 std::string Action::printString() const {
 	std::ostringstream oss;
 
-	switch (_cmd) {
-		case ACTION_DOOR:
-			oss << JSON_CMD_DOOR  << "  " <<  (_relayState?"open":"close");
-			break;
-			
-		case ACTION_LIGHT:
-			oss << JSON_CMD_LIGHT  << "  " <<  (_relayState?"on":"off");
- 			break;
-
-		case ACTION_NONE:
-			oss << JSON_CMD_NONE;
-	 			break;
-
-		default: break;
-	}
-
+	oss << _deviceID  << "  " << _cmd;
 	return  oss.str();
 
 }

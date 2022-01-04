@@ -329,76 +329,20 @@ enum DeviceState: Int {
 	case timeout
 }
 
-enum WellPumpState: Int {
-	case unknown = 0
-	case paused
-	case pumping
-	case off
-}
-
 struct CoopValues {
 	
-	// Tank Values
-	var rawTank: Double
-	var tankGals: Double
-	var tankEmpty: Double
-	var tankFull: Double
-	var tankPercent: Double
-	
-	// inverter / charger values
-	var acIn: Double
-	var acOut: Double
-	var acHz: Double
-	var invLoad: Double
-	var batVolts: Double
-	var batAmps: Double
-	var batSOC: Double
-	var utilityFail : Bool
-	var batteryLow : Bool
- 
-	var inverterState: DeviceState
-	var inverterLastTime : Int
-	var batteryState: DeviceState
-	var batteryLastTime : Int
+	var door: DoorState
+	var light: Bool
 
-	var batteryTime: Double
-	var batteryConsumed: Double
-
+	// Tempurature Values
 	var temp1: Double
-	var temp2: Double
 	var cpuTemp: Double
-
-	var pumpState : WellPumpState
-	var pressureTankState : WellPumpState
-
+	
 	init(){
-		self.inverterState = .unknown
-		self.batteryState = .unknown
-		self.pumpState = .unknown
-		self.pressureTankState = .unknown
-		self.inverterLastTime = 0
-		self.batteryLastTime = 0
-		
-		self.rawTank = 0
-		self.tankGals = 0
-		self.tankEmpty = 0
-		self.tankFull = 0
-		self.tankPercent = 0
-		
-		self.acIn = 0
-		self.acOut = 0
-		self.acHz = 0
-		self.invLoad = 0
-		self.batAmps = 0
-		self.batSOC = 0
-		self.batVolts = 0
 		self.temp1 = 0
-		self.temp2 = 0
-		self.cpuTemp = 0
-		self.batteryTime = 0
-		self.batteryConsumed = 0
-		self.utilityFail = false
-		self.batteryLow = false
+ 		self.cpuTemp = 0
+		self.door = .unknown
+		self.light = false
 	}
 }
 
@@ -413,192 +357,41 @@ public class ChickenCoop {
 	}()
 	
 	
-	struct cachedValues_t {
-		var tankGals: Double
-		var tankEmpty: Double
-		var tankFull: Double
-		var isValid: Bool
 		
-		init() {
-			self.tankGals = 0
-			self.tankEmpty = 0
-			self.tankFull = 0
-			self.isValid = false
-		}
-	}
-	
-	var cachedValues :cachedValues_t
-	
-	private init(){
-		cachedValues = .init()
-	}
-	
-	
 	func fetchValues(completionHandler: @escaping (Result<Any?, Error>) -> Void)  {
 		
-		// get the list of cached properties first
-		if(!cachedValues.isValid){
-			
-			fetchData(.props) { result in
-				
-				if case .success(let props as RESTProperties) = result {
-					var cnt = 0
-					if let s1 = props.properties["prop-tank-empty"] {
-						self.cachedValues.tankEmpty = Double(s1) ?? 0.0
-						cnt+=1
-					}
-					if let s1 = props.properties["prop-tank-full"] {
-						self.cachedValues.tankFull = Double(s1) ?? 0.0
-						cnt+=1
-					}
-					if let s1 = props.properties["prop-tank-gals"] {
-						self.cachedValues.tankGals = Double(s1) ?? 0.0
-						cnt+=1
-					}
-					
-					self.cachedValues.isValid = cnt == 3
-					
-					if(self.cachedValues.isValid) {
-						self.fetchValues(completionHandler: completionHandler)
-					}
-					else {
-						completionHandler(.failure(CoopError.internalError))
-					}
-					
-				}
-				else {
-					completionHandler(.failure(CoopError.connectFailed))
-					
-				}
-			}
-		}
-		else {
 			fetchData(.values) { result in
 				
 				if case .success(let v as RESTValuesList) = result {
 					
-					var phv :CoopValues = .init()
-					
-					phv.inverterState = DeviceState(rawValue:v.inverter) ?? .unknown
-					phv.batteryLastTime = v.batteryLastTime
-					
-					phv.batteryState = DeviceState(rawValue:v.battery) ?? .unknown
-					
-					if let s1 = v.values["TANK_RAW"]?.value,
-						var tank_raw = Double(s1) {
-						
-						let empty =  self.cachedValues.tankEmpty
-						let full =  self.cachedValues.tankFull
-						let gals =  self.cachedValues.tankGals
-						
-						if(tank_raw < empty){ tank_raw = empty}
-						if (tank_raw > full) {tank_raw = full}
-						let tankP  = ((tank_raw - empty) / (full - empty))
-						
-						phv.tankEmpty = empty
-						phv.tankFull = full
-						phv.tankPercent =  tankP * 100.00
-						phv.rawTank = tank_raw
-						phv.tankGals = gals * tankP
-					}
-					
-					if let s1 = v.values["I_IPFV"]?.value,
-						let val = Double(s1) {
-						phv.acIn = val
-					}
-					if let s1 = v.values["I_OPV"]?.value,
-						let val = Double(s1) {
-						phv.acOut = val
-					}
-					if let s1 = v.values["I_FREQ"]?.value,
-						let val = Double(s1) {
-						phv.acHz = val
-					}
-					if let s1 = v.values["I_OPC"]?.value,
-						let val = Double(s1) {
-						phv.invLoad = val
-					}
-					
-					if let s1 = v.values["SOC"]?.value,
-						let val = Double(s1) {
-						phv.batSOC = val
-					}
-					
-					if let s1 = v.values["V"]?.value,
-						let val = Double(s1) {
-						phv.batVolts = val
-					}
-					if let s1 = v.values["I"]?.value,
-						let val = Double(s1) {
-						phv.batAmps = val
-					}
-					if let s1 = v.values["I_STATUS"]?.value,
-						s1.count == 8 {
-						phv.utilityFail =  s1[0]=="1"
-						phv.batteryLow = s1[1] == "1"
-					}
-					
+					var ccv :CoopValues = .init()
+	 
 					if let s1 = v.values["CPU_TEMP"]?.value,
 						let val = Double(s1) {
-						phv.cpuTemp = val
+						ccv.cpuTemp = val
 						
 					}
 					if let s1 = v.values["TEMP_0x48"]?.value,
 						let val = Double(s1) {
-						phv.temp1 = val
+						ccv.temp1 = val
 					}
 					
-					if let s1 = v.values["TEMP_0x49"]?.value,
-						let val = Double(s1) {
-						phv.temp2 = val
+					if let s1 = v.values["DOOR_STATE"]?.value,
+						let val = DoorState(rawValue: Int(s1)!) {
+						ccv.door = val
 					}
 					
-					if let s1 = v.values["TTG"]?.value,
-						let val = Double(s1) {
-						phv.batteryTime = val
+					if let s1 = v.values["LIGHT_STATE"]?.value {
+ 						ccv.light = s1.boolValue
 					}
-					
-					if let s1 = v.values["CE"]?.value,
-						let val = Double(s1) {
-						phv.batteryConsumed = val
-					}
-					
-					if let s1 = v.values["PUMP_SENSOR"]?.value,
-						s1.count == 8 {
-						
-						let b2 =  s1[5]=="1"
-						let b1 =  s1[6]=="1"
-						let b0 =  s1[7]=="1"
-						
-						phv.pumpState = .unknown
-						if(!b0 && !b1) {
-							phv.pumpState = .paused
-						}
-						else if(b0 && !b1) {
-							phv.pumpState = .off
-						}
-						else if(b0 && b1) {
-							phv.pumpState = .pumping
-						}
-						
-						if(b2){
-							phv.pressureTankState = .pumping
-						}
-						else {
-							phv.pressureTankState = .off
-						}
-						
-					}
-					
-					completionHandler(.success(phv))
-					
+					completionHandler(.success(ccv))
 				}
 				else {
 					completionHandler(.failure(CoopError.connectFailed))
 				}
 				
 			}
-		}
+		 
 	}
 	
 	func fetchData(_ requestType: CoopRequest,  ID : String? = nil,
@@ -721,40 +514,75 @@ public class ChickenCoop {
 	}
 
 	
+//
+//	func groupValueKeys(_ keys: [String]) -> [keyGroupEntry]{
+//
+//		var result:[keyGroupEntry] = []
+//
+//		result.append( keyGroupEntry(title: "Inverter" ))
+//		result.append( keyGroupEntry(title: "SmartShunt" ))
+//		result.append( keyGroupEntry(title: "Pump" ))
+//		result.append( keyGroupEntry(title: "Temperature" ))
+//
+//		let pumpKeys = ["TANK", "TANK_RAW", "PUMP_SENSOR"]
+//
+//		let tempKeys = ["TEMP_0x48","TEMP_0x49","CPU_TEMP"]
+//
+//		let shuntKeys = [ "AR", "Alarm", "CE", "DM", "FW", "H1", "H10", "H11", "H12", "H15", "H16", "H17", "H18", "H2", "H3", "H4", "H5", "H6", "H7", "H8", "H9", "I", "MON", "P", "PID", "SOC", "TTG", "V", "VM"]
+//
+//		let inverterKeys = [ "I_BT",  "I_BV",  "I_FREQ",  "I_IPFV",  "I_IPV",  "I_OPC",  "I_OPV",  "I_STATUS"]
+//
+//		let keys = Array(keys).sorted(by: <)
+//
+//		for key in keys {
+//
+//			if(inverterKeys.contains(key)){
+//				result[0].keys.append(key)
+//			}else if(shuntKeys.contains(key)){
+//				result[1].keys.append(key)
+//			}else if(pumpKeys.contains(key)){
+//				result[2].keys.append(key)
+//			}else if(tempKeys.contains(key)){
+//				result[3].keys.append(key)
+//			}
+//		}
+//
+//		return result
+//	}
 	
-	func groupValueKeys(_ keys: [String]) -> [keyGroupEntry]{
-		
-		var result:[keyGroupEntry] = []
-		
-		result.append( keyGroupEntry(title: "Inverter" ))
-		result.append( keyGroupEntry(title: "SmartShunt" ))
-		result.append( keyGroupEntry(title: "Pump" ))
-		result.append( keyGroupEntry(title: "Temperature" ))
-		
-		let pumpKeys = ["TANK", "TANK_RAW", "PUMP_SENSOR"]
-		
-		let tempKeys = ["TEMP_0x48","TEMP_0x49","CPU_TEMP"]
 	
-		let shuntKeys = [ "AR", "Alarm", "CE", "DM", "FW", "H1", "H10", "H11", "H12", "H15", "H16", "H17", "H18", "H2", "H3", "H4", "H5", "H6", "H7", "H8", "H9", "I", "MON", "P", "PID", "SOC", "TTG", "V", "VM"]
+	func setLight(_ isOn: Bool,
+					  completion:  @escaping (Bool) -> Void = {_ in }) {
 		
-		let inverterKeys = [ "I_BT",  "I_BV",  "I_FREQ",  "I_IPFV",  "I_IPV",  "I_OPC",  "I_OPV",  "I_STATUS"]
-		
-		let keys = Array(keys).sorted(by: <)
-		
-		for key in keys {
+		CCServerManager.shared.setLight(isOn)
+		{ (error)  in
 			
-			if(inverterKeys.contains(key)){
-				result[0].keys.append(key)
-			}else if(shuntKeys.contains(key)){
-				result[1].keys.append(key)
-			}else if(pumpKeys.contains(key)){
-				result[2].keys.append(key)
-			}else if(tempKeys.contains(key)){
-				result[3].keys.append(key)
+			if(error == nil){
+				completion(true)
 			}
+			else {
+				completion(false)
+			}
+			
 		}
-		
-		return result
 	}
+	func setDoor(_ shouldOpen: Bool,
+					  completion:  @escaping (Bool) -> Void = {_ in }) {
+		
+		CCServerManager.shared.setDoor(shouldOpen)
+		{ (error)  in
+			
+			if(error == nil){
+				completion(true)
+			}
+			else {
+				completion(false)
+			}
+			
+		}
+	}
+
 }
+
+
 

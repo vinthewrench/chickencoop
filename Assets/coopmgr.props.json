@@ -15,7 +15,8 @@
 	 "events": [
 		  {
 				"action": {
-					 "light": "on"
+					"deviceID": "light",
+					"cmd": "on"
 				},
 				"eventID": "10d1",
 				"name": "startup",
@@ -25,7 +26,8 @@
 		  },
 		  {
 				"action": {
-					 "door": "open"
+					"deviceID": "door",
+					"cmd": "open"
 				},
 				"eventID": "2d86",
 				"name": "sunrise open door",
@@ -36,7 +38,8 @@
 		  },
 		  {
 				"action": {
-					 "door": "close"
+					"deviceID": "door",
+					"cmd": "close"
 				},
 				"eventID": "d95a",
 				"name": "sunset close door",

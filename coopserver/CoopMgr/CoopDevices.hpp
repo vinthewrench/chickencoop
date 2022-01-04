@@ -27,6 +27,13 @@ using namespace std;
 constexpr string_view COOP_DEVICE_LIGHT_STATE	= "LIGHT_STATE";
 constexpr string_view COOP_DEVICE_DOOR_STATE		= "DOOR_STATE";
 
+
+constexpr static string_view JSON_DEVICE_LIGHT	= "light";
+constexpr static string_view JSON_DEVICE_DOOR	= "door";
+
+constexpr static string_view JSON_CMD_ON				= "on";
+constexpr static string_view JSON_CMD_OFF				= "off";
+
 class CoopDevices : public CoopMgrDevice{
 	friend DoorMgr;
 	

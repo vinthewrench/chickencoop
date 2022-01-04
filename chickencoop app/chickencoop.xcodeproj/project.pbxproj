@@ -15,6 +15,8 @@
 		2E2AB1DB2780EFA300756CD4 /* SchedulesView.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2E2AB1D82780EFA300756CD4 /* SchedulesView.storyboard */; };
 		2E2AB1DC2780EFA300756CD4 /* ScheduleDetailView.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2E2AB1D92780EFA300756CD4 /* ScheduleDetailView.storyboard */; };
 		2E2AB1DF2780F00300756CD4 /* AnyFormatKit in Frameworks */ = {isa = PBXBuildFile; productRef = 2E2AB1DE2780F00300756CD4 /* AnyFormatKit */; };
+		2E2AB1E12782640400756CD4 /* CoopViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E2AB1E02782640400756CD4 /* CoopViewController.swift */; };
+		2E2AB1E3278264C700756CD4 /* CoopView.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2E2AB1E2278264C700756CD4 /* CoopView.storyboard */; };
 		2EA357472780D55B00A749FD /* SetupView.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2EFD15132780D1430073F6AD /* SetupView.storyboard */; };
 		2EA3574A2780D6F800A749FD /* InfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EA357482780D6F700A749FD /* InfoViewController.swift */; };
 		2EA3574B2780D6F800A749FD /* InfoView.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2EA357492780D6F800A749FD /* InfoView.storyboard */; };
@@ -27,7 +29,6 @@
 		2EFD15002780CDF50073F6AD /* SetupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD14F32780CDF40073F6AD /* SetupViewController.swift */; };
 		2EFD15012780CDF50073F6AD /* UIAlertController+TextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD14F42780CDF40073F6AD /* UIAlertController+TextField.swift */; };
 		2EFD15022780CDF50073F6AD /* View+Activity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD14F52780CDF40073F6AD /* View+Activity.swift */; };
-		2EFD15032780CDF50073F6AD /* SelfSizedTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD14F62780CDF40073F6AD /* SelfSizedTableView.swift */; };
 		2EFD15042780CDF50073F6AD /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD14F72780CDF40073F6AD /* Utilities.swift */; };
 		2EFD15052780CDF50073F6AD /* UIButton+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD14F82780CDF40073F6AD /* UIButton+Extensions.swift */; };
 		2EFD15062780CDF50073F6AD /* NSDate+RFC1123.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD14F92780CDF40073F6AD /* NSDate+RFC1123.swift */; };
@@ -53,6 +54,8 @@
 		2E2AB1D72780EFA300756CD4 /* ScheduleTableHeaderView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ScheduleTableHeaderView.xib; sourceTree = "<group>"; };
 		2E2AB1D82780EFA300756CD4 /* SchedulesView.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = SchedulesView.storyboard; sourceTree = "<group>"; };
 		2E2AB1D92780EFA300756CD4 /* ScheduleDetailView.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = ScheduleDetailView.storyboard; sourceTree = "<group>"; };
+		2E2AB1E02782640400756CD4 /* CoopViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoopViewController.swift; sourceTree = "<group>"; };
+		2E2AB1E2278264C700756CD4 /* CoopView.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = CoopView.storyboard; sourceTree = "<group>"; };
 		2EA357482780D6F700A749FD /* InfoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InfoViewController.swift; sourceTree = "<group>"; };
 		2EA357492780D6F800A749FD /* InfoView.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = InfoView.storyboard; sourceTree = "<group>"; };
 		2EFD14D8277FEFF20073F6AD /* chickencoop.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = chickencoop.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -67,7 +70,6 @@
 		2EFD14F32780CDF40073F6AD /* SetupViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SetupViewController.swift; sourceTree = "<group>"; };
 		2EFD14F42780CDF40073F6AD /* UIAlertController+TextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIAlertController+TextField.swift"; sourceTree = "<group>"; };
 		2EFD14F52780CDF40073F6AD /* View+Activity.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "View+Activity.swift"; sourceTree = "<group>"; };
-		2EFD14F62780CDF40073F6AD /* SelfSizedTableView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SelfSizedTableView.swift; sourceTree = "<group>"; };
 		2EFD14F72780CDF40073F6AD /* Utilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
 		2EFD14F82780CDF40073F6AD /* UIButton+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIButton+Extensions.swift"; sourceTree = "<group>"; };
 		2EFD14F92780CDF40073F6AD /* NSDate+RFC1123.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSDate+RFC1123.swift"; sourceTree = "<group>"; };
@@ -131,6 +133,8 @@
 				2EFD14E6277FEFF30073F6AD /* LaunchScreen.storyboard */,
 				2EFD14E1277FEFF20073F6AD /* MainView.storyboard */,
 				2EFD14DF277FEFF20073F6AD /* MainViewController.swift */,
+				2E2AB1E02782640400756CD4 /* CoopViewController.swift */,
+				2E2AB1E2278264C700756CD4 /* CoopView.storyboard */,
 				2EFD14F92780CDF40073F6AD /* NSDate+RFC1123.swift */,
 				2EFD15192780D4C70073F6AD /* resources */,
 				2EFD14DD277FEFF20073F6AD /* SceneDelegate.swift */,
@@ -140,7 +144,6 @@
 				2E2AB1D22780EF5600756CD4 /* SchedulesViewController.swift */,
 				2E2AB1D12780EF5600756CD4 /* ScheduleTableHeaderView.swift */,
 				2E2AB1D72780EFA300756CD4 /* ScheduleTableHeaderView.xib */,
-				2EFD14F62780CDF40073F6AD /* SelfSizedTableView.swift */,
 				2EFD15132780D1430073F6AD /* SetupView.storyboard */,
 				2EFD14F32780CDF40073F6AD /* SetupViewController.swift */,
 				2E2AB1D02780EF5600756CD4 /* SelfSizedTableView.swift */,
@@ -235,6 +238,7 @@
 				2E2AB1DC2780EFA300756CD4 /* ScheduleDetailView.storyboard in Resources */,
 				2EFD14E5277FEFF30073F6AD /* Assets.xcassets in Resources */,
 				2EFD151C2780D50F0073F6AD /* MainView.storyboard in Resources */,
+				2E2AB1E3278264C700756CD4 /* CoopView.storyboard in Resources */,
 				2EFD151B2780D4F60073F6AD /* Quicksand-Bold.otf in Resources */,
 				2E2AB1DA2780EFA300756CD4 /* ScheduleTableHeaderView.xib in Resources */,
 				2EA357472780D55B00A749FD /* SetupView.storyboard in Resources */,
@@ -262,6 +266,7 @@
 				2EFD14DC277FEFF20073F6AD /* AppDelegate.swift in Sources */,
 				2EFD150C2780CDF50073F6AD /* BHButton.swift in Sources */,
 				2EFD14F22780CDC60073F6AD /* AppPrefs.swift in Sources */,
+				2E2AB1E12782640400756CD4 /* CoopViewController.swift in Sources */,
 				2EFD150B2780CDF50073F6AD /* Date+Extensions.swift in Sources */,
 				2EFD14DE277FEFF20073F6AD /* SceneDelegate.swift in Sources */,
 				2EFD15092780CDF50073F6AD /* SPRadioButton.swift in Sources */,
@@ -270,7 +275,6 @@
 				2EFD15182780D35F0073F6AD /* ChickenCoop.swift in Sources */,
 				2EFD15002780CDF50073F6AD /* SetupViewController.swift in Sources */,
 				2EFD150A2780CDF50073F6AD /* View+Extensions.swift in Sources */,
-				2EFD15032780CDF50073F6AD /* SelfSizedTableView.swift in Sources */,
 				2E2AB1D62780EF5600756CD4 /* SchedulesViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

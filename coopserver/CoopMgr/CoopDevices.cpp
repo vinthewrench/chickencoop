@@ -36,46 +36,11 @@ bool CoopDevices::begin(int &error){
 		return false;
 	}
 	
- 	if( _redButton.begin(0x6E, errnum))
-		LOGT_DEBUG("Start RedButton - OK");
- 	else
+ 	if( ! _redButton.begin(0x6E, errnum))
 		LOGT_ERROR("Start RedButton  - FAIL %s", string(strerror(errnum)).c_str());
 	
-	
-//	if(_redButton.isOpen()){
-//
-//		uint8_t  deviceType;
-//		uint16_t  version;
-//		if(_redButton.getDeviceType(deviceType)){
-//
-//			printf("_redButton.getDeviceType() -> %02x\n", deviceType);
-//		}
-//
-//		if(_redButton.getFirmwareVersion(version)){
-//			printf("_redButton.getFirmwareVersion() -> %04x\n", version);
-//		}
-//
-//	}
-	
-	if( _greenButton.begin(0x6F, errnum))
-		LOGT_DEBUG("Start GreenButton - OK");
-	else
+	if(! _greenButton.begin(0x6F, errnum))
 		LOGT_ERROR("Start GreenButton  - FAIL %s", string(strerror(errnum)).c_str());
-
-//	if(_greenButton.isOpen()){
-//
-//		uint8_t  deviceType;
-//		uint16_t  version;
-//		if(_greenButton.getDeviceType(deviceType)){
-//
-//			printf("_greenButton.getDeviceType() -> %02x\n", deviceType);
-//		}
-//
-//		if(_greenButton.getFirmwareVersion(version)){
-//			printf("_greenButton.getFirmwareVersion() -> %04x\n", version);
-//		}
-//
-//	}
 
 
 	_doorMgr.begin();

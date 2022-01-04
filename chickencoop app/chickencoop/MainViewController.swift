@@ -15,9 +15,7 @@ import UIKit
 
 
 class MainSubviewViewController: UIViewController {
- 
 	var mainView : MainViewController?
-	
 }
  
 class MainViewController: UIViewController, UITabBarDelegate {
@@ -80,8 +78,7 @@ class MainViewController: UIViewController, UITabBarDelegate {
  
 		switch(item.tag){
 		case 0:
-			
-//			newVC = nil;
+			newVC = CoopViewController.shared
 			break;
  
 		case 1:

@@ -245,10 +245,7 @@ void CoopMgr::startCoopDevices( std::function<void(bool didSucceed, std::string 
 	bool didSucceed = false;
 	
 	didSucceed =  _coopHW.begin(errnum);
-	if(didSucceed){
-		LOGT_DEBUG("Start CoopDevices - OK");
-	}
-	else
+	if(!didSucceed) 
 		LOGT_ERROR("Start CoopDevices  - FAIL %s", string(strerror(errnum)).c_str());
 	
 	if(cb)
@@ -267,6 +264,8 @@ CoopMgrDevice::device_state_t CoopMgr::CoopDevicesState(){
  
 bool CoopMgr::setDoor(bool isOpen, boolCallback_t cb){
 	
+	LOGT_INFO("DOOR %s", isOpen?"OPEN":"CLOSE");
+
 	if(isOpen) {
 		return _coopHW.doorOpen(cb);
 	}
@@ -286,6 +285,8 @@ bool CoopMgr::getDoor(std::function<void(bool didSucceed, DoorMgr::state_t state
 // MARK: Coop light
 
 bool CoopMgr::setLight(bool isOpen, boolCallback_t cb){
+	
+	LOGT_INFO("LIGHT %s", isOpen?"ON":"OFF");
 	return _coopHW.setLight(isOpen, cb);
 }
 
@@ -321,24 +322,20 @@ bool CoopMgr::runAction(Action action,
 									std::function<void(bool didSucceed)> cb){
 	
 	bool handled = false;
-
-	switch(action.cmd()){
-		case Action::ACTION_DOOR:
-			handled = setDoor(action.relayState(), cb);
-			break;
-			
-		case Action::ACTION_LIGHT:
-			handled = setLight(action.relayState(), cb);
-			break;
-
-		case Action::ACTION_NONE:
-			if(cb) (cb)( true);
-			handled = true;
-			break;
-
-		default:
-			break;
+	bool relayState = false;
+ 
+ 	if(action.deviceID() == JSON_DEVICE_DOOR){
+		
+		if( CoopDevices::stringToRelayState(action.cmd(), &relayState)){
+			handled = setDoor(relayState, cb);
+		}
 	}
+	else if(action.deviceID() == JSON_DEVICE_LIGHT){
+		
+		if( CoopDevices::stringToRelayState(action.cmd(), &relayState)){
+			handled = setLight(relayState , cb);
+ 		}
+ 	}
 	
 	return handled;
 }
