@@ -68,13 +68,18 @@ void CoopDevices::idle(){
 	
 	DoorMgr::state_t doorState =  _doorMgr.doorState();
 	
-	if(_greenButton.isPressed()
+	bool greenPressed = false;
+	bool redPressed = false;
+
+	if(_greenButton.isPressed(greenPressed)
+		&& greenPressed
 		&& doorState != DoorMgr::STATE_OPENING ) {
 		LOGT_INFO("DOOR OPEN BUTTON");
 		_doorMgr.startOpen();
 		}
 
-	if(_redButton.isPressed()
+	if(_redButton.isPressed(redPressed)
+		&& redPressed
 		&& doorState != DoorMgr::STATE_CLOSING ) {
 		LOGT_INFO("DOOR CLOSE BUTTON");
 		_doorMgr.startClose();

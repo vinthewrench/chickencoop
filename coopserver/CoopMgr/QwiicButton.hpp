@@ -34,13 +34,13 @@ public:
 	 * @brief test button/switch is pressed
 	 * @return Returns 1 if the button/switch is pressed, and 0 otherwise
 	*/
-	bool isPressed();                      
+	bool isPressed( bool &state);
 
 	/**
 	 * @brief test button/switch is clicked
 	 * @return Returns 1 if the button/switch is clicked, and 0 otherwise
 	*/
-	bool hasBeenClicked();
+	bool hasBeenClicked(bool &state);
  
 	/**
 	 * @brief Sets isPressed, hasBeenClicked, and eventAvailable to zero

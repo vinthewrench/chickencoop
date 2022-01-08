@@ -106,30 +106,40 @@ uint8_t	QwiicButton::getDevAddr(){
 };
 
 
-bool QwiicButton::isPressed()
+bool QwiicButton::isPressed(bool &state)
 {
+	bool success = false;
+
 	statusRegisterBitField buttonStatus = {.byteWrapped = 0};
 	I2C i2cPort;
 
 	if( i2cPort.begin(_deviceAddress)) {
 		i2cPort.readBytes(BUTTON_STATUS, &buttonStatus.byteWrapped, 1);
 		i2cPort.stop();
+		state =  buttonStatus.isPressed;
+		success = true;
 	}
 
-	return buttonStatus.isPressed;
+	return success;
 }
 
-bool QwiicButton::hasBeenClicked()
+bool QwiicButton::hasBeenClicked(bool &state)
 {
+	bool success = false;
+	
 	statusRegisterBitField buttonStatus = {.byteWrapped = 0};
 	I2C i2cPort;
-
+	
 	if( i2cPort.begin(_deviceAddress)) {
 		i2cPort.readBytes(BUTTON_STATUS, &buttonStatus.byteWrapped, 1);
 		i2cPort.stop();
+		
+		state =  buttonStatus.hasBeenClicked;
+		success = true;
+		
 	}
+	return success;
 	
-	return buttonStatus.hasBeenClicked;
 }
 
 
