@@ -24,19 +24,16 @@ public:
  
 	bool begin(uint8_t deviceAddress = 0x48);
 	bool begin(uint8_t deviceAddress,  int &error);
-	
 	void stop();
-	bool isOpen();
-	
+ 
 	bool readTempC(float&);
 	bool readTempF(float&);
 	
 	uint8_t	getDevAddr();
 
 private:
-	
-	I2C 		_i2cPort;
-	bool		_isSetup;
+
+	uint8_t 	_deviceAddress;
 
 };
 

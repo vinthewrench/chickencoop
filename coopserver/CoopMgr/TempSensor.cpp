@@ -47,14 +47,12 @@ bool TempSensor::begin(int deviceAddress, string resultKey, int &error){
 }
 
 void TempSensor::stop(){
-	if(_sensor.isOpen()){
-		_sensor.stop();
-	}
-
+	_state = INS_INVALID;
 }
 
 bool TempSensor::isConnected(){
-	return _sensor.isOpen();
+	return  (_state ==  INS_IDLE || _state ==  INS_RESPONSE);
+	
 }
  
 void TempSensor::reset(){
@@ -66,7 +64,7 @@ TempSensor::rcvResponse(std::function<void(map<string,string>)> cb){
 
 	CoopMgrDevice::response_result_t result = NOTHING;
 	
-	if(!_sensor.isOpen()) {
+	if(!isConnected()) {
 		return ERROR;
 	}
 	

@@ -64,7 +64,8 @@ typedef union {
 
 
 QwiicButton::QwiicButton(){
-	_isSetup = false;
+	_deviceAddress = 0x00;
+
 }
 
 QwiicButton::~QwiicButton(){
@@ -80,48 +81,39 @@ bool QwiicButton::begin(uint8_t deviceAddress){
 
  
 bool QwiicButton::begin(uint8_t deviceAddress,   int &error){
-  
-	uint8_t  deviceType = 0;
-	_isSetup = false;
-	
-	if( _i2cPort.begin(deviceAddress, error) ) {
-		_isSetup = true;
 
- 		if(getDeviceType(deviceType) && deviceType != 0x5d) {
-			LOGT_INFO("QwiicButton(%02x) unexpected device type = %02x\n", deviceAddress, deviceType );
-			error = ENODEV;
-			_isSetup = false;
- 		}
+	bool status = true;
+
+	uint8_t  deviceType = 0;
+	_deviceAddress = deviceAddress;
+	
+	if(getDeviceType(deviceType) && deviceType != 0x5d) {
+		LOGT_INFO("QwiicButton(%02x) unexpected device type = %02x\n", deviceAddress, deviceType );
+		error = ENODEV;
+		status = false;
 	}
- // 	LOG_INFO("QwiicButton(%02x) begin: %s\n", deviceAddress, _isSetup?"OK":"FAIL");
-  
-  return _isSetup;
+	
+	return status;
 }
  
 void QwiicButton::stop(){
 //	LOG_INFO("QwiicButton(%02x) stop\n",  _i2cPort.getDevAddr());
-
-	_isSetup = false;
-	_i2cPort.stop();
 }
  
-bool QwiicButton::isOpen(){
-	return _isSetup;
-	
-};
-
 
 uint8_t	QwiicButton::getDevAddr(){
-	return _i2cPort.getDevAddr();
+	return _deviceAddress;
 };
 
 
 bool QwiicButton::isPressed()
 {
-	statusRegisterBitField buttonStatus;
+	statusRegisterBitField buttonStatus = {.byteWrapped = 0};
+	I2C i2cPort;
 
- 	if(_i2cPort.readBytes(BUTTON_STATUS, &buttonStatus.byteWrapped, 1) != 1){
-		return false;
+	if( i2cPort.begin(_deviceAddress)) {
+		i2cPort.readBytes(BUTTON_STATUS, &buttonStatus.byteWrapped, 1);
+		i2cPort.stop();
 	}
 
 	return buttonStatus.isPressed;
@@ -129,34 +121,41 @@ bool QwiicButton::isPressed()
 
 bool QwiicButton::hasBeenClicked()
 {
-	statusRegisterBitField buttonStatus;
+	statusRegisterBitField buttonStatus = {.byteWrapped = 0};
+	I2C i2cPort;
 
-	if(_i2cPort.readBytes(BUTTON_STATUS, &buttonStatus.byteWrapped, 1) != 1){
-		return false;
+	if( i2cPort.begin(_deviceAddress)) {
+		i2cPort.readBytes(BUTTON_STATUS, &buttonStatus.byteWrapped, 1);
+		i2cPort.stop();
 	}
-
+	
 	return buttonStatus.hasBeenClicked;
 }
 
 
 bool QwiicButton::clearEventBits()
 {
-	
-	statusRegisterBitField buttonStatus;
-	statusRegisterBitField buttonStatus1;
+	bool success = false;
+	I2C i2cPort;
 
-	if(_i2cPort.readBytes(BUTTON_STATUS, &buttonStatus.byteWrapped, 1) != 1){
-		return false;
+	if( i2cPort.begin(_deviceAddress)) {
+		
+		statusRegisterBitField buttonStatus = {.byteWrapped = 0};
+		statusRegisterBitField buttonStatus1 = {.byteWrapped = 0};
+		
+		if(i2cPort.readBytes(BUTTON_STATUS, &buttonStatus.byteWrapped, 1) == 1) {
+			
+			buttonStatus.isPressed = 0;
+			buttonStatus.hasBeenClicked = 0;
+			buttonStatus.eventAvailable = 0;
+			
+			bool success = i2cPort.writeByte(BUTTON_STATUS, buttonStatus.byteWrapped);
+			success &= (i2cPort.readBytes(BUTTON_STATUS, &buttonStatus1.byteWrapped, 1) != 1);
+			success &= (buttonStatus1.byteWrapped == buttonStatus.byteWrapped);
+		}
+		i2cPort.stop();
 	}
-
-	buttonStatus.isPressed = 0;
-	buttonStatus.hasBeenClicked = 0;
-	buttonStatus.eventAvailable = 0;
-
-	bool success = _i2cPort.writeByte(BUTTON_STATUS, buttonStatus.byteWrapped);
-	success &= (_i2cPort.readBytes(BUTTON_STATUS, &buttonStatus1.byteWrapped, 1) != 1);
-	success &= (buttonStatus1.byteWrapped == buttonStatus.byteWrapped);
-	 
+	
 	return success;
 }
 
@@ -166,14 +165,21 @@ bool QwiicButton::LEDconfig(uint8_t brightness,
 									 uint16_t cycleTime,
 									 uint16_t offTime,
 									 uint8_t granularity){
-	if(!isOpen())
-		return false;
+	
+	bool success = false;
+	I2C i2cPort;
 
-	bool success = _i2cPort.writeByte(LED_BRIGHTNESS, brightness);
-	success &= _i2cPort.writeByte(LED_PULSE_GRANULARITY, granularity);
-	success &= _i2cPort.writeWord(LED_PULSE_CYCLE_TIME, cycleTime);
-	success &= _i2cPort.writeWord(LED_PULSE_OFF_TIME, offTime);
- 	return success;
+	if( i2cPort.begin(_deviceAddress)) {
+		
+		bool success = i2cPort.writeByte(LED_BRIGHTNESS, brightness);
+		success &= i2cPort.writeByte(LED_PULSE_GRANULARITY, granularity);
+		success &= i2cPort.writeWord(LED_PULSE_CYCLE_TIME, cycleTime);
+		success &= i2cPort.writeWord(LED_PULSE_OFF_TIME, offTime);
+		
+		i2cPort.stop();
+	}
+	
+	return success;
 }
 
 bool QwiicButton::LEDoff(){
@@ -184,30 +190,42 @@ bool QwiicButton::LEDon(uint8_t brightness ){
 	return LEDconfig(brightness, 0, 0);
 }
 
- bool QwiicButton::getDeviceType(uint8_t &deviceType){
-	if(!isOpen())
-		return false;
+bool QwiicButton::getDeviceType(uint8_t &deviceType){
+	
+	bool success = false;
+	I2C i2cPort;
 
-	 uint8_t registerByte[1] = {0};
-	 if(_i2cPort.readBytes(ID, registerByte, 1) != 1){
-		 return false;
-	 }
- 
-	 deviceType = registerByte[0];
-	 return true;
+	if( i2cPort.begin(_deviceAddress)) {
+		
+		uint8_t registerByte[1] = {0};
+		if(i2cPort.readBytes(ID, registerByte, 1) == 1){
+			deviceType = registerByte[0];
+			success = true;
+		}
+		
+		i2cPort.stop();
+	}
+	
+	return success;
 }
  
- bool QwiicButton::getFirmwareVersion(uint16_t & version){
-	 
-	 if(!isOpen())
-		 return false;
-   
-	 uint8_t registerBytes[2] = {0,0};
-	 if(_i2cPort.readBytes(FIRMWARE_MINOR, registerBytes, 2) != 2){
-		 return false;
-	 }
- 
-	 version = ((registerBytes[1]) << 8) | (registerBytes[0]);
-	 return true;
+bool QwiicButton::getFirmwareVersion(uint16_t & version){
+	
+	bool success = false;
+	I2C i2cPort;
+
+	if( i2cPort.begin(_deviceAddress)) {
+		
+		uint8_t registerBytes[2] = {0,0};
+		
+		if(i2cPort.readBytes(FIRMWARE_MINOR, registerBytes, 2) != 2){
+			version = ((registerBytes[1]) << 8) | (registerBytes[0]);
+			success = true;
+		}
+		
+		i2cPort.stop();
+	}
+	
+	return success;
 }
 

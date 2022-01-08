@@ -87,12 +87,6 @@ private:
  
 	timeval			_lastQueryTime;
 	uint64_t     	_queryDelay;			// how long to wait before next query
-
-	I2C 		_i2cWp;
-	I2C 		_i2cClock;
-	
-	bool		_isSetup;
-
 };
  
 #endif /* WittyPi3_hpp */

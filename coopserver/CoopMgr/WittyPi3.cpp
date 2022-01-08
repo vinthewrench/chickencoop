@@ -63,33 +63,36 @@ bool WittyPi3::begin(){
  
 bool WittyPi3::begin(int &error){
 	
-	_isSetup = false;
- 
-	if( _i2cWp.begin(kWpAddr, error)
-		&& _i2cClock.begin(kClockAddr, error))
-	{
-		_isSetup = true;
-		_state = INS_IDLE;
-		_queryDelay = 2;	// seconds
-		_lastQueryTime = {0,0};
-		_resultMap.clear();
-	}
-	else {
-		_state = INS_INVALID;
-	}
+	bool success = false;
+	I2C i2cPort;
 	
-	return _isSetup;
+	_state = INS_INVALID;
+	
+	// Test WittyPi port
+	if( i2cPort.begin(kWpAddr, error)) {
+		i2cPort.stop();
+		
+		// Test WittyPi Clock
+		if( i2cPort.begin(kClockAddr, error)) {
+			i2cPort.stop();
+			
+			_state = INS_IDLE;
+			_queryDelay = 2;	// seconds
+			_lastQueryTime = {0,0};
+			_resultMap.clear();
+			success = true;
+		}
+	}
+ 
+	return success;
 }
 
 void WittyPi3::stop(){
-	_isSetup = false;
 	_state = INS_INVALID;
-	_i2cWp.stop();
-	_i2cClock.stop();
 }
 
 bool WittyPi3::isConnected(){
-	return _isSetup;
+	return  (_state ==  INS_IDLE || _state ==  INS_RESPONSE);
 }
  
  
@@ -99,17 +102,18 @@ void WittyPi3::reset(){
 
 bool WittyPi3::getRegisters(WittyPi3::registermap &regsIn){
 	
-	if(!isConnected())
-		return false;
+	bool  success = false;
+	I2C i2cPort;
 	
-	bool  success = true;
-	
-	for(int i = 0; i < sizeof(WittyPi3::registermap); i++){
+	if( i2cPort.begin(kWpAddr)) {
 		
-		success = (_i2cWp.readBytes(i, ((uint8_t*)&regsIn) + i , 1 ) == 1);
-		if(!success) break;
+		for(int i = 0; i < sizeof(WittyPi3::registermap); i++){
+			success = (i2cPort.readBytes(i, ((uint8_t*)&regsIn) + i , 1 ) == 1);
+			if(!success) break;
+		}
+		i2cPort.stop();
 	}
-  	
+	
 	return success;
 }
 
@@ -117,84 +121,104 @@ bool WittyPi3::getRegisters(WittyPi3::registermap &regsIn){
 
 bool WittyPi3::tempC(double &val){
 	
-	if(!isConnected())
-		return false;
+	bool  success = false;
+	I2C i2cPort;
 	
- 	uint8_t registerBytes[2] = {0,0};
-
-	if( (_i2cClock.readBytes(TEMP_MSB, &registerBytes[0], 1) == 1)
-		&&  (_i2cClock.readBytes(TEMP_LSB, &registerBytes[1], 1) == 1)){
+	if( i2cPort.begin(kClockAddr)) {
 		
-		val = ((double) (registerBytes[0] & 0x7F)) + ((registerBytes[1] >> 6) * 0.25);
-		if((registerBytes[0] & 0x80)  == 0x80) val = val * -1;
- 
-		return true;
+		uint8_t registerBytes[2] = {0,0};
+		
+		if( (i2cPort.readBytes(TEMP_MSB, &registerBytes[0], 1) == 1)
+			&&  (i2cPort.readBytes(TEMP_LSB, &registerBytes[1], 1) == 1)){
+			
+			val = ((double) (registerBytes[0] & 0x7F)) + ((registerBytes[1] >> 6) * 0.25);
+			if((registerBytes[0] & 0x80)  == 0x80) val = val * -1;
+			success = true;
+		}
+		i2cPort.stop();
+		
 	}
-
-	return false;
+	return success;
 }
 
 bool WittyPi3::voltageIn(double &val){
 	
-	if(!isConnected())
-		return false;
-
-	uint8_t registerBytes[2] = {0,0};
-
-	if( (_i2cWp.readBytes(VOLTAGE_IN_I, &registerBytes[0], 1) == 1)
-		&&  (_i2cWp.readBytes(VOLTAGE_IN_D, &registerBytes[1], 1) == 1)){
+	bool  success = false;
+	I2C i2cPort;
+	
+	if( i2cPort.begin(kWpAddr)) {
 		
-		val = ((double)registerBytes[0]) + (registerBytes[1] * 0.01);
-		return true;
+		uint8_t registerBytes[2] = {0,0};
+		
+		if( (i2cPort.readBytes(VOLTAGE_IN_I, &registerBytes[0], 1) == 1)
+			&&  (i2cPort.readBytes(VOLTAGE_IN_D, &registerBytes[1], 1) == 1)){
+			
+			val = ((double)registerBytes[0]) + (registerBytes[1] * 0.01);
+			success = true;
+		}
+		i2cPort.stop();
+		
 	}
-		
-	return false;
+	return success;
 }
 
 bool WittyPi3::voltageOut(double &val){
-	if(!isConnected())
-		return false;
-
-	uint8_t registerBytes[2] = {0,0};
-
-	if( (_i2cWp.readBytes(VOLTAGE_OUT_I, &registerBytes[0], 1) == 1)
-		&&  (_i2cWp.readBytes(VOLTAGE_OUT_D, &registerBytes[1], 1) == 1)){
+	
+	bool  success = false;
+	I2C i2cPort;
+	
+	if( i2cPort.begin(kWpAddr)) {
 		
-		val = ((double)registerBytes[0]) + (registerBytes[1] * 0.01);
-		return true;
+		uint8_t registerBytes[2] = {0,0};
+		
+		if( (i2cPort.readBytes(VOLTAGE_OUT_I, &registerBytes[0], 1) == 1)
+			&&  (i2cPort.readBytes(VOLTAGE_OUT_D, &registerBytes[1], 1) == 1)){
+			
+			val = ((double)registerBytes[0]) + (registerBytes[1] * 0.01);
+			success = true;
+		}
+		i2cPort.stop();
 	}
-
-	return false;
+	return success;
 }
 
 bool WittyPi3::currentOut(double &val){
-	if(!isConnected())
-		return false;
-
-	uint8_t registerBytes[2] = {0,0};
-
-	if( (_i2cWp.readBytes(CURRENT_OUT_I, &registerBytes[0], 1) == 1)
-		&&  (_i2cWp.readBytes(CURRENT_OUT_D, &registerBytes[1], 1) == 1)){
+	
+	bool  success = false;
+	I2C i2cPort;
+	
+	if( i2cPort.begin(kWpAddr)) {
 		
-		val = ((double)registerBytes[0]) + (registerBytes[1] * 0.01);
-		return true;
+		uint8_t registerBytes[2] = {0,0};
+		
+		if( (i2cPort.readBytes(CURRENT_OUT_I, &registerBytes[0], 1) == 1)
+			&&  (i2cPort.readBytes(CURRENT_OUT_D, &registerBytes[1], 1) == 1)){
+			
+			val = ((double)registerBytes[0]) + (registerBytes[1] * 0.01);
+			success = true;
+		}
+		i2cPort.stop();
 	}
-
-	return false;
+	return success;
+	
 }
 
 bool WittyPi3::powerMode(bool &val){
-	if(!isConnected())
-		return false;
-
-	uint8_t registerBytes[1] = {0};
 	
-	if(_i2cWp.readBytes(POWER_MODE, registerBytes, 1) == 1){
-		val = (bool)registerBytes[0];
-		return true;
+	bool  success = false;
+	I2C i2cPort;
+	
+	if( i2cPort.begin(kWpAddr)) {
+		
+		uint8_t registerBytes[1] = {0};
+		
+		if(i2cPort.readBytes(POWER_MODE, registerBytes, 1) == 1){
+			val = (bool)registerBytes[0];
+			success = true;
+		}
+		i2cPort.stop();
 	}
-
-	return false;
+	return success;
 }
 
 
@@ -204,7 +228,7 @@ WittyPi3::rcvResponse(std::function<void(map<string,string>)> cb){
 
 	CoopMgrDevice::response_result_t result = NOTHING;
 	
-	if(!_isSetup) {
+	if(!isConnected()) {
 		return ERROR;
 	}
 	

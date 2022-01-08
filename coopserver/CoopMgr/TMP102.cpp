@@ -16,12 +16,11 @@
 
 
 TMP102::TMP102(){
-	_isSetup = false;
+	_deviceAddress = 0x00;
 }
 
 TMP102::~TMP102(){
 	stop();
-	
 }
 
 bool TMP102::begin(uint8_t deviceAddress){
@@ -31,29 +30,26 @@ bool TMP102::begin(uint8_t deviceAddress){
 }
  
 bool TMP102::begin(uint8_t deviceAddress,   int &error){
-  
-	_isSetup = _i2cPort.begin(deviceAddress, error);
+	bool success = false;
 	
-// 	LOG_INFO("TMP102(%02x) begin: %s\n", deviceAddress, _isSetup?"OK":"FAIL");
- 
-  return _isSetup;
+	_deviceAddress = deviceAddress;
+	
+	I2C i2cPort;
+	if( i2cPort.begin(_deviceAddress, error)) {
+		success = true;
+		i2cPort.stop();
+	}
+	return success;
 }
  
 void TMP102::stop(){
 //	LOG_INFO("TMP102(%02x) stop\n",  _i2cPort.getDevAddr());
-
-	_isSetup = false;
-	_i2cPort.stop();
 }
  
-bool TMP102::isOpen(){
-	return _isSetup;
-	
-};
 
 
 uint8_t	TMP102::getDevAddr(){
-	return _i2cPort.getDevAddr();
+	return _deviceAddress;
 };
 
 bool TMP102::readTempF(float& tempOut){
@@ -70,41 +66,48 @@ bool TMP102::readTempF(float& tempOut){
 
 bool TMP102::readTempC(float& tempOut){
 	
-	if(!isOpen())
-		return false;
- 
-	uint8_t registerByte[2] = {0,0};
-	if(_i2cPort.readBytes(TEMPERATURE_REGISTER, registerByte, 2) == -1)
-		return false;
-
-	int16_t digitalTemp;
-	// Bit 0 of second byte will always be 0 in 12-bit readings and 1 in 13-bit
-	if(registerByte[1]&0x01)	// 13 bit mode
-	{
-		// Combine bytes to create a signed int
-		digitalTemp = ((registerByte[0]) << 5) | (registerByte[1] >> 3);
-		// Temperature data can be + or -, if it should be negative,
-		// convert 13 bit to 16 bit and use the 2s compliment.
-		if(digitalTemp > 0xFFF)
-		{
-			digitalTemp |= 0xE000;
-		}
-	}
-	else	// 12 bit mode
-	{
-		// Combine bytes to create a signed int
-		digitalTemp = ((registerByte[0]) << 4) | (registerByte[1] >> 4);
-		// Temperature data can be + or -, if it should be negative,
-		// convert 12 bit to 16 bit and use the 2s compliment.
-		if(digitalTemp > 0x7FF)
-		{
-			digitalTemp |= 0xF000;
-		}
-	}
-	// Convert digital reading to analog temperature (1-bit is equal to 0.0625 C)
+	bool success = false;
 	
-	tempOut = digitalTemp*0.0625;
+	I2C i2cPort;
 	
-	return true;
+	if( i2cPort.begin(_deviceAddress)) {
+		uint8_t registerByte[2] = {0,0};
+		
+		if(i2cPort.readBytes(TEMPERATURE_REGISTER, registerByte, 2) == 2) {
+			
+			int16_t digitalTemp;
+			// Bit 0 of second byte will always be 0 in 12-bit readings and 1 in 13-bit
+			if(registerByte[1]&0x01)	// 13 bit mode
+			{
+				// Combine bytes to create a signed int
+				digitalTemp = ((registerByte[0]) << 5) | (registerByte[1] >> 3);
+				// Temperature data can be + or -, if it should be negative,
+				// convert 13 bit to 16 bit and use the 2s compliment.
+				if(digitalTemp > 0xFFF)
+				{
+					digitalTemp |= 0xE000;
+				}
+			}
+			else	// 12 bit mode
+			{
+				// Combine bytes to create a signed int
+				digitalTemp = ((registerByte[0]) << 4) | (registerByte[1] >> 4);
+				// Temperature data can be + or -, if it should be negative,
+				// convert 12 bit to 16 bit and use the 2s compliment.
+				if(digitalTemp > 0x7FF)
+				{
+					digitalTemp |= 0xF000;
+				}
+			}
+			// Convert digital reading to analog temperature (1-bit is equal to 0.0625 C)
+			
+			tempOut = digitalTemp*0.0625;
+			success = true;
+		}
+		
+		i2cPort.stop();
+	}
+	
+	return success;
 }
 
