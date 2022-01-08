@@ -109,14 +109,45 @@ void CoopMgr::start(){
 void CoopMgr::stop(){
 	
 	LOGT_DEBUG("Stop Coop");
-
-	stopWittyPi3();
- 	stopTempSensor();
-	stopCoopDevices();
-	_state = CoopMgrDevice::DEVICE_STATE_DISCONNECTED;
-	_shouldRunStartupEvents = false;
-	_shouldReconcileEvents = false;
+ 
+	runShutdownEvents([=](){
+		stopWittyPi3();
+		stopTempSensor();
+		stopCoopDevices();
+		_state = CoopMgrDevice::DEVICE_STATE_DISCONNECTED;
+		_shouldRunStartupEvents = false;
+		_shouldReconcileEvents = false;
+		
+	});
+	
 }
+
+void CoopMgr::runShutdownEvents(std::function<void()> cb){
+	auto eventIDs =  _db.eventsMatchingAppEvent(EventTrigger::APP_EVENT_SHUTDOWN);
+	
+	if(eventIDs.size() ==  0){
+		if(cb) cb();
+	}
+	else {
+		size_t* taskCount  = (size_t*) malloc(sizeof(size_t));
+		*taskCount = eventIDs.size();
+
+		// run startup events.
+			for (auto eventID : eventIDs) {
+			string name = 	_db.eventGetName(eventID);
+			LOGT_INFO("RUN SHUTDOWN EVENT %04x - \"%s\"", eventID, name.c_str());
+
+			executeEvent(eventID, [=]( bool didSucceed) {
+				
+				if(--(*taskCount) == 0) {
+					free(taskCount);
+					
+					if(cb) cb();
+				}
+			});
+		}
+	}
+ }
 
 
 void CoopMgr::setActiveConnections(bool isActive){
@@ -458,8 +489,7 @@ void CoopMgr::idleLoop() {
 				
 				_shouldRunStartupEvents = false;
 			}
-			
- 
+	
 			// good place to check for events.
 			solarTimes_t solar;
 			if(SolarTimeMgr::shared()->getSolarEvents(solar)){

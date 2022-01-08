@@ -20,6 +20,7 @@ constexpr string_view JSON_TIME_OFFSET		 	= "mins";
 
 constexpr string_view JSON_ARG_EVENT			= "event";
 constexpr string_view JSON_EVENT_STARTUP		= "startup";
+constexpr string_view JSON_EVENT_SHUTDOWN		= "shutdown";
 
 
 // MARK: - EventTrigger()
@@ -110,11 +111,14 @@ void EventTrigger::initWithJSON(nlohmann::json j){
 		if( j.contains(string(JSON_ARG_EVENT))
 			&& j.at(string(JSON_ARG_EVENT)).is_string()){
 			string str = j.at(string(JSON_ARG_EVENT));
-		
-			if(str == JSON_EVENT_STARTUP){
+			
+			if(str == JSON_EVENT_STARTUP ){
 				_appEvent = APP_EVENT_STARTUP;
 			}
-		}
+			else if(str == JSON_EVENT_SHUTDOWN ){
+				_appEvent = APP_EVENT_SHUTDOWN;
+			}
+ 		}
 	}
 }
 
@@ -141,6 +145,11 @@ nlohmann::json EventTrigger::JSON(){
 				case APP_EVENT_STARTUP:
 					j1[string(JSON_ARG_EVENT)] =  JSON_EVENT_STARTUP;
 					break;
+					
+				case APP_EVENT_SHUTDOWN:
+					j1[string(JSON_ARG_EVENT)] =  JSON_EVENT_SHUTDOWN;
+					break;
+	 
 					
 				default:
 					break;

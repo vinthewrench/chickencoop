@@ -53,6 +53,7 @@ public:
 	typedef enum {
 		APP_EVENT_INVALID 	= 0,
 		APP_EVENT_STARTUP		= 1,
+		APP_EVENT_SHUTDOWN	= 2,
 	} app_event_t;
 
 

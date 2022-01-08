@@ -96,7 +96,8 @@ public:
 	bool getPowerTemp(double &val);
 
 private:
-	
+	void runShutdownEvents(std::function<void()> callback = NULL);
+ 
 	void		idleLoop();		// do stuff here when we are not busy.
 	bool			_shouldRunStartupEvents;	// we still need to run startup events.
 	bool			_shouldReconcileEvents;		// part of startup  combine any unrun events.

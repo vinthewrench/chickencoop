@@ -423,12 +423,14 @@ struct RESTEvent: Codable {
 	enum appEventTrigger:  String, CaseIterable {
 		case invalid = ""
 		case startup	= "startup"
+		case shutdown 	= "shutdown"
 		
 		func description() -> String {
 			var str = "Invalid"
 	
 			switch self {
 			case .startup:			str = "Startup"
+			case .shutdown:		str = "Shutdown"
 				default:
 				break
 			}
@@ -621,6 +623,10 @@ struct RESTEvent: Codable {
 			if self.trigger.event == "startup" {
 				str = "Startup"
 			}
+			else if self.trigger.event == "shutdown" {
+				str = "Shutdown"
+			}
+
 			break
 			
 		default:
@@ -647,6 +653,10 @@ struct RESTEvent: Codable {
 			if self.trigger.event == "startup" {
 				image = UIImage(systemName: "power")
 			}
+			else if self.trigger.event == "shutdown" {
+				image = UIImage(systemName: "poweroff")
+			}
+
 			break
 			
 		default:
@@ -740,6 +750,44 @@ class CCServerManager: ObservableObject {
 		}()
 	
 	init () {
+		
+	}
+	
+	func executeEvent(_ eventID: String,
+						  completion: @escaping (Error?) -> Void)  {
+		
+		let urlPath = "events/run.actions/\(eventID)"
+		
+		if let requestUrl: URL = AppData.serverInfo.url ,
+			let apiKey = AppData.serverInfo.apiKey,
+			let apiSecret = AppData.serverInfo.apiSecret {
+			let unixtime = String(Int(Date().timeIntervalSince1970))
+			
+			let urlComps = NSURLComponents(string: requestUrl.appendingPathComponent(urlPath).absoluteString)!
+			var request = URLRequest(url: urlComps.url!)
+			
+			
+			// Specify HTTP Method to use
+			request.httpMethod = "PUT"
+			request.setValue(apiKey,forHTTPHeaderField: "X-auth-key")
+			request.setValue(String(unixtime),forHTTPHeaderField: "X-auth-date")
+			let sig =  calculateSignature(forRequest: request, apiSecret: apiSecret)
+			request.setValue(sig,forHTTPHeaderField: "Authorization")
+			
+			// Send HTTP Request
+			request.timeoutInterval = 30
+			
+			let session = URLSession(configuration: .ephemeral, delegate: nil, delegateQueue: .main)
+			
+			let task = session.dataTask(with: request) { (data, response, urlError) in
+				
+				completion(urlError	)
+			}
+			task.resume()
+		}
+		else {
+			completion(ServerError.invalidURL)
+		}
 		
 	}
 	

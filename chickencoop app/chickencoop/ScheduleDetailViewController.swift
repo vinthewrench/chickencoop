@@ -68,18 +68,13 @@ class TriggerEventViewController: TriggerViewController {
 			
 			) { (action) in
 	
-					if let newEvtType = Int(action.identifier.rawValue){
-//					if (newEvtType != self.event?.trigger.event ){
-//
-					
-//						self.event?.trigger.timeBase = Int(action.identifier.rawValue)
- 						self.refreshView()
- 						self.delegate?.triggerViewChanged()
-//					}
- 				}
+					let newEvtType =  action.identifier.rawValue
+					if (newEvtType != self.event?.trigger.event ){
+						self.event?.trigger.event = newEvtType
 
-//				self.event?.trigger.timeBase = Int(action.identifier.rawValue)
-//				self.refreshView()
+						self.refreshView()
+ 						self.delegate?.triggerViewChanged()
+ 				}
 			}
 
 			actions.append(item)
@@ -377,7 +372,7 @@ class ScheduleDetailViewController :UIViewController,
 												TriggerViewControllerDelegate{
 	
 	
-	@IBOutlet var lblTitle	: EditableUILabel!
+	@IBOutlet var txtTitle	: UITextField!
 
 	@IBOutlet var segEvent	: UISegmentedControl!
 	
@@ -388,6 +383,7 @@ class ScheduleDetailViewController :UIViewController,
 	@IBOutlet var btnDevice	: UIButton!
 	 
 	@IBOutlet var btnSave	: UIButton!
+	@IBOutlet var btnRun		: BHButton!
 
 	var delegate:SchedulesViewController? = nil
 	
@@ -422,12 +418,12 @@ class ScheduleDetailViewController :UIViewController,
 
 
 	
-	// MARK:-  view
+	// MARK:-  view lifetime
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		lblTitle.delegate = self
-		
+		txtTitle.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+ 
 		// Add function to handle Value Changed events
 		segEvent.addTarget(self, action: #selector(self.segmentedValueChanged(_:)), for: .valueChanged)
 	}
@@ -462,7 +458,7 @@ class ScheduleDetailViewController :UIViewController,
 		var newVC:TriggerViewController? = nil
 		
 		if let event = event {
-			self.lblTitle.text = event.name
+			self.txtTitle.text = event.name
 
 			switch(eventType){
 			
@@ -579,15 +575,26 @@ class ScheduleDetailViewController :UIViewController,
 		btnDevice.menu = menu2
 		btnDevice.showsMenuAsPrimaryAction = true
 		btnDevice.setTitle(event?.stringForActionDeviceID(), for: .normal	)
- 
 	}
 
 	func refreshAction(){
-
+		
 		refreshCmd()
 		refreshDevice()
-	}
+		refreshRunButton()
+ 	}
 	
+	func refreshRunButton(){
+		
+		btnRun.isEnabled =  false;
+		if let evt = self.event {
+			if(evt.isValid() && eventID != "" ){
+				btnRun.isEnabled =  true;
+				}
+		}
+		
+		btnRun.backgroundColor = btnRun.isEnabled ? .systemBlue : .systemGray3
+	}
 	
 	func createNewEvent(){
 		event = RESTEvent()
@@ -621,6 +628,14 @@ class ScheduleDetailViewController :UIViewController,
 		}
 	}
 	
+	@objc final private func textFieldDidChange(textField: UITextField) {
+		if(textField == txtTitle){
+			
+			event?.name = textField.text!
+			btnSave.isEnabled = event!.isValid()
+		}
+	}
+	
 	// MARK:- segment control
 	
 	@objc func segmentedValueChanged(_ sender:UISegmentedControl!) {
@@ -642,7 +657,33 @@ class ScheduleDetailViewController :UIViewController,
 
 	// MARK: -
 
-
+	@IBAction func btnRunClicked(_ sender: Any) {
+		
+		if eventID != "" {
+			
+			self.view.displayActivityIndicator(shouldDisplay: true)
+			
+			CCServerManager.shared.executeEvent(eventID)
+			{ (error)  in
+				
+				self.view.displayActivityIndicator(shouldDisplay: false)
+				
+				if(error != nil){
+	 
+					Toast.text(error?.localizedDescription ?? "Error",
+								  config: ToastConfiguration(
+									autoHide: true,
+									displayTime: 1.0,
+									attachTo: self.view
+								  )).show()
+					
+				}
+			}
+			
+			
+		}
+	}
+	
 	
 	@IBAction func btnSaveClicked(_ sender: Any) {
 		if  eventID == "" || event?.eventID == nil {
@@ -680,7 +721,6 @@ class ScheduleDetailViewController :UIViewController,
 								  )).show()
 
 				}
-				
 			}
 		}
 		
@@ -710,7 +750,7 @@ class ScheduleDetailViewController :UIViewController,
 												validate: .nonEmpty,
 												textFieldConfiguration: { textField in
 			textField.placeholder =  "Event Name"
-			textField.text = self.lblTitle.text
+			textField.text = self.txtTitle.text
 		}) { result in
 			
 			switch result {
