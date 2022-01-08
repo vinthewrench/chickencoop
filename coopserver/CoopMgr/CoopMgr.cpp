@@ -409,9 +409,13 @@ bool CoopMgr::executeEvent(eventID_t eventID,
 	if(!ref)
 		return false;
 	
+
 	Event event = ref->get();
 	Action action = event.getAction();
+	string name = event.getName();
 	
+	LOGT_INFO("RUN EVENT %04x - \"%s\"", eventID, name.c_str());
+
 	bool handled = runAction(action, [=](bool didSucceed){
 		if(cb) (cb)( didSucceed);
 	});
