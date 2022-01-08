@@ -84,8 +84,8 @@ static bool Devices_NounHandler_GET(ServerCmdQueue* cmdQueue,
 	auto path = url.path();
 	auto queries = url.queries();
 	auto headers = url.headers();
- 
- 
+	
+	
 	json reply;
 	auto coopMgr = CoopMgr::shared();
 	
@@ -96,7 +96,7 @@ static bool Devices_NounHandler_GET(ServerCmdQueue* cmdQueue,
 		auto deviceStr = path.at(1);
 		
 		if(vDevice.validateArg(deviceStr)){
-	
+			
 			bool queued = false;
 			if(deviceStr == SUBPATH_DOOR){
 				
@@ -105,26 +105,6 @@ static bool Devices_NounHandler_GET(ServerCmdQueue* cmdQueue,
 					
 					if(didSucceed){
 						reply[string(JSON_ARG_DOOR)] = state;
-		 				makeStatusJSON(reply,STATUS_OK);
-						(completion) (reply, STATUS_OK);
-					}
-					else {
-						makeStatusJSON(reply, STATUS_BAD_REQUEST, "Get Failed" );;
-						(completion) (reply, STATUS_BAD_REQUEST);
-					}
-					
-				});
-				
-			}
-			if(deviceStr == SUBPATH_LIGHT){
-				
-				queued = coopMgr->getLight([=] (bool didSucceed,bool isOn ){
-					json reply;
-					
-					if(didSucceed){
-						
-						reply[string(JSON_ARG_LIGHT)]= isOn;
-		
 						makeStatusJSON(reply,STATUS_OK);
 						(completion) (reply, STATUS_OK);
 					}
@@ -136,18 +116,67 @@ static bool Devices_NounHandler_GET(ServerCmdQueue* cmdQueue,
 				});
 				
 			}
-	
+			else if(deviceStr == SUBPATH_LIGHT){
+				
+				queued = coopMgr->getLight([=] (bool didSucceed,bool isOn ){
+					json reply;
+					
+					if(didSucceed){
+						
+						reply[string(JSON_ARG_LIGHT)]= isOn;
+						
+						makeStatusJSON(reply,STATUS_OK);
+						(completion) (reply, STATUS_OK);
+					}
+					else {
+						makeStatusJSON(reply, STATUS_BAD_REQUEST, "Get Failed" );;
+						(completion) (reply, STATUS_BAD_REQUEST);
+					}
+					
+				});
+			}
+			else if(deviceStr == SUBPATH_POWER){
+				json reply;
+				
+				double dbl;
+				bool bl;
+				
+				if(coopMgr->getVoltageIn(dbl)){
+					reply[string(JSON_ARG_VIN)]= dbl;
+				}
+				
+				if(coopMgr->getVoltageOut(dbl)){
+					reply[string(JSON_ARG_VOUT)]= dbl;
+				}
+				
+				if(coopMgr->getCurrentOut(dbl)){
+					reply[string(JSON_ARG_IOUT)]= dbl;
+				}
+				
+				if(coopMgr->getPowerMode(bl)){
+					reply[string(JSON_ARG_P_MODE)]= bl;
+				}
+				
+				if(coopMgr->getPowerTemp(dbl)){
+					reply[string(JSON_ARG_TEMPC)]= dbl;
+				}
+				
+				makeStatusJSON(reply,STATUS_OK);
+				(completion) (reply, STATUS_OK);
+				return true;
+			}
+				
 			if(!queued) {
 				makeStatusJSON(reply, STATUS_UNAVAILABLE, "Server is not running" );;
 				(completion) (reply, STATUS_UNAVAILABLE);
 				return false;
 			}
 			return true;
-
+			
 		}
 	}
 	return false;
-
+	
 }
 
 
@@ -915,6 +944,48 @@ static void Properties_NounHandler(ServerCmdQueue* cmdQueue,
 // MARK:  EVENTS NOUN HANDLERS
 
 
+static bool createEventFromJSON( json  &j, Event& event) {
+	
+	bool statusOK = false;
+	Event evt;
+	
+	ServerCmdArgValidator 	v1;
+	string str;
+	
+	Action action;
+	EventTrigger trigger;
+	string name;
+	
+	if( j.contains(JSON_ARG_NAME)
+		&& j.at(string(JSON_ARG_NAME)).is_string()){
+		name = j.at(string(JSON_ARG_NAME));
+	}
+
+	if( j.contains(JSON_ARG_ACTION)
+		&& j.at(string(JSON_ARG_ACTION)).is_object()){
+		auto a = j.at(string(JSON_ARG_ACTION));
+		action = Action(a);
+	}
+	
+	if(action.isValid()
+		&&  j.contains(JSON_ARG_TRIGGER)
+		&& j.at(string(JSON_ARG_TRIGGER)).is_object()){
+		auto t = j.at(string(JSON_ARG_TRIGGER));
+		trigger = EventTrigger(t);
+	};
+	
+	evt = Event(trigger, action, name);
+ 
+	statusOK = evt.isValid();
+	
+	if(statusOK){
+		event = evt;
+	}
+	
+	return statusOK;
+}
+
+
 static bool Events_NounHandler_GET(ServerCmdQueue* cmdQueue,
 											  REST_URL url,
 											  TCPClientInfo cInfo,
@@ -1122,61 +1193,34 @@ static bool Events_NounHandler_PATCH(ServerCmdQueue* cmdQueue,
 		
 		if( !str_to_EventID(path.at(1).c_str(), &eventID) || !db->eventsIsValid(eventID))
 			return false;
+	
+		auto ref = db->eventsGetEvent(eventID);
+		if(!ref) return false;
 		
-		string name;
-	 	// set name
-		
-			if(v1.getStringFromJSON(JSON_ARG_NAME, url.body(), name)
-			&& (db->eventSetName(eventID, name))) {
+		Event updatedEvent;
+	 
+		if(!createEventFromJSON(url.body(), updatedEvent ) || !updatedEvent.isValid())
+		{
+			makeStatusJSON(reply, STATUS_BAD_REQUEST, "Update Failed, Bad data" );;
+			(completion) (reply, STATUS_BAD_REQUEST);
+			return true;
+		}
+	
+		if(db->eventUpdate(eventID, updatedEvent)) {
 			reply[string(JSON_ARG_EVENTID)] = to_hex<unsigned short>(eventID);
-			reply[string(JSON_ARG_NAME)] = name;
-			
-			makeStatusJSON(reply,STATUS_OK);
+	 		makeStatusJSON(reply,STATUS_OK);
 			(completion) (reply, STATUS_OK);
+
 		}
 		else {
 			reply[string(JSON_ARG_EVENTID)] = to_hex<unsigned short>(eventID);
-			makeStatusJSON(reply, STATUS_BAD_REQUEST, "Set Failed" );;
+			makeStatusJSON(reply, STATUS_BAD_REQUEST, "Update Failed" );;
 			(completion) (reply, STATUS_BAD_REQUEST);
 		}
 	}
 
 	return false;
 	
-}
-
-static bool createEventFromJSON( json  &j, Event& event) {
-	
-	bool statusOK = false;
-	Event evt;
-	
-	ServerCmdArgValidator 	v1;
- 	string str;
-	
-	Action action;
-	EventTrigger trigger;
-	
-	if( j.contains(JSON_ARG_ACTION)
-		&& j.at(string(JSON_ARG_ACTION)).is_object()){
-		auto a = j.at(string(JSON_ARG_ACTION));
-		action = Action(a);
-	}
-	
-	if(action.isValid()
-		&&  j.contains(JSON_ARG_TRIGGER)
-		&& j.at(string(JSON_ARG_TRIGGER)).is_object()){
-		auto t = j.at(string(JSON_ARG_TRIGGER));
-		trigger = EventTrigger(t);
-	};
-	
-	evt = Event(trigger, action);
-	statusOK = evt.isValid();
-	
-	if(statusOK){
-		event = evt;
-	}
-	
-	return statusOK;
 }
 
  
@@ -1198,48 +1242,31 @@ static bool Events_NounHandler_POST(ServerCmdQueue* cmdQueue,
 
 	if(path.size() == 1) {
 		
-		string name;
+		eventID_t eventID;
+		Event event;
+		
 		// Create event
 		
-		if(v1.getStringFromJSON(JSON_ARG_NAME, url.body(), name)){
-			
-			eventID_t eventID;
-			if(db->eventFind(name, &eventID)){
-				name = db->eventGetName(eventID);
-				
-				reply[string(JSON_ARG_NAME)] = name;
-				reply[string(JSON_ARG_EVENTID)] = to_hex<unsigned short>(eventID);
-				makeStatusJSON(reply, STATUS_CONFLICT, "Name already used" );;
-				(completion) (reply, STATUS_CONFLICT);
-				return true;
-			}
-			else {
-				
-				Event event;
-				 
-				if(!createEventFromJSON(url.body(), event ) || !event.isValid())
-				{
-					makeStatusJSON(reply, STATUS_BAD_REQUEST, "Create Failed" );;
-					(completion) (reply, STATUS_BAD_REQUEST);
-					return true;
-				}
-					
-				event.setName(name);
-				
-				if (db->eventSave(event, &eventID)) {
-					reply[string(JSON_ARG_EVENTID)] = to_hex<unsigned short>(eventID);
-					reply[string(JSON_ARG_NAME)] = name;
-					makeStatusJSON(reply,STATUS_OK);
-					(completion) (reply, STATUS_OK);
-					return true;
-				}
-				else {
-					makeStatusJSON(reply, STATUS_BAD_REQUEST, "Set Failed" );;
-					(completion) (reply, STATUS_BAD_REQUEST);
-					return true;
-				}
-			}
+		if(!createEventFromJSON(url.body(), event ) || !event.isValid())
+		{
+			makeStatusJSON(reply, STATUS_BAD_REQUEST, "Create Failed" );;
+			(completion) (reply, STATUS_BAD_REQUEST);
+			return true;
 		}
+		
+		if (db->eventSave(event, &eventID)) {
+			reply[string(JSON_ARG_EVENTID)] = to_hex<unsigned short>(eventID);
+			reply[string(JSON_ARG_NAME)] = event.getName();
+			makeStatusJSON(reply,STATUS_OK);
+			(completion) (reply, STATUS_OK);
+			return true;
+		}
+		else {
+			makeStatusJSON(reply, STATUS_BAD_REQUEST, "Set Failed" );;
+			(completion) (reply, STATUS_BAD_REQUEST);
+			return true;
+		}
+		
 	}
 	
 	

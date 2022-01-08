@@ -90,7 +90,9 @@ void CoopMgr::start(){
 
 	initDataBase();
 
- 	startTempSensor();
+	startWittyPi3();
+	startTempSensor();
+		
 	startCoopDevices([=](bool didSucceed, string error_text){
 		
 		if(didSucceed){
@@ -108,6 +110,7 @@ void CoopMgr::stop(){
 	
 	LOGT_DEBUG("Stop Coop");
 
+	stopWittyPi3();
  	stopTempSensor();
 	stopCoopDevices();
 	_state = CoopMgrDevice::DEVICE_STATE_DISCONNECTED;
@@ -150,9 +153,17 @@ void CoopMgr::run(){
 				});
 			}
  
+			if(_wittyPi3.isConnected()){
+				// handle input
+				_wittyPi3.rcvResponse([=]( map<string,string> results){
+					_db.insertValues(results);
+				});
+			}
+  
 			sleep(SLEEP_SEC);
 	 
 			_tempSensor1.idle();
+			_wittyPi3.idle();
 			_coopHW.idle();
 			_cpuInfo.idle();
 			
@@ -195,6 +206,68 @@ string CoopMgr::deviceStateString(CoopMgrDevice::device_state_t st) {
 	}
 };
 
+// MARK: -   I2C WittyPi3
+
+
+
+void CoopMgr::startWittyPi3( std::function<void(bool didSucceed, std::string error_text)> cb){
+	
+	int  errnum = 0;
+	bool didSucceed = false;
+ 
+	didSucceed =  _wittyPi3.begin(errnum);
+	if(didSucceed){
+//		_db.addSchema(resultKey,
+//						  CoopMgrDB::DEGREES_C,
+//						  "Coop Temperature",
+//						  CoopMgrDB::TR_TRACK);
+//
+		LOGT_DEBUG("Start WittyPi3 - OK");
+	}
+	else
+		LOGT_ERROR("Start WittyPi3 - FAIL %s", string(strerror(errnum)).c_str());
+ 
+	
+	
+	if(cb)
+		(cb)(didSucceed, didSucceed?"": string(strerror(errnum) ));
+ }
+
+void CoopMgr::stopWittyPi3(){
+	_wittyPi3.stop();
+}
+
+CoopMgrDevice::device_state_t CoopMgr::wittyPi3tate(){
+	return _wittyPi3.getDeviceState();
+}
+
+bool CoopMgr::getVoltageIn(double &val){
+	
+	return _wittyPi3.voltageIn(val);
+}
+
+bool CoopMgr::getVoltageOut(double &val){
+	
+	return _wittyPi3.voltageOut(val);
+}
+
+bool CoopMgr::getCurrentOut(double &val) {
+	
+	return _wittyPi3.currentOut(val);
+}
+
+bool CoopMgr::getPowerMode(bool &val){
+
+	return _wittyPi3.powerMode(val);
+
+}
+
+bool CoopMgr::getPowerTemp(double &val){
+
+	return _wittyPi3.tempC(val);
+}
+
+
 // MARK: -   I2C Temp Sensors
 
 
@@ -219,9 +292,7 @@ void CoopMgr::startTempSensor( std::function<void(bool didSucceed, std::string e
 	}
 	else
 		LOGT_ERROR("Start TempSensor 1  - FAIL %s", string(strerror(errnum)).c_str());
- 
-	
-	
+ 	
 	if(cb)
 		(cb)(didSucceed, didSucceed?"": string(strerror(errnum) ));
 
@@ -413,3 +484,52 @@ void CoopMgr::idleLoop() {
  		}
 	}
  };
+
+extern "C" {
+
+
+void dumpHex(uint8_t* buffer, int length, int offset)
+{
+	char hexDigit[] = "0123456789ABCDEF";
+	int			i;
+	int						lineStart;
+	int						lineLength;
+	short					c;
+	const unsigned char	  *bufferPtr = buffer;
+	
+	char                    lineBuf[1024];
+	char                    *p;
+	
+#define kLineSize	8
+	for (lineStart = 0, p = lineBuf; lineStart < length; lineStart += lineLength,  p = lineBuf )
+	{
+		lineLength = kLineSize;
+		if (lineStart + lineLength > length)
+			lineLength = length - lineStart;
+		
+		p += sprintf(p, "%6d: ", lineStart+offset);
+		for (i = 0; i < lineLength; i++){
+			*p++ = hexDigit[ bufferPtr[lineStart+i] >>4];
+			*p++ = hexDigit[ bufferPtr[lineStart+i] &0xF];
+			if((lineStart+i) &0x01)  *p++ = ' ';  ;
+		}
+		for (; i < kLineSize; i++)
+			p += sprintf(p, "   ");
+		
+		p += sprintf(p,"  ");
+		for (i = 0; i < lineLength; i++) {
+			c = bufferPtr[lineStart + i] & 0xFF;
+			if (c > ' ' && c < '~')
+				*p++ = c ;
+			else {
+				*p++ = '.';
+			}
+		}
+		*p++ = 0;
+		
+		
+		printf("%s\n",lineBuf);
+	}
+#undef kLineSize
+}
+}

@@ -368,6 +368,15 @@ Event::Event(EventTrigger trigger, Action action){
 	_action = action;
 }
 
+
+Event::Event(EventTrigger trigger, Action action, std::string name){
+	_rawEventID = 0;
+	_trigger = trigger;
+	_action = action;
+	if(!name.empty())
+		_name = name;
+}
+
 Event::Event(nlohmann::json j){
 	
 	_rawEventID = 0;

@@ -30,7 +30,8 @@ set(SOURCES
 	coopserver/CoopMgr/TMP102.cpp
 	coopserver/CoopMgr/CPUInfo.cpp
 	coopserver/CoopMgr/TempSensor.cpp
-	coopserver/CoopMgr/QwiicButton.cpp
+	coopserver/CoopMgr/WittyPi3.cpp
+ 	coopserver/CoopMgr/QwiicButton.cpp
 	coopserver/CoopMgr/RPi_RelayHat.cpp
 	coopserver/CoopMgr/GPIO.cpp
 	Submodule/FooServer/src/RESTutils.cpp

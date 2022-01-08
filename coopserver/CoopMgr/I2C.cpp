@@ -188,7 +188,7 @@ ssize_t I2C::readBytes(void *buf, size_t nbyte){
  
 	count =  ::read(_fd, buf, nbyte);
 	if (count < 0) {
-			LOGT_ERROR( "Failed to read device(%02x): %s\n", _devAddr, strerror(errno));
+		LOGT_ERROR( "Failed to read device %02x: %s\n", _devAddr, strerror(errno));
 		return(-1);
 	} else if (count != nbyte) {
 		LOGT_ERROR( "Short read from device(%02x): expected %d, got %d \n", _devAddr, nbyte, count);
@@ -227,7 +227,7 @@ ssize_t I2C::readBytes(uint8_t regAddr, void *buf, size_t nbyte){
 	
 	count =  ::read(_fd, buf, nbyte);
 	if (count < 0) {
-			LOGT_ERROR( "Failed to read device(%02x): %s\n", regAddr, strerror(errno));
+		LOGT_ERROR( "Failed to read reg(%02x) on device(%02X) : %s\n", regAddr, _devAddr,strerror(errno));
 		return(-1);
 	} else if (count != nbyte) {
 		LOGT_ERROR( "Short read from device(%02x): expected %d, got %d \n", regAddr, nbyte, count);

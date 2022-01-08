@@ -209,6 +209,5 @@ bool QwiicButton::LEDon(uint8_t brightness ){
  
 	 version = ((registerBytes[1]) << 8) | (registerBytes[0]);
 	 return true;
-
 }
 

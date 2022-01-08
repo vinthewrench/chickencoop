@@ -17,20 +17,22 @@ import AnyFormatKit
 public protocol TriggerViewControllerDelegate  {
 	func triggerViewChanged()
 }
-
+ 
 class TriggerViewController: UIViewController {
 	
 	var event: RESTEvent? = nil
 	var delegate:TriggerViewControllerDelegate? = nil
-
 }
 
-class TriggerDeviceViewController: TriggerViewController {
-	
-	
-	class func create(withEvent: RESTEvent) -> TriggerDeviceViewController? {
+// MARK:- TriggerEventViewController
+
+class TriggerEventViewController: TriggerViewController {
+
+	@IBOutlet var btnEvent	: UIButton!
+
+	class func create(withEvent: RESTEvent) -> TriggerEventViewController? {
 		let storyboard = UIStoryboard(name: "ScheduleDetailView", bundle: nil)
-		let vc = storyboard.instantiateViewController(withIdentifier: "TriggerDeviceViewController") as? TriggerDeviceViewController
+		let vc = storyboard.instantiateViewController(withIdentifier: "TriggerEventViewController") as? TriggerEventViewController
 		
 		if let vc = vc {
 			vc.event = withEvent
@@ -39,12 +41,70 @@ class TriggerDeviceViewController: TriggerViewController {
 		return vc
 	}
 
+	override func viewWillAppear(_ animated: Bool) {
+		super.viewWillAppear(animated)
+	
+		if let evt = event {
+			// reset the event type if its wrong
+			if(!evt.isAppEvent()) {
+				self.event?.trigger = RESTEventTrigger()
+				self.event?.trigger.event = RESTEvent.appEventTrigger.startup.rawValue
+				self.delegate?.triggerViewChanged()
+
+			}
+		}
+ 
+		btnEvent.setTitle(event?.stringForTrigger(), for: .normal	)
+		var actions: [UIAction] = []
+		
+		for eventTypes in  RESTEvent.appEventTrigger.allCases {
+				if(eventTypes == .invalid){
+				continue
+			}
+	
+			let item = UIAction(title: eventTypes.description(),
+									  image:  nil, //timebase.image(),
+									  identifier: UIAction.Identifier( "\(eventTypes.rawValue)")
+			
+			) { (action) in
+	
+					if let newEvtType = Int(action.identifier.rawValue){
+//					if (newEvtType != self.event?.trigger.event ){
+//
+					
+//						self.event?.trigger.timeBase = Int(action.identifier.rawValue)
+ 						self.refreshView()
+ 						self.delegate?.triggerViewChanged()
+//					}
+ 				}
+
+//				self.event?.trigger.timeBase = Int(action.identifier.rawValue)
+//				self.refreshView()
+			}
+
+			actions.append(item)
+		}
+
+		let menu = UIMenu(title: "Event Trigger",
+								 options: .displayInline, children: actions)
+		
+		btnEvent.menu = menu
+		btnEvent.showsMenuAsPrimaryAction = true
+		
+	
+	}
+	
+	func refreshView() {
+		btnEvent.setTitle(event?.stringForTrigger(), for: .normal	)
+	}
+	
 }
+
+// MARK:- TriggerTimeViewController
 
 class TriggerTimeViewController: TriggerViewController, UITextFieldDelegate
 
 {
-	
 	@IBOutlet var btnTimeBase	: UIButton!
 	@IBOutlet var btnPlusMinus	: UIButton!
 	@IBOutlet var txtOffset	: UITextField!
@@ -77,8 +137,9 @@ class TriggerTimeViewController: TriggerViewController, UITextFieldDelegate
 		
 		phoneInputController.formatter = phoneFormatter
 	
+		txtOffset.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
 	}
-	
+		
 	func refreshBtnPlusMinus() {
 		
 		let mins =  event?.trigger.mins ?? 0
@@ -91,11 +152,20 @@ class TriggerTimeViewController: TriggerViewController, UITextFieldDelegate
 		
 	}
 	
-
+	
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
-
 	
+		if let evt = event {
+			// reset the event type if its wrong
+			if(!evt.isTimedEvent()) {
+				self.event?.trigger = RESTEventTrigger()
+				self.event?.trigger.timeBase = RESTEvent.timedEventTimeBase.midnight.rawValue
+				self.event?.trigger.mins = 0
+	 			self.delegate?.triggerViewChanged()
+			}
+		}
+		
 		txtOffset.delegate = self
 		
 		ChickenCoop.shared.fetchData(.date) { result in
@@ -147,19 +217,25 @@ class TriggerTimeViewController: TriggerViewController, UITextFieldDelegate
 		btnTimeBase.setTitle(event?.stringForTrigger(), for: .normal	)
 		btnTimeBase.setImage(event?.imageForTrigger(), for: .normal)
 		var actions: [UIAction] = []
-		for timebase  in RESTEvent.timedEventTimeBase.allCases {
-			
-			if(timebase == .invalid){
-				continue
-			}
-			
+		
+		for timebase in [ 	RESTEvent.timedEventTimeBase.civilSunrise,
+									RESTEvent.timedEventTimeBase.sunrise,
+									RESTEvent.timedEventTimeBase.sunset,
+									RESTEvent.timedEventTimeBase.civilSunset] {
+//	in RESTEvent.timedEventTimeBase.allCases {
+//			if(timebase == .invalid){
+//				continue
+//			}
+//
 			let item = UIAction(title: timebase.description(),
 									  image: timebase.image(),
 									  identifier: UIAction.Identifier( "\(timebase.rawValue)")
 			
 			) { (action) in
-				
-				if let newTimeBase = Int(action.identifier.rawValue){
+		
+				self.txtOffset.resignFirstResponder()
+	 
+					if let newTimeBase = Int(action.identifier.rawValue){
 					if (newTimeBase != self.event?.trigger.timeBase ){
 						
 						self.event?.trigger.timeBase = Int(action.identifier.rawValue)
@@ -217,25 +293,55 @@ class TriggerTimeViewController: TriggerViewController, UITextFieldDelegate
 		return 0
 	}
 	
-	
-	func textFieldDidEndEditing(_ textField: UITextField){
-		
+	@objc final private func textFieldDidChange(textField: UITextField) {
+		 
 		if let  items = textField.text?.split(separator: ":"),
 			let mins = self.event?.trigger.mins,
 			items.count == 2 {
- 
-	 		var newMins:Int = 0
+			
+			var newMins:Int = 0
 			newMins = (Int(items[0]) ?? 0) * 60
 			newMins +=  Int(items[1]) ?? 0
 			if mins < 0 {
 				newMins = newMins * -1
 			}
 			
-			self.event?.trigger.mins = newMins
-			self.refreshActualTime()
+			if let event = self.event,
+				event.trigger.mins != newMins{
+				self.event?.trigger.mins = newMins
+				self.delegate?.triggerViewChanged()
+				self.refreshActualTime()
+				
+			}
 			
 		}
-			
+	}
+	
+	
+	func textFieldDidEndEditing(_ textField: UITextField){
+		
+		textFieldDidChange(textField:textField)
+//		if let  items = textField.text?.split(separator: ":"),
+//			let mins = self.event?.trigger.mins,
+//			items.count == 2 {
+//
+//			var newMins:Int = 0
+//			newMins = (Int(items[0]) ?? 0) * 60
+//			newMins +=  Int(items[1]) ?? 0
+//			if mins < 0 {
+//				newMins = newMins * -1
+//			}
+//
+//			if let event = self.event,
+//				event.trigger.mins != newMins{
+//				self.event?.trigger.mins = newMins
+//				self.delegate?.triggerViewChanged()
+//				self.refreshActualTime()
+//
+//			}
+//
+//		}
+		
 	}
 
 	
@@ -261,69 +367,10 @@ class TriggerTimeViewController: TriggerViewController, UITextFieldDelegate
 	 
 		return phoneInputController.textField(textField, shouldChangeCharactersIn: range, replacementString: string)
 	}
-	
-//		//2. this one helps to make sure that user enters only numeric characters and ':' in fields
-//
-//		guard string.rangeOfCharacter(from: CharacterSet(charactersIn: "1234567890:").inverted) == nil
-//		else {
-//			return false;
-//		}
-//
-//		if range.length + range.location > (textField.text?.count)! {
-//			return false
-//		}
-//		let newLength = (textField.text?.count)! + string.count - range.length
-//
-//		let hasColon = textField.text?.contains(":") ?? false
-//
-//		if (string == ":" && hasColon) {
-//			return false
-//		}
-//
-//
-//		// insert a : at char 3
-//		if newLength == 3 && !hasColon
-//		{
-//
-//			var shouldInsert = false
-//
-//			let  char = string.cString(using: String.Encoding.utf8)!
-//			let isBackSpace = strcmp(char, "\\b")
-//
-//			if (isBackSpace == -92) {
-//				shouldInsert = false;
-//			}else{
-//				shouldInsert = true;
-//			}
-//
-//			if shouldInsert {
-//				textField.text?.append(":")
-// 			}
-//		}
-//
-//		//4. this one helps to make sure only 4 character is added in textfield .(ie: dd-mm-yy)
-//		return newLength <= 5;
-//	}
-//
+
  }
 
-class TriggerEventViewController: TriggerViewController {
-	
-	class func create(withEvent: RESTEvent) -> TriggerEventViewController? {
-		let storyboard = UIStoryboard(name: "ScheduleDetailView", bundle: nil)
-		let vc = storyboard.instantiateViewController(withIdentifier: "TriggerEventViewController") as? TriggerEventViewController
-		
-		if let vc = vc {
-			vc.event = withEvent
-		}
-		
-		return vc
-	}
-
-}
-
 // MARK:- ScheduleDetailViewController
-
 
 class ScheduleDetailViewController :UIViewController,
 												EditableUILabelDelegate,
@@ -335,14 +382,19 @@ class ScheduleDetailViewController :UIViewController,
 	@IBOutlet var segEvent	: UISegmentedControl!
 	
 	@IBOutlet var vwEvent	: UIView!
+	@IBOutlet var vwAction	: UIView!
+	
+	@IBOutlet var btnCmd	: UIButton!
+	@IBOutlet var btnDevice	: UIButton!
+	 
 	@IBOutlet var btnSave	: UIButton!
 
-	var currentEventVC : TriggerViewController? = nil
+	var delegate:SchedulesViewController? = nil
 	
+	var currentEventVC : TriggerViewController? = nil
 	var event: RESTEvent? = nil
 	var eventType:RESTEvent.eventType = .unknown
 	var didChangeEvent:Bool = false
-	
 	
 	var eventID :String = ""
 	
@@ -357,6 +409,17 @@ class ScheduleDetailViewController :UIViewController,
 		return vc
 	}
 	
+	class func newEvent() -> ScheduleDetailViewController? {
+		let storyboard = UIStoryboard(name: "ScheduleDetailView", bundle: nil)
+		let vc = storyboard.instantiateViewController(withIdentifier: "ScheduleDetailViewController") as? ScheduleDetailViewController
+		
+		if let vc = vc {
+			vc.eventID = ""
+		}
+		
+		return vc
+	}
+
 
 	
 	// MARK:-  view
@@ -373,8 +436,13 @@ class ScheduleDetailViewController :UIViewController,
 	
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
-		
-		refreshEvent()
+	
+		if(eventID.isEmpty){
+			createNewEvent();
+		}
+ 		else {
+			reloadEvent()
+		}
 	}
 	
 	override func viewWillDisappear(_ animated: Bool) {
@@ -392,17 +460,16 @@ class ScheduleDetailViewController :UIViewController,
 	func setupSubviewsForEvent(){
 		
 		var newVC:TriggerViewController? = nil
-	 
+		
 		if let event = event {
 			self.lblTitle.text = event.name
 
 			switch(eventType){
-					
+			
 			case .timed:
 				segEvent.selectedSegmentIndex = 0
 				newVC = TriggerTimeViewController.create(withEvent: event)
-				
-				
+	 
 			case .event:
 				segEvent.selectedSegmentIndex = 1
 				newVC = TriggerEventViewController.create(withEvent: event)
@@ -424,39 +491,134 @@ class ScheduleDetailViewController :UIViewController,
 			
 			if let newVC = newVC {
 				currentEventVC = newVC
+				newVC.delegate = self
+
 				newVC.view.frame = self.vwEvent.bounds
 				newVC.willMove(toParent: self)
 				self.vwEvent.addSubview(newVC.view)
 				self.addChild(newVC)
 				newVC.didMove(toParent: self)
-				newVC.delegate = self
 			}
 		}
-	
+	}
+		
+	func refreshCmd() {
+		
+		var actions1: [UIAction] = []
+		
+		if let event = self.event{
+			let cmds = 	event.allCasesForDeviceID(devID:event.deviceIDValue())
+			for cmd in cmds{
+				if(cmd == .invalid){
+					continue
+				}
+				let item = UIAction(title: cmd.description(),
+										  image: nil,
+										  identifier: UIAction.Identifier( "\(cmd.rawValue)")
+				) { (action) in
+					
+					let newCmd =  action.identifier.rawValue
+					if (newCmd != self.event?.action.cmd ){
+						//
+						self.event?.action.cmd  = newCmd
+						self.refreshAction()
+						self.triggerViewChanged()
+					}
+				}
+				actions1.append(item)
+			}
+		}
+ 
+	 
+		let menu1 = UIMenu(title: "Device Command",
+								options: .displayInline, children: actions1)
+		
+		btnCmd.menu = menu1
+		btnCmd.showsMenuAsPrimaryAction = true
+		btnCmd.setTitle(event?.stringForActionCmd(), for: .normal	)
+		btnCmd.isEnabled	=  event?.deviceIDValue() != .invalid
 		
 	}
 	
-	
-	
-	func refreshEvent() {
+	func refreshDevice() {
 		
-		if(event == nil){
-			ChickenCoop.shared.fetchData(.event, ID: self.eventID) { result in
-				if case .success(let evt as RESTEvent) = result {
-					
-					DispatchQueue.main.async{
-						
-						self.btnSave.isEnabled = false
+		var actions2: [UIAction] = []
+		for deviceID in RESTEvent.actionDeviceID.allCases {
+			if(deviceID == .invalid){
+				continue
+			}
 
-						self.event = evt
-						self.eventType = evt.eventType()
-						self.setupSubviewsForEvent()
-						}
-				}
+			let item = UIAction(title: deviceID.description(),
+									  image: nil,
+									  identifier: UIAction.Identifier( "\(deviceID.rawValue)")
+
+			) { (action) in
 				
+				if var event = self.event{
+					
+					let newDeviceID =  action.identifier.rawValue
+					if (newDeviceID != event.action.deviceID ){
+						//
+						event.action.deviceID  = newDeviceID
+						self.btnDevice.setTitle(event.stringForActionDeviceID(), for: .normal	)
+
+						self.event = event.normalizedEvent()
+						self.refreshCmd()
+						self.triggerViewChanged()
+					}
+
+				}
+			}
+
+			actions2.append(item)
+		}
+
+		let menu2 = UIMenu(title: "Device ID",
+								options: .displayInline, children: actions2)
+
+		btnDevice.menu = menu2
+		btnDevice.showsMenuAsPrimaryAction = true
+		btnDevice.setTitle(event?.stringForActionDeviceID(), for: .normal	)
+ 
+	}
+
+	func refreshAction(){
+
+		refreshCmd()
+		refreshDevice()
+	}
+	
+	
+	func createNewEvent(){
+		event = RESTEvent()
+		event?.name = "Untitled Event"
+		event?.trigger.timeBase = 1
+		
+		self.eventType = event!.eventType()
+
+		self.refreshAction()
+		self.setupSubviewsForEvent()
+		
+		self.btnSave.isEnabled = false
+	}
+	
+	
+	func reloadEvent() {
+		ChickenCoop.shared.fetchData(.event, ID: self.eventID) { result in
+			if case .success(let evt as RESTEvent) = result {
+				
+				DispatchQueue.main.async{
+					
+					self.btnSave.isEnabled = false
+					
+					self.event = evt
+					self.eventType = evt.eventType()
+					
+					self.refreshAction()
+					self.setupSubviewsForEvent()
+				}
 			}
 		}
-		
 	}
 	
 	// MARK:- segment control
@@ -483,31 +645,60 @@ class ScheduleDetailViewController :UIViewController,
 
 	
 	@IBAction func btnSaveClicked(_ sender: Any) {
+		if  eventID == "" || event?.eventID == nil {
+	 
+			// new event!
+			CCServerManager.shared.createEvent(event!)  { error, eventID  in
+				if(error == nil){
+					self.delegate?.eventChanged()
+					self.dismiss(animated: true)
+				}
+				else {
+					Toast.text(error?.localizedDescription ?? "Error",
+								  config: ToastConfiguration(
+									autoHide: true,
+									displayTime: 1.0
+									//												attachTo: self.vwError
+								  )).show()
+				}
+			}
+		}
+		else {
+			
+			// save changes
+			CCServerManager.shared.updateEvent(event!)  { error  in
+				if(error == nil){
+					self.delegate?.eventChanged()
+					self.dismiss(animated: true)
+				}
+				else {
+					Toast.text(error?.localizedDescription ?? "Error",
+								  config: ToastConfiguration(
+									autoHide: true,
+									displayTime: 1.0
+									//												attachTo: self.vwError
+								  )).show()
 
- 	}
+				}
+				
+			}
+		}
+		
+	}
 	
 	func triggerViewChanged(){
-		btnSave.isEnabled = true
+		if let trigger = currentEventVC?.event?.trigger {
+			event?.trigger = trigger
+		}
+		
+		btnCmd.isEnabled	=  event?.deviceIDValue() != .invalid
+		btnSave.isEnabled = event!.isValid()
 	}
 	
 	func renameEvent(newName:String){
 
-//		InsteonFetcher.shared.renameEvent(eventID, newName: newName)
-//		{ (error)  in
-//
-//			if(error == nil){
-//				self.refreshEvent()
-//			}
-//			else {
-//				Toast.text(error?.localizedDescription ?? "Error",
-//							  config: ToastConfiguration(
-//								autoHide: true,
-//								displayTime: 1.0
-//								//												attachTo: self.vwError
-//							  )).show()
-//
-//			}
-//		}
+		event?.name = newName
+		btnSave.isEnabled = event!.isValid()
 	}
 	
 	func editMenuTapped(sender: UILabel) {

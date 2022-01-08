@@ -550,6 +550,8 @@ public class ChickenCoop {
 //		return result
 //	}
 	
+ 
+
 	
 	func setLight(_ isOn: Bool,
 					  completion:  @escaping (Bool) -> Void = {_ in }) {
@@ -579,6 +581,18 @@ public class ChickenCoop {
 				completion(false)
 			}
 			
+		}
+	}
+
+	
+	
+	public func removeEvent( _ eventID: String,
+									 completion: @escaping (Error?) -> Void = {_ in }){
+		
+		
+		CCServerManager.shared.removeEvent(eventID)
+		{ (error)  in
+			completion(error)
 		}
 	}
 

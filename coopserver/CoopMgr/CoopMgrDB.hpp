@@ -171,6 +171,8 @@ public:
 	bool eventSave(Event event, eventID_t* eventIDOut = NULL);
 	bool eventFind(string name, eventID_t* eventID);
 	bool eventDelete(eventID_t eventID);
+	bool eventUpdate(eventID_t eventID, Event event);
+
 	bool eventSetName(eventID_t eventID, string name);
 	string eventGetName(eventID_t eventID);
 	optional<reference_wrapper<Event>> eventsGetEvent(eventID_t eventID);

@@ -27,6 +27,8 @@ constexpr string_view SUBPATH_FILE	 			= "file";
 constexpr string_view SUBPATH_STATE	 			= "state";
 constexpr string_view SUBPATH_DOOR 				= "door";
 constexpr string_view SUBPATH_LIGHT 			= "light";
+constexpr string_view SUBPATH_POWER 			= "power";
+
 constexpr string_view SUBPATH_RUN_ACTION		= "run.actions";
 
 constexpr string_view JSON_ARG_FILEPATH		= "filepath";
@@ -82,6 +84,11 @@ constexpr string_view JSON_VAL_STOP				= "stop";
 
 constexpr string_view JSON_VAL_STATE			= "state";  // Open/
 
+constexpr string_view JSON_ARG_VIN			= "voltage.in";
+constexpr string_view JSON_ARG_VOUT			= "voltage.out";
+constexpr string_view JSON_ARG_IOUT			= "current.out";
+constexpr string_view JSON_ARG_P_MODE		= "powermode";
+constexpr string_view JSON_ARG_TEMPC		= "tempc";
 
 constexpr string_view JSON_ARG_OS_SYSNAME	= "os.sysname";
 constexpr string_view JSON_ARG_OS_NODENAME	= "os.nodename";

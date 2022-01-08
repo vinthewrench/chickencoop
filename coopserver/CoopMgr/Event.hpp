@@ -119,6 +119,8 @@ class Event {
 public:
 	Event();
  	Event(EventTrigger trigger, Action action);
+	Event(EventTrigger trigger, Action action, std::string name);
+
 	Event(nlohmann::json j);
 	nlohmann::json JSON();
 		

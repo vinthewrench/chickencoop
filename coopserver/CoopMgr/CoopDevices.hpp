@@ -92,10 +92,9 @@ private:
 	timeval			_lastQueryTime;
 	uint64_t     	_queryDelay;			// how long to wait before next query
 
-	RPi_RelayHat	_relay;
-	DoorMgr 			_doorMgr;
+	RPi_RelayHat		_relay;
+	DoorMgr 				_doorMgr;
 	QwiicButton			_greenButton;
 	QwiicButton			_redButton;
-
 };
 #endif /* CoopDevices_hpp */

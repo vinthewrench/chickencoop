@@ -41,8 +41,7 @@ bool CoopDevices::begin(int &error){
 	
 	if(! _greenButton.begin(0x6F, errnum))
 		LOGT_ERROR("Start GreenButton  - FAIL %s", string(strerror(errnum)).c_str());
-
-
+	
 	_doorMgr.begin();
 
 	return true;
@@ -71,11 +70,13 @@ void CoopDevices::idle(){
 	
 	if(_greenButton.isPressed()
 		&& doorState != DoorMgr::STATE_OPENING ) {
+		LOGT_INFO("DOOR OPEN BUTTON");
 		_doorMgr.startOpen();
 		}
 
 	if(_redButton.isPressed()
 		&& doorState != DoorMgr::STATE_CLOSING ) {
+		LOGT_INFO("DOOR CLOSE BUTTON");
 		_doorMgr.startClose();
 	}
 

@@ -25,6 +25,7 @@
 #include "TempSensor.hpp"
 #include "SolarTimeMgr.hpp"
 #include "CoopDevices.hpp"
+#include "WittyPi3.hpp"
 
 
 using namespace std;
@@ -51,10 +52,15 @@ public:
 	void stopTempSensor();
 	CoopMgrDevice::device_state_t tempSensor1State();
 	
+	void startWittyPi3( std::function<void(bool didSucceed, std::string error_text)> callback = NULL);
+	void stopWittyPi3();
+	CoopMgrDevice::device_state_t wittyPi3tate();
+ 
+	
 	void startCoopDevices( std::function<void(bool didSucceed, std::string error_text)> callback = NULL);
 	void stopCoopDevices();
 	CoopMgrDevice::device_state_t CoopDevicesState();
-	
+
 	string deviceStateString(CoopMgrDevice::device_state_t st);
 	
 	bool initDataBase(string schemaFilePath = "", string logDBFilePath = "");
@@ -81,7 +87,14 @@ public:
 	// light state
 	bool setLight(bool isOn, boolCallback_t callback = NULL);
 	bool getLight(std::function<void(bool didSucceed, bool isOn)> callback = NULL);
-	
+
+	// power state
+	bool getVoltageIn(double &val);
+	bool getVoltageOut(double &val);
+	bool getCurrentOut(double &val);
+	bool getPowerMode(bool &val);
+	bool getPowerTemp(double &val);
+
 private:
 	
 	void		idleLoop();		// do stuff here when we are not busy.
@@ -100,9 +113,9 @@ private:
 	
 	CPUInfo				_cpuInfo;
 	TempSensor			_tempSensor1;
+	WittyPi3				_wittyPi3;
+
 	CoopDevices			_coopHW;
 	CoopMgrDB			_db;
-	
-	
 };
 #endif /* CoopMgr_hpp */

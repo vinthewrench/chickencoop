@@ -9,8 +9,14 @@ import Foundation
 import SwiftRadix
 import CoreLocation
 import UIKit
+//
+//extension CaseIterable where Self: RawRepresentable {
+//
+//	 static var allValues: [RawValue] {
+//		  return allCases.map { $0.rawValue }
+//	 }
+//}
 
- 
 enum  device_state_t :Int{
 	case
 		DEVICE_STATE_UNKNOWN = 0,
@@ -282,156 +288,6 @@ struct RESTTimeSpanItem: Codable {
 	var value: 		String
 }
 
-//struct RESTHistoryItem: Codable {
-//	var time:  Double
-//	var value: String
-//
-//	enum CodingKeys: String, CodingKey {
-//		case time = "time"
-//		case value = "value"
-//	}
-//}
-//
-//struct RESTHistory: Codable {
-//	var values:  Array< RESTHistoryItem>
-//	enum CodingKeys: String, CodingKey {
-//		case values = "values"
-//	}
-//
-//	func timeLine() -> Array<RESTTimeSpanItem> {
-//
-//		var timeline:Array<RESTTimeSpanItem> = []
-//
-//		let items = self.values.reversed()
-//		let now = Date().timeIntervalSince1970
-//		var lastValue:String = "<no value>"
-//		var lastTime:Double = 0;
-//
-//		for item in items {
-//
-//			// did we change values
-//			if (item.value != lastValue){
-//
-//				// if this is the first change - we subtract time from present
-//				let interval:TimeInterval
-//					= (lastTime == 0) ? now - item.time  : lastTime - item.time
-//
-//				lastTime = item.time
-//				lastValue = item.value
-//
-//				timeline.append( RESTTimeSpanItem(time: item.time,
-//															 durration: interval, value: item.value))
-//			}
-//		}
-//
-//		return timeline
-//	}
-//
-//
-//}
-
-//enum PumpHouseEvents: Int {
-//	case unknown 	= 0
-//	case startup		= 1
-//	case shutdown	= 2
-//	
-//	case bypassMode		= 3
-//	case inverterMode 	= 4
-//	case fastCharge 	 	= 5
-//	case floatCharge 	= 6
-//	case inverterNotResponding = 7
-//	case inverterFail = 8
-//	
-//	var description : String {
-//		switch self {
-//		// Use Internationalization, as appropriate.
-//		case .unknown: return "Unknown"
-//		case .startup: return "Start"
-//		case .shutdown: return "Stop"
-//		case .bypassMode: return "Bypass Mode"
-//		case .inverterMode: return "Inverter Mode"
-//		case .fastCharge: return "Fast Charge"
-//		case .floatCharge: return "Float Charge"
-//		case .inverterNotResponding: return "Not Responding"
-//		case .inverterFail: return "Fail"
-//		}
-//	}
-//}
-//
-//struct RESTEventsTimeSpanItem: Codable {
-//	var time:  		Double
-//	var durration:  TimeInterval
-//	var event: 		Int
-//}
-//
-//struct RESTEventsItem: Codable {
-//	var time:  Double
-//	var event: Int
-//	
-//	enum CodingKeys: String, CodingKey {
-//		case time = "time"
-//		case event = "event"
-//	}
-//}
-//
-//struct RESTEvents: Codable {
-//	var events:  Array< RESTEventsItem>
-//	enum CodingKeys: String, CodingKey {
-//		case events = "events"
-//	}
-//	
-//	func timeLine() -> Array<RESTEventsTimeSpanItem> {
-//		
-//		var timeline:Array<RESTEventsTimeSpanItem> = []
-//		
-//		let items = self.events.reversed()
-//		let now = Date().timeIntervalSince1970
-//		var lastTime:Double = 0;
-//		
-//		for item in items {
-//			
-//			// if this is the first change - we subtract time from present
-//			let interval:TimeInterval
-//				= (lastTime == 0) ? now - item.time  : lastTime - item.time
-//			
-//			lastTime = item.time
-//			
-//			timeline.append( RESTEventsTimeSpanItem(time: item.time,
-//																 durration: interval, event: item.event))
-//		}
-//		
-//		return timeline
-//	}
-//	
-//	
-//	func groupedTimeline() -> [[RESTEventsTimeSpanItem]]  {
-//		
-//		var values:[[RESTEventsTimeSpanItem]] = []
-//	
-//		var lastOffsset:Int = 1;
-//		var i:Int  = -1
-//
-//		let today = Date()
-//		
-//		let timeline = self.timeLine()
-//		for item in timeline {
-//			let date = Date.init(timeIntervalSince1970: item.time)
-//			let days = Calendar.current.numberOfDaysBetween(today, and: date)
-//		
-//			if(days != lastOffsset) {
-//				lastOffsset = days
-//				values.append([])
-//				i+=1
-//			}
-//			
-//			values[i].append(item)
-//		}
-//		
-//		return values
-//	}
-//	
-//}
-//
 
 struct RESTEventAction: Codable {
 	var cmd			 		:String?
@@ -446,7 +302,6 @@ struct RESTEventAction: Codable {
 struct RESTEventTrigger: Codable {
 	var mins 				:Int?
 	var timeBase			:Int?
-	var cmd			 		:String?
 	var event				:String?
 
 	enum CodingKeys: String, CodingKey {
@@ -503,12 +358,53 @@ struct RESTEventTrigger: Codable {
 }
 
 
+struct RESTEventCreation: Codable {
+	var eventID : String?
+ 	var name		: String
+  }
+
 struct RESTEvent: Codable {
 	var eventID : String?
 
 	var name		: String
 	var action	: 	RESTEventAction
 	var trigger	: 	RESTEventTrigger
+	
+	init() {
+		name = String()
+		action = RESTEventAction()
+		action.cmd =  String()
+		action.deviceID =  String()
+		trigger = RESTEventTrigger()
+		trigger.timeBase = .none
+		trigger.mins = 0
+		trigger.event = nil
+	}
+	
+	func JSON() throws -> Data? {
+		var json : [String: Any] = [:]
+		json["name"] = name
+		json["action"] = ["cmd" : action.cmd,
+							"deviceID" : action.deviceID ]
+	 
+		if isAppEvent() {
+			json["trigger"] = ["event": trigger.event]
+		}
+		else if isTimedEvent() {
+			json["trigger"] = ["mins":   trigger.mins,
+									 "timeBase":   trigger.timeBase ]
+		}
+	 
+		let jsonData = try? JSONSerialization.data(withJSONObject: json)
+		return jsonData
+	}
+	
+	func isValid() -> Bool {
+		return
+			self.eventType() != .unknown
+			&& deviceIDValue() != .invalid
+			&& cmdValue() != .invalid
+	}
 	
 	func isTimedEvent() -> Bool {
 		return (self.trigger.timeBase != nil) && (self.trigger.mins != nil)
@@ -524,6 +420,22 @@ struct RESTEvent: Codable {
 		case event
 	}
 	
+	enum appEventTrigger:  String, CaseIterable {
+		case invalid = ""
+		case startup	= "startup"
+		
+		func description() -> String {
+			var str = "Invalid"
+	
+			switch self {
+			case .startup:			str = "Startup"
+				default:
+				break
+			}
+			return str
+		}
+	}
+ 
 	enum timedEventTimeBase: Int,CaseIterable {
 		case invalid = 0
 		case midnight
@@ -573,7 +485,127 @@ struct RESTEvent: Codable {
 		return .unknown
 	}
 	
+		enum actionCmd: String, CaseIterable {
+		case invalid = ""
+		case open	= "open"
+		case close	= "close"
+		case on		= "on"
+		case off		= "off"
+ 
+		func description() -> String {
+			var str = "Invalid"
+			
+			switch self {
+			case .on:			str = "On"
+			case .off:  		str = "Off"
+			case .open:  		str = "Open"
+			case .close:  		str = "Close"
+			default:
+				break
+			}
+			return str
+		}
+	}
 	
+	func allCasesForDeviceID(devID :actionDeviceID) -> [actionCmd]{
+		var cmds : [actionCmd] = []
+		
+		switch devID {
+		case .light:
+			cmds = [.on, .off]
+
+		case .door:
+			cmds = [.open, .close]
+
+		default:break
+		}
+		
+		return cmds
+	}
+
+	func normalizedEvent() -> RESTEvent {
+		
+		var event = self
+		
+		switch (event.deviceIDValue()) {
+		case .light:
+			switch event.cmdValue() {
+			case .on, .off:
+				break  // these are OK
+			case .close:
+				event.action.cmd = "off"
+			case .open:
+				event.action.cmd = "on"
+			default:
+				event.action.cmd = ""
+			}
+			
+		case .door:
+			switch event.cmdValue() {
+			case .open, .close:
+				break  // these are OK
+			case .on:
+				event.action.cmd = "open"
+			case .off:
+				event.action.cmd = "close"
+			default:
+				event.action.cmd = ""
+			}
+			
+		default: break
+			
+		}
+		return event
+	}
+	
+	func cmdValue() -> actionCmd{
+		switch (action.cmd?.lowercased()){
+		case "open": return .open
+		case "close": return .close
+		case "on": return .on
+		case "off": return .off
+		default: return .invalid
+		}
+	}
+	
+	func stringForActionCmd() ->  String {
+		let cmd = self.cmdValue()
+		let str = cmd.description()
+		return str
+	}
+
+	enum actionDeviceID: String, CaseIterable {
+	case invalid = ""
+	case door	= "door"
+	case light	= "light"
+ 
+	func description() -> String {
+		var str = "Invalid"
+		
+		switch self {
+		case .door:			str = "Coop Door"
+		case .light:  		str = "Coop Light"
+ 		default:
+			break
+		}
+		return str
+	}
+}
+
+	func deviceIDValue() -> actionDeviceID{
+		switch (action.deviceID?.lowercased()){
+		case "door": return .door
+		case "light": return .light
+		default: return .invalid
+		}
+	}
+	
+	func stringForActionDeviceID() ->  String {
+		let cmd = self.deviceIDValue()
+		let str = cmd.description()
+		return str
+	}
+
 	func stringForTrigger() ->  String {
 		
 		var str = "Invalid"
@@ -677,11 +709,26 @@ struct RESTEventList: Decodable {
 
 class CCServerManager: ObservableObject {
 
-	enum ServerError: Error {
+	
+	enum ServerError: LocalizedError {
 		case connectFailed
 		case invalidState
 		case invalidURL
+		case invalidData(String?)
 		case unknown
+		
+		var errorDescription: String? {
+			switch self {
+			
+			case let .invalidData(message):
+				return message
+				
+			default:
+				return("this is some bullshit")
+				
+			}
+		}
+		
 	}
  
 	@Published var lastUpdate = Date()
@@ -695,6 +742,181 @@ class CCServerManager: ObservableObject {
 	init () {
 		
 	}
+	
+	func removeEvent(_ eventID: String,
+						  completion: @escaping (Error?) -> Void)  {
+		
+		let urlPath = "events/\(eventID)"
+		
+		if let requestUrl: URL = AppData.serverInfo.url ,
+			let apiKey = AppData.serverInfo.apiKey,
+			let apiSecret = AppData.serverInfo.apiSecret {
+			let unixtime = String(Int(Date().timeIntervalSince1970))
+			
+			let urlComps = NSURLComponents(string: requestUrl.appendingPathComponent(urlPath).absoluteString)!
+			var request = URLRequest(url: urlComps.url!)
+			
+			
+			// Specify HTTP Method to use
+			request.httpMethod = "DELETE"
+			request.setValue(apiKey,forHTTPHeaderField: "X-auth-key")
+			request.setValue(String(unixtime),forHTTPHeaderField: "X-auth-date")
+			let sig =  calculateSignature(forRequest: request, apiSecret: apiSecret)
+			request.setValue(sig,forHTTPHeaderField: "Authorization")
+			
+			// Send HTTP Request
+			request.timeoutInterval = 30
+			
+			let session = URLSession(configuration: .ephemeral, delegate: nil, delegateQueue: .main)
+			
+			let task = session.dataTask(with: request) { (data, response, urlError) in
+				
+				completion(urlError	)
+			}
+			task.resume()
+		}
+		else {
+			completion(ServerError.invalidURL)
+		}
+	}
+
+	func createEvent(_ event: RESTEvent,
+						  completion:  @escaping (Error?, _ eventID: String?) -> Void)  {
+
+		let urlPath = "events"
+		
+		if(!event.isValid()){
+			completion(ServerError.invalidData("event is not valid"), nil)
+		}
+		
+		if let requestUrl: URL = AppData.serverInfo.url ,
+			let apiKey = AppData.serverInfo.apiKey,
+			let apiSecret = AppData.serverInfo.apiSecret {
+			let unixtime = String(Int(Date().timeIntervalSince1970))
+			
+			let urlComps = NSURLComponents(string: requestUrl.appendingPathComponent(urlPath).absoluteString)!
+			//			if let queries = queries {
+			//				urlComps.queryItems = queries
+			//			}
+			var request = URLRequest(url: urlComps.url!)
+			
+			let jsonData = try? event.JSON()
+			request.httpBody = jsonData
+	
+			// Specify HTTP Method to use
+			request.httpMethod = "POST"
+			request.setValue(apiKey,forHTTPHeaderField: "X-auth-key")
+			request.setValue(String(unixtime),forHTTPHeaderField: "X-auth-date")
+			let sig =  calculateSignature(forRequest: request, apiSecret: apiSecret)
+			request.setValue(sig,forHTTPHeaderField: "Authorization")
+			
+			// Send HTTP Request
+			request.timeoutInterval = 10
+			
+			let session = URLSession(configuration: .ephemeral, delegate: nil, delegateQueue: .main)
+			
+			let task = session.dataTask(with: request) { (data, response, urlError) in
+				
+				if urlError != nil {
+					completion(urlError	, nil	)
+					return
+				}
+	
+				if let data = data as Data? {
+					
+					let decoder = JSONDecoder()
+					
+					if let restErr = try? decoder.decode(RESTError.self, from: data){
+	 					completion(ServerError.invalidData(restErr.error.message), nil)
+						return
+ 					}
+					else if let obj = try? decoder.decode(RESTEventCreation.self, from: data){
+						completion(nil, obj.eventID)
+						return
+					}
+					//
+				}
+				completion(ServerError.unknown, nil)
+
+			}
+			task.resume()
+		}
+			else {
+				completion(ServerError.invalidURL,nil)
+			}
+	}
+
+	func updateEvent(_ event: RESTEvent,
+						  completion:  @escaping (Error?) -> Void)  {
+		
+		guard  let eventID = event.eventID  else {
+			completion(ServerError.invalidData("eventID is not specifed"))
+			return
+		}
+		
+		if(!event.isValid() ){
+			completion(ServerError.invalidData("event is not valid"))
+		}
+		
+		let urlPath = "events/\(eventID)"
+		
+		if let requestUrl: URL = AppData.serverInfo.url ,
+			let apiKey = AppData.serverInfo.apiKey,
+			let apiSecret = AppData.serverInfo.apiSecret {
+			let unixtime = String(Int(Date().timeIntervalSince1970))
+			
+			let urlComps = NSURLComponents(string: requestUrl.appendingPathComponent(urlPath).absoluteString)!
+			//			if let queries = queries {
+			//				urlComps.queryItems = queries
+			//			}
+			var request = URLRequest(url: urlComps.url!)
+			
+			let jsonData = try? event.JSON()
+			request.httpBody = jsonData
+			
+			// Specify HTTP Method to use
+			request.httpMethod = "PATCH"
+			request.setValue(apiKey,forHTTPHeaderField: "X-auth-key")
+			request.setValue(String(unixtime),forHTTPHeaderField: "X-auth-date")
+			let sig =  calculateSignature(forRequest: request, apiSecret: apiSecret)
+			request.setValue(sig,forHTTPHeaderField: "Authorization")
+			
+			// Send HTTP Request
+			request.timeoutInterval = 10
+			
+			let session = URLSession(configuration: .ephemeral, delegate: nil, delegateQueue: .main)
+			
+			let task = session.dataTask(with: request) { (data, response, urlError) in
+				
+				if urlError != nil {
+					completion(urlError)
+					return
+				}
+				
+				if let data = data as Data? {
+					
+					let decoder = JSONDecoder()
+					
+					if let restErr = try? decoder.decode(RESTError.self, from: data){
+						completion(ServerError.invalidData(restErr.error.message))
+					}
+					else {
+						completion(nil)
+					}
+					return
+					
+					//
+				}
+				completion(ServerError.unknown)
+				
+			}
+			task.resume()
+		}
+		else {
+			completion(ServerError.invalidURL)
+		}
+	}
+ 
 	
 	func setLight(_ isOn: Bool,  
 					  completion: @escaping (Error?) -> Void)  {

@@ -1152,6 +1152,26 @@ bool CoopMgrDB::eventDelete(eventID_t eventID){
 	return true;
 }
 
+bool CoopMgrDB::eventUpdate(eventID_t eventID, Event newEvent){
+	
+	if(_events.count(eventID) == 0)
+		return false;
+	
+	Event* evt =  &_events[eventID];
+	
+	if(!newEvent._name.empty())
+		evt->_name = newEvent._name;
+
+	if( newEvent._trigger.isValid())
+		evt->_trigger = newEvent._trigger;
+
+	if( newEvent._action.isValid())
+		evt->_action = newEvent._action;
+
+	savePropertiesToFile();
+	return true;
+}
+
 bool CoopMgrDB::eventSetName(eventID_t eventID, string name){
 	
 	if(_events.count(eventID) == 0)
@@ -1341,8 +1361,7 @@ bool CoopMgrDB::eventGroupFind(string name, eventGroupID_t* eventGroupIDOut){
 	}
 	return false;
 }
-
-
+ 
 bool CoopMgrDB::eventGroupSetName(eventGroupID_t eventGroupID, string name){
 
 	if(_eventsGroups.count(eventGroupID) == 0)

@@ -7,6 +7,7 @@
 
 
 import UIKit
+import Toast
 
 final class SchedulesTriggeredCell: UITableViewCell {
 	
@@ -34,13 +35,17 @@ final class SchedulesTimedCell: UITableViewCell {
 	}
 }
 
+public protocol SchedulesDetailViewControllerDelegate  {
+	func eventChanged()
+}
 
 
 class SchedulesViewController: MainSubviewViewController,
 										 MainSubviewViewControllerDelegate,
+										 SchedulesDetailViewControllerDelegate,
 										 UITableViewDelegate,
 										 UITableViewDataSource  {
-	
+		
 		
 	@IBOutlet var tableView: UITableView!
 	
@@ -119,6 +124,11 @@ class SchedulesViewController: MainSubviewViewController,
 		super.viewWillDisappear(animated)
 	}
 	
+	func eventChanged() {
+		self.refreshSchedules()
+	}
+	
+
 	func refreshSchedules(completion: @escaping () -> Void = {}) {
 		
 //		guard AppData.serverInfo.validated  else {
@@ -259,12 +269,12 @@ class SchedulesViewController: MainSubviewViewController,
 	
 	func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
 		if editingStyle == .delete{
-			print("Deleted Row")
-			//				days.remove(at: indexPath.row)
-			//					tableView.deleteRows(at: [indexPath], with: .left)
+			if editingStyle == .delete{
+				self.verifyDelete(forRowAt: indexPath)
+			}
 		}
 	}
-	
+
 	
 	func cellForTimedEvent(eventID: String, event: RESTEvent) -> UITableViewCell{
 		
@@ -368,12 +378,75 @@ class SchedulesViewController: MainSubviewViewController,
 		
 		if let eventKey = eventKey  {
 			if let detailView = ScheduleDetailViewController.create(withEventID: eventKey) {
-				
+				detailView.delegate = self
+
 				self.show(detailView, sender: self)
 			}
 			
 		}
 	}
+
+	
+	// MARK: - delete
+
+	
+	func verifyDelete(forRowAt indexPath: IndexPath) {
+		
+		var eventID = ""
+		switch(indexPath.section){
+		
+		case 0:
+			if indexPath.row <= sortedTimedKeys.count{
+				eventID = sortedTimedKeys[indexPath.row]
+			}
+		case 1:
+			if indexPath.row <= sortedTriggerKeys.count{
+				eventID = sortedTriggerKeys[indexPath.row]
+			}
+		default:
+			break
+		}
+	
+		if let event =  events[eventID] {
+			
+			let warning = "Are you sure you want to the remove the event named: \"\(event.name)?"
+			let alert = UIAlertController(title: "Remove Event", message: warning, preferredStyle:.alert)
+			let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: { _ in
+			})
+			
+			let deleteAction = UIAlertAction(title: "Delete", style: .destructive, handler: { _ in
+				self.view.displayActivityIndicator(shouldDisplay: false)
+				
+				ChickenCoop.shared.removeEvent(eventID)
+				{ (error)  in
+					if(error == nil){
+						
+						self.refreshSchedules(){
+							self.view.displayActivityIndicator(shouldDisplay: false)
+						}
+					}
+					else {
+						self.view.displayActivityIndicator(shouldDisplay: false)
+						
+						Toast.text(error?.localizedDescription ?? "Error",
+									  config: ToastConfiguration(
+										autoHide: true,
+										displayTime: 1.0,
+										attachTo: self.view
+									  )).show()
+						
+					}
+				}
+				
+			})
+			
+			alert.addAction(cancelAction)
+			alert.addAction(deleteAction)
+			self.present(alert, animated: true, completion: nil)
+		}
+	}
+
+
 	// MARK: -
 	
 	
@@ -437,18 +510,23 @@ class SchedulesViewController: MainSubviewViewController,
 			return
 		}
 		
-		// create the alert
-				 let alert = UIAlertController(title: "Lazy Programmer",
-														 message: "code not written yet..  send money.",
-														 preferredStyle: UIAlertController.Style.alert)
-
-				 // add an action (button)
-				 alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
-
-				 // show the alert
-				 self.present(alert, animated: true, completion: nil)
-		
+		if let detailView = ScheduleDetailViewController.newEvent() {
+			detailView.delegate = self
+			self.show(detailView, sender: self)
 		}
-	 
+	}
+//		// create the alert
+//				 let alert = UIAlertController(title: "Lazy Programmer",
+//														 message: "code not written yet..  send money.",
+//														 preferredStyle: UIAlertController.Style.alert)
+//
+//				 // add an action (button)
+//				 alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
+//
+//				 // show the alert
+//				 self.present(alert, animated: true, completion: nil)
+//
+//		}
+//
 	
 }
