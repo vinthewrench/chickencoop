@@ -37,6 +37,8 @@ enum WittyPi3_Register
 
 enum DS3231
  {
+	CLOCK_TEMP =		0x11,
+	
 	  TEMP_MSB   = 			0x11, 	//MSB of Temp
 	  TEMP_LSB   = 			0x12		//LSB of Temp
   };
@@ -63,32 +65,27 @@ bool WittyPi3::begin(){
  
 bool WittyPi3::begin(int &error){
 	
-	bool success = false;
-	I2C i2cPort;
-	
 	_state = INS_INVALID;
-	
-	// Test WittyPi port
-	if( i2cPort.begin(kWpAddr, error)) {
-		i2cPort.stop();
-		
-		// Test WittyPi Clock
-		if( i2cPort.begin(kClockAddr, error)) {
-			i2cPort.stop();
-			
-			_state = INS_IDLE;
-			_queryDelay = 2;	// seconds
-			_lastQueryTime = {0,0};
-			_resultMap.clear();
-			success = true;
-		}
+	_isSetup = false;
+ 
+	if( _i2cWp.begin(kWpAddr, error)
+		&& _i2cClock.begin(kClockAddr, error))
+	{
+		_isSetup = true;
+		_state = INS_IDLE;
+		_queryDelay = 2;	// seconds
+		_lastQueryTime = {0,0};
+		_resultMap.clear();
 	}
  
-	return success;
+	return _isSetup;
 }
 
 void WittyPi3::stop(){
+	_isSetup = false;
 	_state = INS_INVALID;
+	_i2cWp.stop();
+	_i2cClock.stop();
 }
 
 bool WittyPi3::isConnected(){
@@ -100,124 +97,92 @@ void WittyPi3::reset(){
 	
 }
 
-bool WittyPi3::getRegisters(WittyPi3::registermap &regsIn){
-	
-	bool  success = false;
-	I2C i2cPort;
-	
-	if( i2cPort.begin(kWpAddr)) {
-		
-		for(int i = 0; i < sizeof(WittyPi3::registermap); i++){
-			success = (i2cPort.readBytes(i, ((uint8_t*)&regsIn) + i , 1 ) == 1);
-			if(!success) break;
-		}
-		i2cPort.stop();
-	}
-	
-	return success;
-}
-
- //bool  tempF(double &val);
-
 bool WittyPi3::tempC(double &val){
+
+	bool success = false;
+ 
+	union
+	{
+	  uint8_t  bytes[2] ;
+	  uint16_t word ;
+	} data;
+ 
+	double digitalTemp;
 	
-	bool  success = false;
-	I2C i2cPort;
-	
-	if( i2cPort.begin(kClockAddr)) {
+	if(_i2cClock.isAvailable() && _i2cClock.readWord(CLOCK_TEMP, data.word)){
 		
-		uint8_t registerBytes[2] = {0,0};
-		
-		if( (i2cPort.readBytes(TEMP_MSB, &registerBytes[0], 1) == 1)
-			&&  (i2cPort.readBytes(TEMP_LSB, &registerBytes[1], 1) == 1)){
-			
-			val = ((double) (registerBytes[0] & 0x7F)) + ((registerBytes[1] >> 6) * 0.25);
-			if((registerBytes[0] & 0x80)  == 0x80) val = val * -1;
-			success = true;
-		}
-		i2cPort.stop();
-		
-	}
+		digitalTemp = ((double) (data.bytes[0] & 0x7F)) + ((data.bytes[1] >> 6) * 0.25);
+		if((data.bytes[0] & 0x80)  == 0x80) digitalTemp = digitalTemp * -1;
+//		printf("WittyPi3::tempC %04x %2.2f\n",data.word, digitalTemp);
+		val = digitalTemp;
+		success = true;
+
+ 	}
+
 	return success;
 }
 
 bool WittyPi3::voltageIn(double &val){
-	
-	bool  success = false;
-	I2C i2cPort;
-	
-	if( i2cPort.begin(kWpAddr)) {
-		
-		uint8_t registerBytes[2] = {0,0};
-		
-		if( (i2cPort.readBytes(VOLTAGE_IN_I, &registerBytes[0], 1) == 1)
-			&&  (i2cPort.readBytes(VOLTAGE_IN_D, &registerBytes[1], 1) == 1)){
-			
-			val = ((double)registerBytes[0]) + (registerBytes[1] * 0.01);
-			success = true;
-		}
-		i2cPort.stop();
-		
+
+	bool success = false;
+	uint8_t registerBytes[2] = {0,0};
+
+	// the atmega on WittyPi3 can only handle byte reads
+	if( _i2cWp.isAvailable()
+		&& _i2cWp.readByte(VOLTAGE_IN_I,registerBytes[0])
+		&& _i2cWp.readByte(VOLTAGE_IN_D,registerBytes[1]))
+	{
+		val = ((double)registerBytes[0]) + (registerBytes[1] * 0.01);
+//		  printf("WittyPi3::voltageIn (%02x %02x) %2.2f\n",registerBytes[0],registerBytes[1] , val);
+		  success = true;
 	}
+ 
 	return success;
 }
 
 bool WittyPi3::voltageOut(double &val){
 	
-	bool  success = false;
-	I2C i2cPort;
-	
-	if( i2cPort.begin(kWpAddr)) {
-		
-		uint8_t registerBytes[2] = {0,0};
-		
-		if( (i2cPort.readBytes(VOLTAGE_OUT_I, &registerBytes[0], 1) == 1)
-			&&  (i2cPort.readBytes(VOLTAGE_OUT_D, &registerBytes[1], 1) == 1)){
-			
-			val = ((double)registerBytes[0]) + (registerBytes[1] * 0.01);
-			success = true;
-		}
-		i2cPort.stop();
+	bool success = false;
+	uint8_t registerBytes[2] = {0,0};
+
+	// the atmega on WittyPi3 can only handle byte reads
+	if( _i2cWp.isAvailable()
+		&& _i2cWp.readByte(VOLTAGE_OUT_I,registerBytes[0])
+		&& _i2cWp.readByte(VOLTAGE_OUT_D,registerBytes[1]))
+	{
+		val = ((double)registerBytes[0]) + (registerBytes[1] * 0.01);
+//		printf("WittyPi3::voltageOut (%02x %02x) %2.2f\n",registerBytes[0],registerBytes[1] , val);
+ 		  success = true;
 	}
+ 
 	return success;
-}
+ }
 
 bool WittyPi3::currentOut(double &val){
-	
-	bool  success = false;
-	I2C i2cPort;
-	
-	if( i2cPort.begin(kWpAddr)) {
-		
-		uint8_t registerBytes[2] = {0,0};
-		
-		if( (i2cPort.readBytes(CURRENT_OUT_I, &registerBytes[0], 1) == 1)
-			&&  (i2cPort.readBytes(CURRENT_OUT_D, &registerBytes[1], 1) == 1)){
-			
-			val = ((double)registerBytes[0]) + (registerBytes[1] * 0.01);
-			success = true;
-		}
-		i2cPort.stop();
+
+	bool success = false;
+	uint8_t registerBytes[2] = {0,0};
+
+	// the atmega on WittyPi3 can only handle byte reads
+	if( _i2cWp.isAvailable()
+		&& _i2cWp.readByte(CURRENT_OUT_I,registerBytes[0])
+		&& _i2cWp.readByte(CURRENT_OUT_D,registerBytes[1]))
+	{
+		val = ((double)registerBytes[0]) + (registerBytes[1] * 0.01);
+//		printf("WittyPi3::currentOut (%02x %02x) %2.2f\n",registerBytes[0],registerBytes[1] , val);
+		  success = true;
 	}
+ 
 	return success;
-	
 }
 
 bool WittyPi3::powerMode(bool &val){
+ 
+	uint8_t mode = 0;
 	
-	bool  success = false;
-	I2C i2cPort;
+	bool success = _i2cWp.readByte(POWER_MODE, mode);
+	if(success) val = mode == 1;
 	
-	if( i2cPort.begin(kWpAddr)) {
-		
-		uint8_t registerBytes[1] = {0};
-		
-		if(i2cPort.readBytes(POWER_MODE, registerBytes, 1) == 1){
-			val = (bool)registerBytes[0];
-			success = true;
-		}
-		i2cPort.stop();
-	}
 	return success;
 }
 
@@ -273,7 +238,6 @@ CoopMgrDevice::device_state_t WittyPi3::getDeviceState(){
 }
 
 void WittyPi3::idle(){
-	
 	
 	if(isConnected() && (_state == INS_IDLE)){
 		

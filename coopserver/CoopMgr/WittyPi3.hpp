@@ -62,7 +62,6 @@ public:
 
  	device_state_t getDeviceState();
 	
-	bool getRegisters(registermap &regs);
 	bool voltageIn(double &val);
 	bool voltageOut(double &val);
 	bool currentOut(double &val);
@@ -87,6 +86,12 @@ private:
  
 	timeval			_lastQueryTime;
 	uint64_t     	_queryDelay;			// how long to wait before next query
+
+	I2C 		_i2cWp;
+	I2C 		_i2cClock;
+	
+	bool		_isSetup;
+
 };
  
 #endif /* WittyPi3_hpp */

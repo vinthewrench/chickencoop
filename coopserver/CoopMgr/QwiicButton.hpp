@@ -25,7 +25,8 @@ public:
  	bool begin(uint8_t deviceAddress = 0x6F);
 	bool begin(uint8_t deviceAddress,  int &error);
 	void stop();
-	
+	bool isOpen();
+ 
 	uint8_t	getDevAddr();
 
 	 	//Button status/config
@@ -70,7 +71,9 @@ public:
  
 private:
 	
-	uint8_t 	_deviceAddress;
+	I2C 		_i2cPort;
+	bool		_isSetup;
+
 };
 
 #endif /* QwiicButton_hpp */

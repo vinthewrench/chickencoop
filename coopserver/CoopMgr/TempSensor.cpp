@@ -110,7 +110,6 @@ CoopMgrDevice::device_state_t TempSensor::getDeviceState(){
 
 void TempSensor::idle(){
 	
-	
 	if(isConnected() && (_state == INS_IDLE)){
 		
 		bool shouldQuery = false;

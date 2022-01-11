@@ -20,11 +20,11 @@ static void sigHandler (int signum) {
 }
 
 CoopMgr::CoopMgr(){
-	
-	signal(SIGKILL, sigHandler);
-	signal(SIGHUP, sigHandler);
-	signal(SIGQUIT, sigHandler);
-	signal(SIGTERM, sigHandler);
+//	
+//	signal(SIGKILL, sigHandler);
+//	signal(SIGHUP, sigHandler);
+//	signal(SIGQUIT, sigHandler);
+//	signal(SIGTERM, sigHandler);
 //	signal(SIGINT, sigHandler);
  
 	_shouldRunStartupEvents = false;
@@ -90,7 +90,7 @@ void CoopMgr::start(){
 
 	initDataBase();
 
-	startWittyPi3();
+ 	startWittyPi3();
 	startTempSensor();
 		
 	startCoopDevices([=](bool didSucceed, string error_text){
@@ -244,7 +244,7 @@ string CoopMgr::deviceStateString(CoopMgrDevice::device_state_t st) {
 void CoopMgr::startWittyPi3( std::function<void(bool didSucceed, std::string error_text)> cb){
 	
 	int  errnum = 0;
-	bool didSucceed = false;
+	bool didSucceed = false; 
  
 	didSucceed =  _wittyPi3.begin(errnum);
 	if(didSucceed){

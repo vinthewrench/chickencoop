@@ -33,22 +33,17 @@ public:
 
 	void stop();
 
-	bool isAvailable();
+	bool 		isAvailable();
+	uint8_t	getDevAddr() {return _devAddr;};
 	
 	bool writeByte(uint8_t regAddr, uint8_t byte);
 	bool writeWord(uint8_t regAddr, uint16_t word);
-	bool writeData(uint8_t regAddr, void *buf, size_t nbyte);
 
-	ssize_t readBytes(uint8_t regAddr, void *buf, size_t nbyte);
-	ssize_t readByte(uint8_t regAddr,  void *buf);
-	ssize_t readBytes(void *buf, size_t nbyte);
-	ssize_t readByte(void *buf);
+	bool readByte(uint8_t regAddr,  uint8_t& byte);
+	bool readWord(uint8_t regAddr,  uint16_t& word);
 
-	uint8_t	getDevAddr() {return _devAddr;};
-	
+		
 private:
-	
-	ssize_t write(const uint8_t* buf, size_t nbyte);
 
 	int 			_fd;
 	int 			_devAddr;

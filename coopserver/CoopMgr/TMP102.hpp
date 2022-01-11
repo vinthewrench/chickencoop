@@ -32,8 +32,9 @@ public:
 	uint8_t	getDevAddr();
 
 private:
-
-	uint8_t 	_deviceAddress;
+ 
+	I2C 		_i2cPort;
+	bool		_isSetup;
 
 };
 
