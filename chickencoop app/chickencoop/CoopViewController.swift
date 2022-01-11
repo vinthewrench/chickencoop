@@ -33,8 +33,6 @@ class CoopViewController: MainSubviewViewController {
 
 	@IBOutlet var swLight	: UISwitch!
 	@IBOutlet var lblTemp	: UILabel!
-
-	var isLightOn: Bool = false
 	
 	func tempInFahrenheit(_ temperature: Double) -> Double {
 		let fahrenheitTemperature = temperature * 9 / 5 + 32
@@ -91,10 +89,13 @@ class CoopViewController: MainSubviewViewController {
 	// MARK: - polling / refresh
 
 	public func startPolling() {
+		
 		timer =  Timer.scheduledTimer(withTimeInterval: 0.8,
 												repeats: true,
 												block: { timer in
-													self.refreshView()
+													DispatchQueue.main.async  {
+														self.refreshView()
+													}
 												})
 	}
 	
@@ -106,16 +107,18 @@ class CoopViewController: MainSubviewViewController {
 	var lastDoorState: DoorState = .unknown
 
 	private func refreshButtons(_ state: DoorState){
- 
+		
 		if(state != lastDoorState){
+			
+//			print("refreshButtons: \(state)")
 			
 			switch(state){
 			case .open:
 				self.vwUpCircle.alpha = 1;
 				self.vwDownCircle.alpha = 0;
-			self.vwUpCircle.layer.removeAllAnimations()
+				self.vwUpCircle.layer.removeAllAnimations()
 				self.vwDownCircle.layer.removeAllAnimations()
-					break;
+				break;
 				
 			case .closed:
 				self.vwUpCircle.layer.removeAllAnimations()
@@ -144,7 +147,7 @@ class CoopViewController: MainSubviewViewController {
 									animations: { [weak self] in self?.vwDownCircle.alpha = 1.0 },
 									completion: nil //{ [weak self] _ in self?.vwDownCircle?.alpha = 1.0 }
 				)
-
+				
 				break;
 				
 			case .unknown:
@@ -158,32 +161,34 @@ class CoopViewController: MainSubviewViewController {
 	}
 	
 	private func refreshView() {
-	 
+		
 		if(AppData.serverInfo.validated){
-
+			
+			self.vwOverlay.isHidden = true
+			
+			ChickenCoop.shared.fetchData(.door) { result in
+				if case .success(let dev as RESTDeviceDoor) = result {
+					if let state = DoorState(rawValue: dev.door) {
+						self.refreshButtons(state)
+					}
+				}
+			}
+ 
+			ChickenCoop.shared.fetchData(.light) { result in
+				if case .success(let dev as RESTDeviceLight) = result {
+					self.swLight.isOn = dev.light
+				}
+			}
+			
 			ChickenCoop.shared.fetchValues() { result in
 				if case .success(let ccv as CoopValues ) = result {
-					self.vwOverlay.isHidden = true
-
-					self.refreshButtons(ccv.door)
-					self.swLight.isOn = ccv.light
-					self.isLightOn = ccv.light;
-					self.lblTemp.text =  String(format: "%.0f°F", self.tempInFahrenheit(ccv.temp1 ))
-				}
-				else
-				{
-					self.vwOverlay.isHidden = false
-
-					self.stopPollng();
-					DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
-						self.startPolling()
-					 }
+		 				self.lblTemp.text =  String(format: "%.0f°F", self.tempInFahrenheit(ccv.temp1 ))
 				}
 			}
 		}
 		else {
 			self.vwOverlay.isHidden = false
-
+			
 		}
 	}
 
@@ -191,49 +196,50 @@ class CoopViewController: MainSubviewViewController {
 
 	@IBAction func switchChanged(sender: UISwitch) {
 		stopPollng()
-		ChickenCoop.shared.setLight(sender.isOn) {_ in
-			DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+		DispatchQueue.main.async  {
+			ChickenCoop.shared.setLight(sender.isOn) {_ in
 				self.startPolling()
-			 }
+			}
+		}
+	}
+		
+	
+	@IBAction func tapGesture(recognizer : UITapGestureRecognizer) {
+		if recognizer.state == .ended{
+			
+			stopPollng()
+			
+	 		self.swLight.isOn = !self.swLight.isOn
+			DispatchQueue.main.async  {
+				ChickenCoop.shared.setLight(self.swLight.isOn) {_ in
+					self.startPolling()
+				}
+			}
 		}
 	}
 	
-	@IBAction func tapGesture(recognizer : UITapGestureRecognizer) {
-		 if recognizer.state == .ended{
-			stopPollng()
-			
- 			isLightOn = !isLightOn
-			swLight.isOn = isLightOn
-			ChickenCoop.shared.setLight(isLightOn) {_ in
-				DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-					self.startPolling()
-				 }
-				
-			}
- 		}
-	}
-	
 	@IBAction func btnUpClicked(_ sender: UIButton) -> Void {
-	 
+		
 		stopPollng()
-		ChickenCoop.shared.setDoor(true) {_ in
-			self.refreshButtons(.opening)
-			DispatchQueue.main.asyncAfter(deadline: .now() + 4.0) {
+		self.refreshButtons(.opening)
+
+		DispatchQueue.main.async  {
+			ChickenCoop.shared.setDoor(true) {_ in
 				self.startPolling()
-			 }
- 		}
+			}
+		}
 	}
 	
 	@IBAction func btnDownClicked(_ sender: UIButton) -> Void {
-		stopPollng()
- 	 		ChickenCoop.shared.setDoor(false) {_ in
-				self.refreshButtons(.closing)
-				DispatchQueue.main.asyncAfter(deadline: .now() + 4.0) {
-					self.startPolling()
-				 }
- 		}
-	}
-
  
+		stopPollng()
+		self.refreshButtons(.closing)
+
+		DispatchQueue.main.async  {
+			ChickenCoop.shared.setDoor(false) {_ in
+				self.startPolling()
+			}
+		}
+	}
 }
 	

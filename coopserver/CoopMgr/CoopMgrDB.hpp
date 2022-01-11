@@ -63,10 +63,21 @@ public:
 		INVALID = 0,
 		BOOL,				// Bool ON/OFF
 		INT,				// Int
+		MAH,				// mAh milliAmp hours
+		PERMILLE, 		// (per thousand) sign ‰
+		PERCENT, 		// (per hundred) sign ‰
+		DEKAWATTHOUR,	 // .01kWh
+		WATTS, 			// W
+		MILLIVOLTS,		// mV
+		MILLIAMPS,		// mA
 		SECONDS,			// sec
 		MINUTES,			// mins
 		DEGREES_C,		// degC
+		VOLTS,			// V
+		HERTZ,			// Hz
+		AMPS,				// A
 		BINARY,			// Binary 8 bits 000001
+		VE_PRODUCT,		// VE.PART
 		STRING,			// string
 		IGNORE,
 		UNKNOWN,

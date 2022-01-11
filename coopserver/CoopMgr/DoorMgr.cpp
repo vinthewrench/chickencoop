@@ -7,9 +7,9 @@
 
 #include "DoorMgr.hpp"
 #include "CoopDevices.hpp"
+#include "LogMgr.hpp"
 
-
-
+ 
 const time_t open_delay  	= 5;
 const time_t close_delay  	= 5;
 
@@ -47,12 +47,16 @@ void DoorMgr::idle()
 	receive_event(EV_NONE);
 }
 
-void DoorMgr::startOpen(){
-	receive_event(EV_OPEN);
+void DoorMgr::startOpen(boolCallback_t cb){
+	receive_event(EV_OPEN, [=]( bool didSucceed) {
+		if(cb) (cb)(didSucceed);
+	});
 }
 
-void DoorMgr::startClose(){
-	receive_event(EV_CLOSE);
+void DoorMgr::startClose(boolCallback_t cb){
+	receive_event(EV_CLOSE, [=]( bool didSucceed) {
+		if(cb) (cb)(didSucceed);
+	});
 }
 
 void DoorMgr::reset(){
@@ -71,8 +75,10 @@ void DoorMgr::stop(boolCallback_t cb){
 }
 
 
-void DoorMgr::receive_event(event_t event ){
+void DoorMgr::receive_event(event_t event, boolCallback_t cb ){
 	
+//	if(event != EV_NONE) LOGT_INFO("RCV_EVENT %d", event);
+
 	for(auto entry : _state_table){
 		
 		if ( ( event == entry.received_event ) &&
@@ -84,12 +90,16 @@ void DoorMgr::receive_event(event_t event ){
 				if(entry.next_state != NO_NEW_STATE){
 					_currentState = entry.next_state;
 				}
+				if(cb) (cb)(true);
 				return;
 			}
 		}
 	}
 	
+	if(cb) (cb)(false);
+	
 }
+
 
 bool DoorMgr::do_action(action_t action){
 	switch (action) {

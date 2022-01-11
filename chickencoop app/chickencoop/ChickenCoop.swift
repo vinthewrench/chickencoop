@@ -318,6 +318,11 @@ enum CoopRequest: Error {
 	case values
 	case props
 	case schema
+	
+	case door
+	case light
+	case power
+	
 	case unknown
 }
  
@@ -423,10 +428,22 @@ public class ChickenCoop {
 		case .schema:
 			urlPath = "schema"
 			
+		case .door:
+			urlPath = "devices/door"
+
+		case .light:
+			urlPath = "devices/light"
+
+		case .power:
+			urlPath = "devices/power"
+
+			
 		default:
 			break;
 		}
 		
+//		print(String(format:"fetch %@",  urlPath))
+
 		CCServerManager.shared.RESTCall(urlPath: urlPath,
 												  headers:nil,
 												  queries: nil) { (response, json, error)  in
@@ -453,10 +470,20 @@ public class ChickenCoop {
 			else 	if let event = json as? RESTEvent {
 				completionHandler(.success(event))
 			}
-				else 	if let schema = json as? RESTSchemaList {
+			else 	if let schema = json as? RESTSchemaList {
 				completionHandler(.success(schema))
 			}
-			else if let restErr = json as? RESTError {
+	
+			else 	if let dev = json as? RESTDeviceDoor {
+			completionHandler(.success(dev))
+			}
+			else 	if let dev = json as? RESTDeviceLight {
+			completionHandler(.success(dev))
+			}
+			else 	if let dev = json as? RESTDevicePower {
+			completionHandler(.success(dev))
+			}
+ 			else if let restErr = json as? RESTError {
 				completionHandler(.success(restErr))
 			}
 			else if let error = error{
@@ -584,6 +611,7 @@ public class ChickenCoop {
 		}
 	}
 
+	
 	
 	
 	public func removeEvent( _ eventID: String,

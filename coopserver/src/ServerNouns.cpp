@@ -210,6 +210,7 @@ static bool Devices_NounHandler_PUT(ServerCmdQueue* cmdQueue,
 	
 				bool queued = false;
 				if(deviceStr == SUBPATH_DOOR){
+					
 					queued = coopMgr->setDoor(relayState,[=]( bool didSucceed){
 						
 						json reply;

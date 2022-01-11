@@ -46,8 +46,8 @@ public:
 	
 	bool begin();
 
-	void startOpen();
-	void startClose();
+	void startOpen(boolCallback_t callback = NULL);
+	void startClose(boolCallback_t callback = NULL);
 	void stop(boolCallback_t callback = NULL);
 
 	state_t doorState() { return _currentState;};
@@ -90,7 +90,7 @@ private:
 	vector<state_table_t> 	_state_table;
 	time_t						_lastDoorAction;
 	
-	void receive_event(event_t event );
+	void receive_event(event_t event, boolCallback_t callback = NULL);
 
 	bool do_action(action_t action);
 	

@@ -41,13 +41,25 @@ CoopMgrDB::CoopMgrDB(){
 	_schemaMap = {
 		{"Bool", BOOL},				// Bool ON/OFF
 		{"Int", INT},				// Int
+		{"mAh", MAH},				// mAh milliAmp hours
+		{"‰", PERMILLE} ,			// (per thousand) sign ‰
+		{"%", PERCENT} ,			// (per hundred) sign PERCENT
+		{".01kWh", DEKAWATTHOUR},		// .01kWh
+		{"W", WATTS}, 				// W
+		{"mA",MILLIAMPS},			// mA
+		{"mV", MILLIVOLTS},			// mV
 		{"sec", SECONDS},			// sec
 		{"mins",MINUTES},			// mins
 		{"degC", DEGREES_C},		// degC
+		{"V", VOLTS},				// V
+		{"Hz", HERTZ},				// Hz
+		{"A", AMPS},					// A
 		{"Binary", BINARY},			// Binary 8 bits 000001
+		{"VE.PART", VE_PRODUCT},		// VE.PART
 		{"string", STRING},				// string
 		{"ignore", IGNORE}				// ignore
 	};
+  
  }
 
 CoopMgrDB::~CoopMgrDB(){
@@ -181,6 +193,36 @@ bool CoopMgrDB::valueShouldUpdate(string key, string value){
 					triggerDiff = 1.0;
 					break;
 	
+				case MILLIVOLTS:
+				case MILLIAMPS:
+				case MAH:
+					triggerDiff = 500;
+					break;
+	
+				case WATTS:
+					triggerDiff = 5;
+					break;
+					
+				case VOLTS:
+					triggerDiff = 0.5;
+					break;
+
+				case AMPS:
+					triggerDiff = 1.0;
+					break;
+					
+				case PERMILLE:
+					triggerDiff = 10;
+					break;
+	
+				case PERCENT:
+					triggerDiff = 1;
+					break;
+					
+				case HERTZ:
+					triggerDiff = 10;
+					break;
+					
 				default:
 					triggerDiff = 0;
 					break;
@@ -228,17 +270,47 @@ string   CoopMgrDB::unitSuffixForKey(string key){
 	
 	switch(unitsForKey(key)){
 			
+		case MILLIVOLTS:
+		case VOLTS:
+			suffix = "V";
+			break;
+
+		case MILLIAMPS:
+		case AMPS:
+			suffix = "A";
+			break;
+
+		case MAH:
+			suffix = "Ahrs";
+			break;
+ 
+		case DEKAWATTHOUR:
+			suffix = "kWh";
+			break;
   
 		case DEGREES_C:
 			suffix = "ºC";
 			break;
  
+		case PERMILLE:
+		case PERCENT:
+			suffix = "%";
+			break;
+			
+		case WATTS:
+			suffix = "W";
+			break;
+
 		case SECONDS:
 			suffix = "Seconds";
 			break;
 			
 		case MINUTES:
 			suffix = "Minutes";
+			break;
+
+		case HERTZ:
+			suffix = "Hz";
 			break;
  
 		default:

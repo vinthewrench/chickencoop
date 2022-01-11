@@ -717,6 +717,40 @@ struct RESTEventList: Decodable {
 }
 
 
+
+struct RESTDeviceDoor: Codable {
+	var door: DoorState.RawValue
+
+	enum CodingKeys: String, CodingKey {
+		case door = "door"
+ 	}
+}
+
+struct RESTDeviceLight: Codable {
+	var light: Bool
+
+	enum CodingKeys: String, CodingKey {
+		case light = "light"
+	}
+}
+
+struct RESTDevicePower: Codable {
+	var current_out: Double?
+	var voltage_in: Double?
+	var voltage_out: Double?
+	var tempc: Double?
+	var powermode: Bool
+
+	enum CodingKeys: String, CodingKey {
+		case current_out = "current.out"
+		case voltage_in = "voltage.in"
+		case voltage_out = "voltage.out"
+		case tempc = "tempc"
+		case powermode = "powermode"
+	}
+}
+
+
 class CCServerManager: ObservableObject {
 
 	
@@ -1013,6 +1047,8 @@ class CCServerManager: ObservableObject {
 	func setDoor(_ shouldOpen: Bool,
 					  completion: @escaping (Error?) -> Void)  {
 		
+//		print(String(format:"setDoor %@",  shouldOpen ? "Open" : "Close"))
+
 			let urlPath = "devices/door"
 			
 			if let requestUrl: URL = AppData.serverInfo.url ,
@@ -1040,11 +1076,15 @@ class CCServerManager: ObservableObject {
 				
 				// Send HTTP Request
 				request.timeoutInterval = 10
-				
+	
+ 	//	print(request)
+
 				let session = URLSession(configuration: .ephemeral, delegate: nil, delegateQueue: .main)
 				
 				let task = session.dataTask(with: request) { (data, response, urlError) in
 					
+// 		print ( String(decoding: (data!), as: UTF8.self))
+
 					completion(urlError	)
 				}
 				task.resume()
@@ -1122,7 +1162,7 @@ class CCServerManager: ObservableObject {
 			// Send HTTP Request
 			request.timeoutInterval = timeout
 			
- //	 	print(request)
+//  	 	print(request)
 			
 			let session = URLSession(configuration: .ephemeral, delegate: nil, delegateQueue: .main)
 			
@@ -1134,7 +1174,7 @@ class CCServerManager: ObservableObject {
 				}
 			
 			
- // 			print ( String(decoding: (data!), as: UTF8.self))
+//  			print ( String(decoding: (data!), as: UTF8.self))
 
 				if let data = data as Data? {
 					
@@ -1165,6 +1205,15 @@ class CCServerManager: ObservableObject {
 						completion(response, obj, nil)
 					}
 					else if let obj = try? decoder.decode(RESTEvent.self, from: data){
+						completion(response, obj, nil)
+					}
+					else if let obj = try? decoder.decode(RESTDeviceDoor.self, from: data){
+						completion(response, obj, nil)
+					}
+					else if let obj = try? decoder.decode(RESTDeviceLight.self, from: data){
+						completion(response, obj, nil)
+					}
+					else if let obj = try? decoder.decode(RESTDevicePower.self, from: data){
 						completion(response, obj, nil)
 					}
 					else if let jsonObj = try? JSONSerialization.jsonObject(with: data, options: .allowFragments) as? Dictionary<String, Any> {

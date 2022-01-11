@@ -122,6 +122,20 @@ bool WittyPi3::tempC(double &val){
 	return success;
 }
 
+
+bool WittyPi3::tempF(double& tempOut){
+	
+	double cTemp;
+	bool status = tempC(cTemp);
+	
+	if(status)
+		tempOut = cTemp *9.0/5.0 + 32.0;
+	
+	return status;
+};
+
+
+
 bool WittyPi3::voltageIn(double &val){
 
 	bool success = false;
@@ -258,19 +272,40 @@ void WittyPi3::idle(){
 		
 		if(shouldQuery){
 			
-//			float tempC;
+			bool hasValue = false;
 			
-//			if( _sensor.readTempC(tempC)){
-//				_resultMap[_resultKey] =  to_string(tempC);
-//				_state = INS_RESPONSE;
-//				gettimeofday(&_lastQueryTime, NULL);
-//
-//			}
-//			else
-//			{
-////				_state = INS_INVALID;
-//			}
-			
+			double dbl;
+			bool bl;
+
+			if( tempC(dbl)){
+				_resultMap["WP_TEMP"] =  to_string(dbl);
+				hasValue = true;
+			}
+
+			if( currentOut(dbl)){
+				_resultMap["I_OUT"] =  to_string(dbl);
+				hasValue = true;
+		}
+
+			if( voltageIn(dbl)){
+				_resultMap["V_IN"] =  to_string(dbl);
+				hasValue = true;
+			}
+
+			if( voltageOut(dbl)){
+				_resultMap["V_OUT"] =  to_string(dbl);
+				hasValue = true;
+		}
+
+			if( powerMode(bl)){
+				_resultMap["PWR_MODE"] =  to_string(bl);
+				hasValue = true;
+			}
+
+			if(hasValue){
+				_state = INS_RESPONSE;
+				gettimeofday(&_lastQueryTime, NULL);
+			}
 		}
 	}
 }

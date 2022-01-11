@@ -1,4 +1,9 @@
 CPU_TEMP,degC,3,CPU Temp
 LIGHT_STATE,Bool,3,Light State
 DOOR_STATE,Int,3,Door State
+I_OUT,A,2,Current
+V_IN,V,2,Input Voltage
+V_OUT,V,2,Output Voltage
+WP_TEMP,degC,3,WittyPi Temp
+PWR_MODE,Bool,3,WittyPi Power mode
 

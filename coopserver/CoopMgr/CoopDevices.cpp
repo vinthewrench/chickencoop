@@ -172,9 +172,10 @@ bool CoopDevices::doorOpen(boolCallback_t cb){
 	if(!_relay.isAvailable())
 		return false;
 	
-	_doorMgr.startOpen();
-	if(cb) (cb)(true);
-
+	_doorMgr.startOpen([=]( bool didSucceed) {
+		if(cb) (cb)(didSucceed);
+	});
+ 
 	return true;
 }
 
@@ -182,8 +183,9 @@ bool CoopDevices::doorClose(boolCallback_t cb){
 	if(!_relay.isAvailable())
 		return false;
 	
-	_doorMgr.startClose();
-	if(cb) (cb)(true);
+	_doorMgr.startClose([=]( bool didSucceed) {
+		if(cb) (cb)(didSucceed);
+	});
 
 	return true;
 }
@@ -192,9 +194,10 @@ bool CoopDevices::doorStop(boolCallback_t cb){
 	if(!_relay.isAvailable())
 		return false;
 
-	_doorMgr.stop();
-	if(cb) (cb)(true);
-
+	_doorMgr.stop([=]( bool didSucceed) {
+		if(cb) (cb)(didSucceed);
+	});
+ 
 	return true;
 }
 
