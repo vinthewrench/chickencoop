@@ -9,7 +9,7 @@
 #include "LogMgr.hpp"
 #include "Utils.hpp"
  
- const char* 	CoopMgr::CoopMgr_Version = "1.0.0 dev 1";
+ const char* 	CoopMgr::CoopMgr_Version = "1.0.0 dev 2";
 
 CoopMgr *CoopMgr::sharedInstance = NULL;
 
@@ -21,7 +21,7 @@ static void sigHandler (int signum) {
 
 CoopMgr::CoopMgr(){
 //	
-//	signal(SIGKILL, sigHandler);
+ 	signal(SIGKILL, sigHandler);
 //	signal(SIGHUP, sigHandler);
 //	signal(SIGQUIT, sigHandler);
 //	signal(SIGTERM, sigHandler);
@@ -396,7 +396,42 @@ bool CoopMgr::getLight(std::function<void(bool didSucceed, bool isOn)>cb){
 	return _coopHW.getLight(cb);
 
 }
+
+// MARK: Combined coop state
+
+bool CoopMgr::getCoopState(std::function<void(bool didSucceed, CoopMgr::coopState_t coopState)> cb){
+	
+	CoopMgr::coopState_t coopState =
+		{.doorstate = DoorMgr::STATE_UNKNOWN,
+			.lightState	= false,
+			.coopTempC = 0.0
+		} ;
  
+	return _coopHW.getDoor([&coopState, cb, this] (bool didSucceed, DoorMgr::state_t doorState ){
+		
+		if(didSucceed) {
+			coopState.doorstate = doorState;
+
+			_coopHW.getLight([&coopState, cb, this] (bool didSucceed,bool isOn ){
+				if(didSucceed) {
+					coopState.lightState = isOn;
+
+					bool status =  _tempSensor1.tempC(coopState.coopTempC);
+					if(cb) (cb)( status, coopState);
+				}
+				else {
+					if(cb) (cb)( false,coopState);
+				}
+			});
+		}
+		else {
+			if(cb) (cb)( false,coopState);
+			
+		}
+	});
+}
+
+
 
 //MARK: -  events / actions
 

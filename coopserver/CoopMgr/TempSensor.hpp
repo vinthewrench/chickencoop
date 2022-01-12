@@ -38,6 +38,8 @@ public:
 
 	device_state_t getDeviceState();
 	
+	bool tempC(float&);
+
 private:
 
 	typedef enum  {

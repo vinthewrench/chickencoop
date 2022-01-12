@@ -57,7 +57,10 @@ CoopMgrDB::CoopMgrDB(){
 		{"Binary", BINARY},			// Binary 8 bits 000001
 		{"VE.PART", VE_PRODUCT},		// VE.PART
 		{"string", STRING},				// string
-		{"ignore", IGNORE}				// ignore
+		{"ignore", IGNORE},				// ignore
+		{"doorstate", DOOR_STATE},				// door state
+		{"on-off", ON_OFF},				// door state
+		
 	};
   
  }
@@ -223,6 +226,14 @@ bool CoopMgrDB::valueShouldUpdate(string key, string value){
 					triggerDiff = 10;
 					break;
 					
+				case DOOR_STATE:
+					triggerDiff = 0;
+					break;
+		
+				case ON_OFF:
+					triggerDiff = 0;
+					break;
+		
 				default:
 					triggerDiff = 0;
 					break;
@@ -275,6 +286,10 @@ string   CoopMgrDB::unitSuffixForKey(string key){
 			suffix = "V";
 			break;
 
+		case DOOR_STATE:
+		case ON_OFF:
+			break;
+			
 		case MILLIAMPS:
 		case AMPS:
 			suffix = "A";

@@ -383,7 +383,7 @@ class ScheduleDetailViewController :UIViewController,
 	@IBOutlet var btnDevice	: UIButton!
 	 
 	@IBOutlet var btnSave	: UIButton!
-	@IBOutlet var btnRun		: BHButton!
+	@IBOutlet var btnRun		: UIButton!
 
 	var delegate:SchedulesViewController? = nil
 	
@@ -592,8 +592,6 @@ class ScheduleDetailViewController :UIViewController,
 				btnRun.isEnabled =  true;
 				}
 		}
-		
-		btnRun.backgroundColor = btnRun.isEnabled ? .systemBlue : .systemGray3
 	}
 	
 	func createNewEvent(){
@@ -661,14 +659,14 @@ class ScheduleDetailViewController :UIViewController,
 		
 		if eventID != "" {
 			
-			self.view.displayActivityIndicator(shouldDisplay: true)
+			self.btnRun.isEnabled = false;
 			
 			CCServerManager.shared.executeEvent(eventID)
 			{ (error)  in
 				
-				self.view.displayActivityIndicator(shouldDisplay: false)
-				
-				if(error != nil){
+				self.btnRun.isEnabled = true;
+
+	 			if(error != nil){
 	 
 					Toast.text(error?.localizedDescription ?? "Error",
 								  config: ToastConfiguration(

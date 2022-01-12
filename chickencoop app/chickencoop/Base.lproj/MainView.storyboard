@@ -36,8 +36,8 @@
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="orH-ip-fFD">
-                                        <rect key="frame" x="367" y="63" width="27" height="26"/>
-                                        <state key="normal" image="gear" catalog="system">
+                                        <rect key="frame" x="368" y="63.5" width="26" height="25"/>
+                                        <state key="normal" image="gearshape" catalog="system">
                                             <preferredSymbolConfiguration key="preferredSymbolConfiguration" scale="large"/>
                                         </state>
                                         <connections>
@@ -54,17 +54,29 @@
                                             <action selector="addBtnUpClicked:" destination="BYZ-38-t0r" eventType="touchUpInside" id="amB-yK-Qzs"/>
                                         </connections>
                                     </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gro-YO-Uge">
+                                        <rect key="frame" x="336" y="65" width="24" height="22"/>
+                                        <state key="normal" image="questionmark.square" catalog="system">
+                                            <color key="titleColor" systemColor="linkColor"/>
+                                            <preferredSymbolConfiguration key="preferredSymbolConfiguration" scale="large"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="DetailsClicked:" destination="BYZ-38-t0r" eventType="touchUpInside" id="bez-5u-9ee"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
                                 <viewLayoutGuide key="safeArea" id="ZI1-bI-iOv"/>
                                 <color key="backgroundColor" systemColor="systemGray6Color"/>
                                 <constraints>
                                     <constraint firstAttribute="bottom" secondItem="Gsu-GR-q1g" secondAttribute="bottom" constant="10" id="0eZ-VJ-kqy"/>
                                     <constraint firstAttribute="trailing" secondItem="orH-ip-fFD" secondAttribute="trailing" constant="20" symbolic="YES" id="0wY-fB-33A"/>
+                                    <constraint firstItem="orH-ip-fFD" firstAttribute="leading" secondItem="gro-YO-Uge" secondAttribute="trailing" constant="8" symbolic="YES" id="CXQ-yZ-FS2"/>
                                     <constraint firstAttribute="height" constant="100" id="ChH-Ww-ZXP"/>
                                     <constraint firstItem="Gsu-GR-q1g" firstAttribute="leading" secondItem="ZdG-UW-yfG" secondAttribute="leading" constant="10" id="J5p-8L-ngb"/>
                                     <constraint firstItem="z1H-U7-IS2" firstAttribute="centerY" secondItem="Gsu-GR-q1g" secondAttribute="centerY" id="QE1-qu-ktb"/>
                                     <constraint firstItem="z1H-U7-IS2" firstAttribute="leading" secondItem="Gsu-GR-q1g" secondAttribute="trailing" constant="8" symbolic="YES" id="RaG-Q9-nMs"/>
                                     <constraint firstItem="orH-ip-fFD" firstAttribute="centerY" secondItem="Gsu-GR-q1g" secondAttribute="centerY" id="qZx-z7-Fij"/>
+                                    <constraint firstItem="orH-ip-fFD" firstAttribute="centerY" secondItem="gro-YO-Uge" secondAttribute="centerY" id="wtQ-Dp-H1Z"/>
                                 </constraints>
                                 <userDefinedRuntimeAttributes>
                                     <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
@@ -101,6 +113,8 @@
                     </view>
                     <connections>
                         <outlet property="btnAdd" destination="z1H-U7-IS2" id="fzZ-66-t2O"/>
+                        <outlet property="btnDetails" destination="gro-YO-Uge" id="T3b-5P-bhJ"/>
+                        <outlet property="btnSetup" destination="orH-ip-fFD" id="IQQ-Fr-jb8"/>
                         <outlet property="lbTitle" destination="Gsu-GR-q1g" id="8ss-H3-B3d"/>
                         <outlet property="tabBar" destination="qtX-ZG-OgH" id="WiS-XQ-WDN"/>
                         <outlet property="vwContainer" destination="4eV-Ru-LhS" id="itc-Ma-xO7"/>
@@ -114,8 +128,12 @@
     <resources>
         <image name="clock" catalog="system" width="128" height="121"/>
         <image name="coop_tabbar" width="25" height="25"/>
-        <image name="gear" catalog="system" width="128" height="119"/>
+        <image name="gearshape" catalog="system" width="128" height="121"/>
         <image name="plus.circle" catalog="system" width="128" height="121"/>
+        <image name="questionmark.square" catalog="system" width="128" height="114"/>
+        <systemColor name="linkColor">
+            <color red="0.0" green="0.47843137254901963" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

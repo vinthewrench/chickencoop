@@ -26,6 +26,9 @@ class MainViewController: UIViewController, UITabBarDelegate {
 
 	@IBOutlet var btnAdd 	: UIButton!
 
+	@IBOutlet var btnDetails 	: UIButton!
+	@IBOutlet var btnSetup 	: 	UIButton!
+
 	var containViewController : UIViewController? = nil
 
 	var subViewDelegate: MainSubviewViewControllerDelegate? = nil
@@ -132,6 +135,15 @@ class MainViewController: UIViewController, UITabBarDelegate {
 	@IBAction func addBtnUpClicked(_ sender: UIButton) -> Void {
 		subViewDelegate?.addButtonHit(sender)
 
+	}
+
+	@IBAction func DetailsClicked(_ sender: UIButton) -> Void {
+		
+		if let coopValues = CoopValuesViewController.create() {
+
+			self.show(coopValues, sender: self)
+		}
+		
 	}
 
 }

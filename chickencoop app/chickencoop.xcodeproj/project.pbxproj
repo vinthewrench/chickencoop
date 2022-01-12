@@ -17,6 +17,12 @@
 		2E2AB1DF2780F00300756CD4 /* AnyFormatKit in Frameworks */ = {isa = PBXBuildFile; productRef = 2E2AB1DE2780F00300756CD4 /* AnyFormatKit */; };
 		2E2AB1E12782640400756CD4 /* CoopViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E2AB1E02782640400756CD4 /* CoopViewController.swift */; };
 		2E2AB1E3278264C700756CD4 /* CoopView.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2E2AB1E2278264C700756CD4 /* CoopView.storyboard */; };
+		2E2B4726278F5D9700092260 /* CoopValuesController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E2B4724278F5D9600092260 /* CoopValuesController.swift */; };
+		2E2B4727278F5D9700092260 /* CoopValues.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2E2B4725278F5D9700092260 /* CoopValues.storyboard */; };
+		2E2B472A278F5E6400092260 /* CHtableHeaderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2E2B4728278F5E6400092260 /* CHtableHeaderView.xib */; };
+		2E2B472B278F5E6400092260 /* CHtableHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E2B4729278F5E6400092260 /* CHtableHeaderView.swift */; };
+		2E2B472D278F642A00092260 /* CoopValueHistoryController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E2B472C278F642A00092260 /* CoopValueHistoryController.swift */; };
+		2E2B4730278F79CB00092260 /* URLResponse+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E2B472F278F79CB00092260 /* URLResponse+Extensions.swift */; };
 		2EA357472780D55B00A749FD /* SetupView.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2EFD15132780D1430073F6AD /* SetupView.storyboard */; };
 		2EA3574A2780D6F800A749FD /* InfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EA357482780D6F700A749FD /* InfoViewController.swift */; };
 		2EA3574B2780D6F800A749FD /* InfoView.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2EA357492780D6F800A749FD /* InfoView.storyboard */; };
@@ -56,6 +62,12 @@
 		2E2AB1D92780EFA300756CD4 /* ScheduleDetailView.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = ScheduleDetailView.storyboard; sourceTree = "<group>"; };
 		2E2AB1E02782640400756CD4 /* CoopViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoopViewController.swift; sourceTree = "<group>"; };
 		2E2AB1E2278264C700756CD4 /* CoopView.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = CoopView.storyboard; sourceTree = "<group>"; };
+		2E2B4724278F5D9600092260 /* CoopValuesController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoopValuesController.swift; sourceTree = "<group>"; };
+		2E2B4725278F5D9700092260 /* CoopValues.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = CoopValues.storyboard; sourceTree = "<group>"; };
+		2E2B4728278F5E6400092260 /* CHtableHeaderView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CHtableHeaderView.xib; sourceTree = "<group>"; };
+		2E2B4729278F5E6400092260 /* CHtableHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CHtableHeaderView.swift; sourceTree = "<group>"; };
+		2E2B472C278F642A00092260 /* CoopValueHistoryController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoopValueHistoryController.swift; sourceTree = "<group>"; };
+		2E2B472F278F79CB00092260 /* URLResponse+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "URLResponse+Extensions.swift"; sourceTree = "<group>"; };
 		2EA357482780D6F700A749FD /* InfoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InfoViewController.swift; sourceTree = "<group>"; };
 		2EA357492780D6F800A749FD /* InfoView.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = InfoView.storyboard; sourceTree = "<group>"; };
 		2EFD14D8277FEFF20073F6AD /* chickencoop.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = chickencoop.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -118,9 +130,10 @@
 		2EFD14DA277FEFF20073F6AD /* chickencoop */ = {
 			isa = PBXGroup;
 			children = (
+				2EFD14E4277FEFF30073F6AD /* Assets.xcassets */,
+				2EFD15192780D4C70073F6AD /* resources */,
 				2EFD14DB277FEFF20073F6AD /* AppDelegate.swift */,
 				2EFD14F12780CDC60073F6AD /* AppPrefs.swift */,
-				2EFD14E4277FEFF30073F6AD /* Assets.xcassets */,
 				2EFD14FF2780CDF50073F6AD /* BHButton.swift */,
 				2EFD15152780D27F0073F6AD /* CCServerManager.swift */,
 				2EFD15172780D35F0073F6AD /* ChickenCoop.swift */,
@@ -136,7 +149,6 @@
 				2E2AB1E02782640400756CD4 /* CoopViewController.swift */,
 				2E2AB1E2278264C700756CD4 /* CoopView.storyboard */,
 				2EFD14F92780CDF40073F6AD /* NSDate+RFC1123.swift */,
-				2EFD15192780D4C70073F6AD /* resources */,
 				2EFD14DD277FEFF20073F6AD /* SceneDelegate.swift */,
 				2E2AB1D92780EFA300756CD4 /* ScheduleDetailView.storyboard */,
 				2E2AB1CF2780EF5500756CD4 /* ScheduleDetailViewController.swift */,
@@ -144,6 +156,11 @@
 				2E2AB1D22780EF5600756CD4 /* SchedulesViewController.swift */,
 				2E2AB1D12780EF5600756CD4 /* ScheduleTableHeaderView.swift */,
 				2E2AB1D72780EFA300756CD4 /* ScheduleTableHeaderView.xib */,
+				2E2B4725278F5D9700092260 /* CoopValues.storyboard */,
+				2E2B4724278F5D9600092260 /* CoopValuesController.swift */,
+				2E2B472C278F642A00092260 /* CoopValueHistoryController.swift */,
+				2E2B4729278F5E6400092260 /* CHtableHeaderView.swift */,
+				2E2B4728278F5E6400092260 /* CHtableHeaderView.xib */,
 				2EFD15132780D1430073F6AD /* SetupView.storyboard */,
 				2EFD14F32780CDF40073F6AD /* SetupViewController.swift */,
 				2E2AB1D02780EF5600756CD4 /* SelfSizedTableView.swift */,
@@ -152,6 +169,7 @@
 				2EFD14F82780CDF40073F6AD /* UIButton+Extensions.swift */,
 				2EFD14F72780CDF40073F6AD /* Utilities.swift */,
 				2EFD14F52780CDF40073F6AD /* View+Activity.swift */,
+				2E2B472F278F79CB00092260 /* URLResponse+Extensions.swift */,
 				2EFD14FD2780CDF50073F6AD /* View+Extensions.swift */,
 			);
 			path = chickencoop;
@@ -232,6 +250,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2E2B4727278F5D9700092260 /* CoopValues.storyboard in Resources */,
 				2EFD14E8277FEFF30073F6AD /* LaunchScreen.storyboard in Resources */,
 				2EA3574B2780D6F800A749FD /* InfoView.storyboard in Resources */,
 				2E2AB1DB2780EFA300756CD4 /* SchedulesView.storyboard in Resources */,
@@ -240,6 +259,7 @@
 				2EFD151C2780D50F0073F6AD /* MainView.storyboard in Resources */,
 				2E2AB1E3278264C700756CD4 /* CoopView.storyboard in Resources */,
 				2EFD151B2780D4F60073F6AD /* Quicksand-Bold.otf in Resources */,
+				2E2B472A278F5E6400092260 /* CHtableHeaderView.xib in Resources */,
 				2E2AB1DA2780EFA300756CD4 /* ScheduleTableHeaderView.xib in Resources */,
 				2EA357472780D55B00A749FD /* SetupView.storyboard in Resources */,
 			);
@@ -263,6 +283,7 @@
 				2E2AB1D42780EF5600756CD4 /* SelfSizedTableView.swift in Sources */,
 				2EFD15072780CDF50073F6AD /* EditableUILabel.swift in Sources */,
 				2EFD15052780CDF50073F6AD /* UIButton+Extensions.swift in Sources */,
+				2E2B472B278F5E6400092260 /* CHtableHeaderView.swift in Sources */,
 				2EFD14DC277FEFF20073F6AD /* AppDelegate.swift in Sources */,
 				2EFD150C2780CDF50073F6AD /* BHButton.swift in Sources */,
 				2EFD14F22780CDC60073F6AD /* AppPrefs.swift in Sources */,
@@ -270,9 +291,12 @@
 				2EFD150B2780CDF50073F6AD /* Date+Extensions.swift in Sources */,
 				2EFD14DE277FEFF20073F6AD /* SceneDelegate.swift in Sources */,
 				2EFD15092780CDF50073F6AD /* SPRadioButton.swift in Sources */,
+				2E2B472D278F642A00092260 /* CoopValueHistoryController.swift in Sources */,
 				2EA3574A2780D6F800A749FD /* InfoViewController.swift in Sources */,
 				2EFD15042780CDF50073F6AD /* Utilities.swift in Sources */,
+				2E2B4726278F5D9700092260 /* CoopValuesController.swift in Sources */,
 				2EFD15182780D35F0073F6AD /* ChickenCoop.swift in Sources */,
+				2E2B4730278F79CB00092260 /* URLResponse+Extensions.swift in Sources */,
 				2EFD15002780CDF50073F6AD /* SetupViewController.swift in Sources */,
 				2EFD150A2780CDF50073F6AD /* View+Extensions.swift in Sources */,
 				2E2AB1D62780EF5600756CD4 /* SchedulesViewController.swift in Sources */,

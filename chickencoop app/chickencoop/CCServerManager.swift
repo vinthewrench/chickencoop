@@ -9,6 +9,7 @@ import Foundation
 import SwiftRadix
 import CoreLocation
 import UIKit
+
 //
 //extension CaseIterable where Self: RawRepresentable {
 //
@@ -127,6 +128,21 @@ extension DoorState: Codable {
 			try container.encode(4, forKey: .rawValue)
 		}
 	}
+	
+	func description() -> String {
+		var str = "Unknown"
+		
+		switch self {
+		case .open:			str = "Open"
+		case .opening:		str = "Opening"
+		case .closed:		str = "Closed"
+		case .closing: str = "Closing"
+			
+		default:
+			break
+		}
+		return str
+	}
 }
 
 
@@ -236,6 +252,8 @@ enum RESTschemaUnits : Int {
 	case VE_PRODUCT		// VE.PART
 	case STRING			// string
 	case IGNORE
+	case DOOR_STATE
+	case ON_OFF
 	case UNKNOWN
 }
 
@@ -286,6 +304,58 @@ struct RESTTimeSpanItem: Codable {
 	var time:  		Double
 	var durration:  TimeInterval
 	var value: 		String
+}
+
+struct RESTHistoryItem: Codable {
+	var time:  Double
+	var value: String
+	
+	enum CodingKeys: String, CodingKey {
+		case time = "time"
+		case value = "value"
+	}
+}
+
+struct RESTHistory: Codable {
+	var values:  Array< RESTHistoryItem>
+	enum CodingKeys: String, CodingKey {
+		case values = "values"
+	}
+ 
+	init() {
+		values = []
+	}
+	
+	func timeLine() -> Array<RESTTimeSpanItem> {
+		
+		var timeline:Array<RESTTimeSpanItem> = []
+		
+		let items = self.values.reversed()
+		let now = Date().timeIntervalSince1970
+		var lastValue:String = "<no value>"
+		var lastTime:Double = 0;
+		
+		for item in items {
+		
+			// did we change values
+			if (item.value != lastValue){
+				
+				// if this is the first change - we subtract time from present
+				let interval:TimeInterval
+					= (lastTime == 0) ? now - item.time  : lastTime - item.time
+				
+				lastTime = item.time
+				lastValue = item.value
+				
+				timeline.append( RESTTimeSpanItem(time: item.time,
+															 durration: interval, value: item.value))
+			}
+		}
+		
+		return timeline
+	}
+	
+	
 }
 
 
@@ -734,6 +804,18 @@ struct RESTDeviceLight: Codable {
 	}
 }
 
+struct RESTDevices: Codable {
+	var light: Bool
+	var door: DoorState.RawValue
+	var coopTemp: Double
+
+	enum CodingKeys: String, CodingKey {
+		case light = "light"
+		case door = "door"
+		case coopTemp = "coopTemp"
+	}
+}
+
 struct RESTDevicePower: Codable {
 	var current_out: Double?
 	var voltage_in: Double?
@@ -825,6 +907,42 @@ class CCServerManager: ObservableObject {
 		
 	}
 	
+	func deleteHistoryForValue(_ value: String,
+						  completion: @escaping (Error?) -> Void)  {
+	
+		let urlPath = "valuehistory/\(value)"
+		
+		if let requestUrl: URL = AppData.serverInfo.url ,
+			let apiKey = AppData.serverInfo.apiKey,
+			let apiSecret = AppData.serverInfo.apiSecret {
+			let unixtime = String(Int(Date().timeIntervalSince1970))
+			
+			let urlComps = NSURLComponents(string: requestUrl.appendingPathComponent(urlPath).absoluteString)!
+			var request = URLRequest(url: urlComps.url!)
+			
+			
+			// Specify HTTP Method to use
+			request.httpMethod = "DELETE"
+			request.setValue(apiKey,forHTTPHeaderField: "X-auth-key")
+			request.setValue(String(unixtime),forHTTPHeaderField: "X-auth-date")
+			let sig =  calculateSignature(forRequest: request, apiSecret: apiSecret)
+			request.setValue(sig,forHTTPHeaderField: "Authorization")
+			
+			// Send HTTP Request
+			request.timeoutInterval = 30
+			
+			let session = URLSession(configuration: .ephemeral, delegate: nil, delegateQueue: .main)
+			
+			let task = session.dataTask(with: request) { (data, response, urlError) in
+				
+				completion(urlError	)
+			}
+			task.resume()
+		}
+		else {
+			completion(ServerError.invalidURL)
+		}	}
+
 	func removeEvent(_ eventID: String,
 						  completion: @escaping (Error?) -> Void)  {
 		
@@ -1186,9 +1304,9 @@ class CCServerManager: ObservableObject {
 					else if let obj = try? decoder.decode(RESTValuesList.self, from: data){
 						completion(response, obj, nil)
 					}
-//					else if let obj = try? decoder.decode(RESTHistory.self, from: data){
-//						completion(response, obj, nil)
-//					}
+					else if let obj = try? decoder.decode(RESTHistory.self, from: data){
+						completion(response, obj, nil)
+					}
 					else if let obj = try? decoder.decode(RESTStatus.self, from: data){
 						completion(response, obj, nil)
 					}
@@ -1205,6 +1323,9 @@ class CCServerManager: ObservableObject {
 						completion(response, obj, nil)
 					}
 					else if let obj = try? decoder.decode(RESTEvent.self, from: data){
+						completion(response, obj, nil)
+					}
+					else if let obj = try? decoder.decode(RESTDevices.self, from: data){
 						completion(response, obj, nil)
 					}
 					else if let obj = try? decoder.decode(RESTDeviceDoor.self, from: data){

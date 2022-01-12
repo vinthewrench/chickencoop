@@ -164,26 +164,21 @@ class CoopViewController: MainSubviewViewController {
 		
 		if(AppData.serverInfo.validated){
 			
-			self.vwOverlay.isHidden = true
-			
-			ChickenCoop.shared.fetchData(.door) { result in
-				if case .success(let dev as RESTDeviceDoor) = result {
+			ChickenCoop.shared.fetchData(.devices) { result in
+				if case .success(let dev as RESTDevices) = result {
+					
 					if let state = DoorState(rawValue: dev.door) {
 						self.refreshButtons(state)
 					}
-				}
-			}
- 
-			ChickenCoop.shared.fetchData(.light) { result in
-				if case .success(let dev as RESTDeviceLight) = result {
 					self.swLight.isOn = dev.light
+					self.lblTemp.text =  String(format: "%.0f°F", self.tempInFahrenheit(dev.coopTemp ))
+					self.vwOverlay.isHidden = true
+					
 				}
-			}
-			
-			ChickenCoop.shared.fetchValues() { result in
-				if case .success(let ccv as CoopValues ) = result {
-		 				self.lblTemp.text =  String(format: "%.0f°F", self.tempInFahrenheit(ccv.temp1 ))
+				else {
+					self.vwOverlay.isHidden = false
 				}
+				
 			}
 		}
 		else {

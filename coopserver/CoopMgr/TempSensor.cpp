@@ -108,6 +108,11 @@ CoopMgrDevice::device_state_t TempSensor::getDeviceState(){
   return retval;
 }
 
+bool TempSensor::tempC(float& tempC){
+	return _sensor.readTempC(tempC);
+}
+
+
 void TempSensor::idle(){
 	
 	if(isConnected() && (_state == INS_IDLE)){

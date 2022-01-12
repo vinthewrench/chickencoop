@@ -49,6 +49,7 @@ constexpr string_view JSON_ARG_TEMP_SENSOR1	 	= "tempsensor1";
 
 constexpr string_view JSON_ARG_DOOR	 			= "door";
 constexpr string_view JSON_ARG_LIGHT	 		= "light";
+constexpr string_view JSON_ARG_COOP_TEMP	 	= "coopTemp";
 
 constexpr string_view JSON_ARG_PROPERTIES	= "properties";
 

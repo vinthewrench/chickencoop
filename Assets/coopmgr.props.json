@@ -15,19 +15,19 @@
 	 "events": [
 		  {
 				"action": {
-					"deviceID": "light",
-					"cmd": "on"
+					 "cmd": "on",
+					 "deviceID": "light"
 				},
 				"eventID": "10d1",
-				"name": "startup",
+				"name": "Startup event",
 				"trigger": {
 					 "event": "startup"
 				}
 		  },
 		  {
 				"action": {
-					"deviceID": "door",
-					"cmd": "open"
+					 "cmd": "open",
+					 "deviceID": "door"
 				},
 				"eventID": "2d86",
 				"name": "sunrise open door",
@@ -38,8 +38,19 @@
 		  },
 		  {
 				"action": {
-					"deviceID": "door",
-					"cmd": "close"
+					 "cmd": "off",
+					 "deviceID": "light"
+				},
+				"eventID": "3a68",
+				"name": "Shutdown Event",
+				"trigger": {
+					 "event": "shutdown"
+				}
+		  },
+		  {
+				"action": {
+					 "cmd": "close",
+					 "deviceID": "door"
 				},
 				"eventID": "d95a",
 				"name": "sunset close door",

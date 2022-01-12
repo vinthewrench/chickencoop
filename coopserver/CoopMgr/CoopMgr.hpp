@@ -88,6 +88,16 @@ public:
 	bool setLight(bool isOn, boolCallback_t callback = NULL);
 	bool getLight(std::function<void(bool didSucceed, bool isOn)> callback = NULL);
 
+	
+	typedef struct {
+		DoorMgr::state_t doorstate;
+		bool 					lightState;
+		float 				coopTempC;
+   } coopState_t;
+
+	// combined coop state
+	bool getCoopState(std::function<void(bool didSucceed, coopState_t coopState)> callback = NULL);
+	
 	// power state
 	bool getVoltageIn(double &val);
 	bool getVoltageOut(double &val);

@@ -80,7 +80,7 @@ struct keyGroupEntry {
 	var keys = [String]()
 }
 
-class PumpValueFormatter: Formatter {
+class CoopValueFormatter: Formatter {
 	
 	var units = RESTschemaUnits.UNKNOWN
 	
@@ -188,7 +188,9 @@ class PumpValueFormatter: Formatter {
 		case .MINUTES,
 			  .SECONDS,
 			  .BOOL,
-			  .INT:
+			  .INT,
+			  .DOOR_STATE,
+			  .ON_OFF:
 			if let val = Int(string) {
 				retVal = val
 			}
@@ -241,6 +243,16 @@ class PumpValueFormatter: Formatter {
 				retVal = "Yes"
 			}
 			break
+			
+		case .ON_OFF:
+			let  val = normalizedIntForValue(in: string, forUnits: units)
+			if(val == 0){
+				retVal = "Off"
+			}  else if(val == 1){
+				retVal = "On"
+			}
+			break
+	
 	
 		case .DEGREES_C:
 			let  val = normalizedDoubleForValue(in: string, forUnits: units)
@@ -267,6 +279,12 @@ class PumpValueFormatter: Formatter {
 				retVal = "SmartShunt 500A/50mV";
 			}
 	
+		case .DOOR_STATE:
+			let  iVal = normalizedIntForValue(in: string, forUnits: units)
+			if let state = DoorState(rawValue: iVal) {
+				retVal = state.description()
+			}
+		
 			break
 			
 		default:
@@ -319,6 +337,7 @@ enum CoopRequest: Error {
 	case props
 	case schema
 	
+	case devices
 	case door
 	case light
 	case power
@@ -433,7 +452,10 @@ public class ChickenCoop {
 
 		case .light:
 			urlPath = "devices/light"
-
+	
+		case .devices:
+			urlPath = "devices"
+	
 		case .power:
 			urlPath = "devices/power"
 
@@ -473,7 +495,9 @@ public class ChickenCoop {
 			else 	if let schema = json as? RESTSchemaList {
 				completionHandler(.success(schema))
 			}
-	
+			else 	if let dev = json as? RESTDevices {
+			completionHandler(.success(dev))
+			}
 			else 	if let dev = json as? RESTDeviceDoor {
 			completionHandler(.success(dev))
 			}
@@ -492,28 +516,35 @@ public class ChickenCoop {
 		}
 	}
 	
-//	func fetchHistory(_ key: String,
-//							completionHandler: @escaping (Result<Any?, Error>) -> Void)  {
-//
-//		let urlPath :String = "history/" + key
-//
-//		let headers = ["limit" : "500"]
-//
-//		CCServerManager.shared.RESTCall(urlPath: urlPath,
-//												  headers:headers,
-//												  queries: nil) { (response, json, error)  in
-//
-//			if let restHist = json as? RESTHistory {
-//				completionHandler(.success(restHist))
-//			}
-//			else if let restErr = json as? RESTError {
-//				completionHandler(.success(restErr))
-//			}
-//			else if let error = error{
-//				completionHandler(.failure(error))
-//			}
-//		}
-//	}
+	func fetchHistory(_ key: String,
+							completionHandler: @escaping (Result<Any?, Error>) -> Void)  {
+
+		let urlPath :String = "valuehistory/" + key
+
+		let headers = ["limit" : "500"]
+
+		CCServerManager.shared.RESTCall(urlPath: urlPath,
+												  headers:headers,
+												  queries: nil) { (response, json, error)  in
+
+			if let response = response as? HTTPURLResponse {
+				if(response.statusCode == 404){
+ 						completionHandler(.success( RESTHistory()))
+					return
+				}
+ 			}
+	 
+			if let restHist = json as? RESTHistory {
+				completionHandler(.success(restHist))
+			}
+			else if let restErr = json as? RESTError {
+				completionHandler(.success(restErr))
+			}
+			else if let error = error{
+				completionHandler(.failure(error))
+			}
+		}
+	}
 	
 	
 	func fetchEvents( completionHandler: @escaping (Result<Any?, Error>) -> Void)  {
@@ -541,41 +572,36 @@ public class ChickenCoop {
 	}
 
 	
-//
-//	func groupValueKeys(_ keys: [String]) -> [keyGroupEntry]{
-//
-//		var result:[keyGroupEntry] = []
-//
-//		result.append( keyGroupEntry(title: "Inverter" ))
-//		result.append( keyGroupEntry(title: "SmartShunt" ))
-//		result.append( keyGroupEntry(title: "Pump" ))
-//		result.append( keyGroupEntry(title: "Temperature" ))
-//
-//		let pumpKeys = ["TANK", "TANK_RAW", "PUMP_SENSOR"]
-//
-//		let tempKeys = ["TEMP_0x48","TEMP_0x49","CPU_TEMP"]
-//
-//		let shuntKeys = [ "AR", "Alarm", "CE", "DM", "FW", "H1", "H10", "H11", "H12", "H15", "H16", "H17", "H18", "H2", "H3", "H4", "H5", "H6", "H7", "H8", "H9", "I", "MON", "P", "PID", "SOC", "TTG", "V", "VM"]
-//
-//		let inverterKeys = [ "I_BT",  "I_BV",  "I_FREQ",  "I_IPFV",  "I_IPV",  "I_OPC",  "I_OPV",  "I_STATUS"]
-//
-//		let keys = Array(keys).sorted(by: <)
-//
-//		for key in keys {
-//
-//			if(inverterKeys.contains(key)){
-//				result[0].keys.append(key)
-//			}else if(shuntKeys.contains(key)){
-//				result[1].keys.append(key)
-//			}else if(pumpKeys.contains(key)){
-//				result[2].keys.append(key)
-//			}else if(tempKeys.contains(key)){
-//				result[3].keys.append(key)
-//			}
-//		}
-//
-//		return result
-//	}
+
+	func groupValueKeys(_ keys: [String]) -> [keyGroupEntry]{
+
+		var result:[keyGroupEntry] = []
+
+		result.append( keyGroupEntry(title: "Coop State" ))
+		result.append( keyGroupEntry(title: "Temperature" ))
+		result.append( keyGroupEntry(title: "Power System" ))
+ 
+		let coopKeys = ["LIGHT_STATE", "DOOR_STATE" ]
+
+		let tempKeys = ["TEMP_0x48","CPU_TEMP"]
+
+		let powerKeys = [ "PWR_MODE", "V_IN", "V_OUT", "I_OUT", "WP_TEMP"]
+ 
+		let keys = Array(keys).sorted(by: <)
+
+		for key in keys {
+
+			if(coopKeys.contains(key)){
+				result[0].keys.append(key)
+			}else if(tempKeys.contains(key)){
+				result[1].keys.append(key)
+			}else if(powerKeys.contains(key)){
+				result[2].keys.append(key)
+			}
+		}
+
+		return result
+	}
 	
  
 
@@ -619,6 +645,16 @@ public class ChickenCoop {
 		
 		
 		CCServerManager.shared.removeEvent(eventID)
+		{ (error)  in
+			completion(error)
+		}
+	}
+
+	public func deleteHistoryForValue( _ value: String,
+									 completion: @escaping (Error?) -> Void = {_ in }){
+		
+		
+		CCServerManager.shared.deleteHistoryForValue(value)
 		{ (error)  in
 			completion(error)
 		}

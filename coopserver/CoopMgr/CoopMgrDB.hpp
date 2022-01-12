@@ -80,6 +80,8 @@ public:
 		VE_PRODUCT,		// VE.PART
 		STRING,			// string
 		IGNORE,
+		DOOR_STATE,
+		ON_OFF,
 		UNKNOWN,
 	}valueSchemaUnits_t;
 	

@@ -89,7 +89,35 @@ static bool Devices_NounHandler_GET(ServerCmdQueue* cmdQueue,
 	json reply;
 	auto coopMgr = CoopMgr::shared();
 	
-	if(path.size() == 2) {
+	if(path.size() == 1) {
+		bool queued = false;
+		
+ 
+		queued = coopMgr->getCoopState([=] (bool didSucceed, CoopMgr::coopState_t coopState ){
+			json reply;
+	
+			if(didSucceed){
+				reply[string(JSON_ARG_DOOR)] = coopState.doorstate;
+				reply[string(JSON_ARG_LIGHT)]= coopState.lightState;
+				reply[string(JSON_ARG_COOP_TEMP)]= coopState.coopTempC;
+				makeStatusJSON(reply,STATUS_OK);
+				(completion) (reply, STATUS_OK);
+
+			}
+			else {
+					makeStatusJSON(reply, STATUS_BAD_REQUEST, "Get Failed" );;
+					(completion) (reply, STATUS_BAD_REQUEST);
+				}
+		});
+		
+		if(!queued) {
+			makeStatusJSON(reply, STATUS_UNAVAILABLE, "Server is not running" );;
+			(completion) (reply, STATUS_UNAVAILABLE);
+			return false;
+		}
+		return true;
+	}
+	else if(path.size() == 2) {
 		DeviceNameArgValidator vDevice;
 		RelayStateArgValidator v1;
 		
