@@ -213,7 +213,8 @@ class TriggerTimeViewController: TriggerViewController, UITextFieldDelegate
 		btnTimeBase.setImage(event?.imageForTrigger(), for: .normal)
 		var actions: [UIAction] = []
 		
-		for timebase in [ 	RESTEvent.timedEventTimeBase.civilSunrise,
+		for timebase in [		RESTEvent.timedEventTimeBase.midnight,
+									RESTEvent.timedEventTimeBase.civilSunrise,
 									RESTEvent.timedEventTimeBase.sunrise,
 									RESTEvent.timedEventTimeBase.sunset,
 									RESTEvent.timedEventTimeBase.civilSunset] {
