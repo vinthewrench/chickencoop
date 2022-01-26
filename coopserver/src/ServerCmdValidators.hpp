@@ -221,6 +221,8 @@ public:
 			return true;
 		else if(str == "light")
 			return true;
+		else if(str == "aux")
+			return true;
 		else if(str == "power")
 			return true;
 
