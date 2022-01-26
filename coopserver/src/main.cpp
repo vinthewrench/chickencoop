@@ -52,13 +52,13 @@ int main(int argc, const char * argv[]) {
 	
 	TCPServer telnet_server(cmdQueue);
 	if(telnetPort != 0){
-		telnet_server.begin(telnetPort, true, [=](){
+		telnet_server.begin(telnetPort, remoteTelnet, [=](){
 			return new TelnetServerConnection();
 		});
 	}
 	
 	TCPServer rest_server(cmdQueue);
-	rest_server.begin(restPort, remoteTelnet, [=](){
+	rest_server.begin(restPort, true, [=](){
 		return new RESTServerConnection();
 	});
 	 
