@@ -4,9 +4,30 @@
 # export CXX=/usr/local/clang_9.0.0/bin/clang++
 #SET (CMAKE_C_COMPILER             "/usr/lib/llvm/10/bin/clang")
 #SET (CMAKE_CXX_COMPILER           "/usr/lib/llvm/10/bin/clang++")
+
+
+option(CROSS_COMPILE "Cross Compile from Mac" OFF) #OFF by default
+if(CROSS_COMPILE)
+    #add some compilation flags
+    
+SET (CMAKE_C_COMPILER             "clang")
+SET (CMAKE_CXX_COMPILER            "clang++")
+
+include_directories("/Users/vinnie/Desktop/RasberryPi/sysroot/usr/include")
+link_directories("/Users/vinnie/Desktop/RasberryPi/sysroot/usr/lib")
+#SET(CMAKE_SYSROOT /Users/vinnie/Desktop/RasberryPi/sysroot/)
+set(CMAKE_SYSTEM_PROCESSOR arm)
+
+else()
+    #add some other compilation flags
 SET (CMAKE_C_COMPILER             "/usr/local/clang_12.0.1/bin/clang")
 SET (CMAKE_CXX_COMPILER            "/usr/local/clang_12.0.1/bin/clang++")
 
+include_directories(/usr/include)
+link_directories(/usr/lib)
+
+endif(CROSS_COMPILE)
+unset(CROSS_COMPILE CACHE) # <---- this is the important!!
 
 cmake_minimum_required(VERSION 3.0)
 
@@ -30,7 +51,7 @@ set(SOURCES
 	coopserver/CoopMgr/TMP102.cpp
 	coopserver/CoopMgr/CPUInfo.cpp
 	coopserver/CoopMgr/TempSensor.cpp
-	coopserver/CoopMgr/WittyPi3.cpp
+#	coopserver/CoopMgr/WittyPi3.cpp
  	coopserver/CoopMgr/QwiicButton.cpp
 	coopserver/CoopMgr/RPi_RelayHat.cpp
 	coopserver/CoopMgr/GPIO.cpp
@@ -70,9 +91,7 @@ set_target_properties(coopmgr PROPERTIES
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
-include_directories(/usr/include)
-link_directories(/usr/lib)
-target_link_libraries(coopmgr  PRIVATE sqlite3 Threads::Threads gpiod)
+target_link_libraries(coopmgr PRIVATE sqlite3 Threads::Threads gpiod)
 
 target_include_directories(coopmgr
 	PRIVATE 

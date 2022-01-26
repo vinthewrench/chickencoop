@@ -38,7 +38,7 @@ int main(int argc, const char * argv[]) {
 	auto db = coopMgr->getDB();
 
 	uint16_t restPort = 	8080;
-	uint16_t telnetPort = 2020;
+	uint16_t telnetPort = 0;
 	bool remoteTelnet = false;
 
  	db->getUint16Property(string(CoopMgrDB::PROP_TELNET_PORT),&telnetPort);
@@ -50,18 +50,17 @@ int main(int argc, const char * argv[]) {
  	registerServerNouns();
  	registerCommandsLineFunctions();
 	
-	
 	TCPServer telnet_server(cmdQueue);
-	telnet_server.begin(telnetPort, true, [=](){
-		return new TelnetServerConnection();
-	});
-
+	if(telnetPort != 0){
+		telnet_server.begin(telnetPort, true, [=](){
+			return new TelnetServerConnection();
+		});
+	}
+	
 	TCPServer rest_server(cmdQueue);
 	rest_server.begin(restPort, remoteTelnet, [=](){
 		return new RESTServerConnection();
 	});
-
-	
 	 
 	// run the main loop.
 	while(true) {

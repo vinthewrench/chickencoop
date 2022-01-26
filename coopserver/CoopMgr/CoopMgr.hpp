@@ -25,8 +25,10 @@
 #include "TempSensor.hpp"
 #include "SolarTimeMgr.hpp"
 #include "CoopDevices.hpp"
-#include "WittyPi3.hpp"
 
+#ifdef  WITTYPI3
+#include "WittyPi3.hpp"
+#endif
 
 using namespace std;
  
@@ -124,8 +126,9 @@ private:
 	
 	CPUInfo				_cpuInfo;
 	TempSensor			_tempSensor1;
+#ifdef  WITTYPI3
 	WittyPi3				_wittyPi3;
-
+#endif
 	CoopDevices			_coopHW;
 	CoopMgrDB			_db;
 };

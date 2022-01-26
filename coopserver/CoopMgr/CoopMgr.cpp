@@ -90,7 +90,7 @@ void CoopMgr::start(){
 
 	initDataBase();
 
- 	startWittyPi3();
+// 	startWittyPi3();
 	startTempSensor();
 		
 	startCoopDevices([=](bool didSucceed, string error_text){
@@ -111,7 +111,7 @@ void CoopMgr::stop(){
 	LOGT_DEBUG("Stop Coop");
  
 	runShutdownEvents([=](){
-		stopWittyPi3();
+//		stopWittyPi3();
 		stopTempSensor();
 		stopCoopDevices();
 		_state = CoopMgrDevice::DEVICE_STATE_DISCONNECTED;
@@ -184,17 +184,20 @@ void CoopMgr::run(){
 				});
 			}
  
-			if(_wittyPi3.isConnected()){
+#ifdef  WITTYPI3
+		if(_wittyPi3.isConnected()){
 				// handle input
 				_wittyPi3.rcvResponse([=]( map<string,string> results){
 					_db.insertValues(results);
 				});
 			}
-  
+#endif
 			sleep(SLEEP_SEC);
 	 
 			_tempSensor1.idle();
+#ifdef  WITTYPI3
 			_wittyPi3.idle();
+#endif
 			_coopHW.idle();
 			_cpuInfo.idle();
 			
@@ -246,6 +249,8 @@ void CoopMgr::startWittyPi3( std::function<void(bool didSucceed, std::string err
 	int  errnum = 0;
 	bool didSucceed = false; 
  
+#ifdef  WITTYPI3
+
 	didSucceed =  _wittyPi3.begin(errnum);
 	if(didSucceed){
 //		_db.addSchema(resultKey,
@@ -257,45 +262,66 @@ void CoopMgr::startWittyPi3( std::function<void(bool didSucceed, std::string err
 	}
 	else
 		LOGT_ERROR("Start WittyPi3 - FAIL %s", string(strerror(errnum)).c_str());
+#endif
  
-	
-	
 	if(cb)
 		(cb)(didSucceed, didSucceed?"": string(strerror(errnum) ));
- }
+}
 
 void CoopMgr::stopWittyPi3(){
+#ifdef  WITTYPI3
 	_wittyPi3.stop();
+#else
+#endif
 }
 
 CoopMgrDevice::device_state_t CoopMgr::wittyPi3tate(){
+#ifdef  WITTYPI3
 	return _wittyPi3.getDeviceState();
+#else
+	return CoopMgrDevice::DEVICE_STATE_DISCONNECTED;
+#endif
+
 }
 
 bool CoopMgr::getVoltageIn(double &val){
-	
+#ifdef  WITTYPI3
 	return _wittyPi3.voltageIn(val);
-}
+#else
+	return false;
+#endif
+ }
 
 bool CoopMgr::getVoltageOut(double &val){
-	
+#ifdef  WITTYPI3
 	return _wittyPi3.voltageOut(val);
-}
+#else
+	return false;
+#endif
+ }
 
 bool CoopMgr::getCurrentOut(double &val) {
-	
+#ifdef  WITTYPI3
 	return _wittyPi3.currentOut(val);
+#else
+	return false;
+#endif
 }
 
 bool CoopMgr::getPowerMode(bool &val){
-
+#ifdef  WITTYPI3
 	return _wittyPi3.powerMode(val);
-
+#else
+	return false;
+#endif
 }
 
 bool CoopMgr::getPowerTemp(double &val){
-
+#ifdef  WITTYPI3
 	return _wittyPi3.tempC(val);
+#else
+	return false;
+#endif
 }
 
 

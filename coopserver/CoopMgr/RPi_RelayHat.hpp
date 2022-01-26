@@ -38,8 +38,9 @@ public:
 	
 	typedef enum {
 		CH1	= 26,
-		CH2	= 20,
-		CH3 	= 21,
+		CH2	= 22,
+		CH3 	= 6,
+		CH4	= 4,
 		}relaysID_t;
 
 	typedef vector<pair<RPi_RelayHat::relaysID_t, bool>> relayStates_t;

@@ -1,5 +1,5 @@
 {
-	 "allow-remote-telnet": "true",
+	 "allow-remote-telnet": "false",
 	 "api-key": "test",
 	 "api-secret": "40v)ywv*e2e&$k(6",
 	 "event.groups": [
@@ -45,6 +45,30 @@
 				"name": "Shutdown Event",
 				"trigger": {
 					 "event": "shutdown"
+				}
+		  },
+		  {
+				"action": {
+					 "cmd": "on",
+					 "deviceID": "light"
+				},
+				"eventID": "52b9",
+				"name": "morning light on",
+				"trigger": {
+					 "mins": 360,
+					 "timeBase": 1
+				}
+		  },
+		  {
+				"action": {
+					 "cmd": "off",
+					 "deviceID": "light"
+				},
+				"eventID": "b290",
+				"name": "morning light off",
+				"trigger": {
+					 "mins": 540,
+					 "timeBase": 1
 				}
 		  },
 		  {
