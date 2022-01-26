@@ -97,6 +97,7 @@ public:
 	typedef struct {
 		DoorMgr::state_t doorstate;
 		bool 					lightState;
+		bool 					auxState;
 		float 				coopTempC;
    } coopState_t;
 

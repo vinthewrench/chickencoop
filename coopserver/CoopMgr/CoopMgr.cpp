@@ -440,26 +440,38 @@ bool CoopMgr::getAux(std::function<void(bool didSucceed, bool isOn)>cb){
 bool CoopMgr::getCoopState(std::function<void(bool didSucceed, CoopMgr::coopState_t coopState)> cb){
 	
 	CoopMgr::coopState_t coopState =
-		{.doorstate = DoorMgr::STATE_UNKNOWN,
-			.lightState	= false,
-			.coopTempC = 0.0
-		} ;
- 
+	{.doorstate = DoorMgr::STATE_UNKNOWN,
+		.lightState	= false,
+		.auxState = false,
+		.coopTempC = 0.0
+	} ;
+	
 	return _coopHW.getDoor([&coopState, cb, this] (bool didSucceed, DoorMgr::state_t doorState ){
 		
 		if(didSucceed) {
 			coopState.doorstate = doorState;
-
+			
 			_coopHW.getLight([&coopState, cb, this] (bool didSucceed,bool isOn ){
 				if(didSucceed) {
 					coopState.lightState = isOn;
-
-					bool status =  _tempSensor1.tempC(coopState.coopTempC);
-					if(cb) (cb)( status, coopState);
+					
+					_coopHW.getAux([&coopState, cb, this] (bool didSucceed,bool isOn ){
+						if(didSucceed) {
+							coopState.auxState = isOn;
+							
+							
+							bool status =  _tempSensor1.tempC(coopState.coopTempC);
+							if(cb) (cb)( status, coopState);
+						}
+						else {
+							if(cb) (cb)( false,coopState);
+						}
+					});
 				}
 				else {
 					if(cb) (cb)( false,coopState);
 				}
+				
 			});
 		}
 		else {

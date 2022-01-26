@@ -91,14 +91,14 @@ static bool Devices_NounHandler_GET(ServerCmdQueue* cmdQueue,
 	
 	if(path.size() == 1) {
 		bool queued = false;
-		
- 
+
 		queued = coopMgr->getCoopState([=] (bool didSucceed, CoopMgr::coopState_t coopState ){
 			json reply;
 	
 			if(didSucceed){
 				reply[string(JSON_ARG_DOOR)] = coopState.doorstate;
 				reply[string(JSON_ARG_LIGHT)]= coopState.lightState;
+				reply[string(JSON_ARG_AUX)]= coopState.auxState;
 				reply[string(JSON_ARG_COOP_TEMP)]= coopState.coopTempC;
 				makeStatusJSON(reply,STATUS_OK);
 				(completion) (reply, STATUS_OK);
