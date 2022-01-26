@@ -111,6 +111,13 @@ void CoopDevices::idle(){
 				}
 			});
 
+			this->getAux([=] (bool didSucceed,bool isOn ){
+				if(didSucceed){
+					_resultMap[string(COOP_DEVICE_AUX_STATE)] =  to_string(isOn);
+					_state = INS_RESPONSE;
+				}
+			});
+
 			this->getDoor([=] (bool didSucceed, DoorMgr::state_t state ){
 				if(didSucceed){
 					_resultMap[string(COOP_DEVICE_DOOR_STATE)] =  to_string(state);
@@ -212,13 +219,13 @@ bool CoopDevices::setDoor(bool isOpen, boolCallback_t cb){
 	if(isOpen){
 		_greenButton.LEDconfig(0x1f, 500, 100);
 		_redButton.LEDoff();
-		didSucceed = _relay.setRelays({{RPi_RelayHat::CH2, true}, {RPi_RelayHat::CH3, false}});
+			didSucceed = _relay.setRelays({{RelayHat::CH3, true}, {RelayHat::CH4, false}});
 	}
 	else
 	{
 		_redButton.LEDconfig(0x1f, 500, 100);
 		_greenButton.LEDoff();
-		didSucceed = _relay.setRelays({{RPi_RelayHat::CH2, false}, {RPi_RelayHat::CH3, true}});
+		didSucceed = _relay.setRelays({{RelayHat::CH3, false}, {RelayHat::CH4, true}});
 	}
 	
 	if(cb) (cb)(didSucceed);
@@ -235,7 +242,7 @@ bool CoopDevices::stopDoor(boolCallback_t cb){
 	if(!_relay.isAvailable())
 		return false;
 	
-	didSucceed = _relay.setRelays({{RPi_RelayHat::CH2, false}, {RPi_RelayHat::CH3, false}});
+	didSucceed = _relay.setRelays({{RelayHat::CH3, false}, {RelayHat::CH4, false}});
 	
 	if(cb) (cb)(didSucceed);
 	return  true;
@@ -259,7 +266,7 @@ bool CoopDevices::setLight(bool isOn, boolCallback_t cb){
 	if(!_relay.isAvailable())
 		return false;
  
-	didSucceed = _relay.setRelays({{RPi_RelayHat::CH1, isOn}});
+	didSucceed = _relay.setRelays({{RelayHat::CH1, isOn}});
 
 	if(cb) (cb)(didSucceed);
 	return  true;
@@ -271,12 +278,12 @@ bool CoopDevices::getLight(std::function<void(bool didSucceed, bool isOn)> cb){
 	if(!_relay.isAvailable())
 		return false;
 	
-	RPi_RelayHat::relayStates_t  states;
+	RelayHat::relayStates_t  states;
 	
 	if(_relay.getRelays(states)){
 		for(const auto& [relay, state] : states) {
 			
-			if(relay == RPi_RelayHat::CH1) {
+			if(relay == RelayHat::CH1) {
 				if(cb) (cb)(true, state);
 				return true;
 			}
@@ -287,6 +294,43 @@ bool CoopDevices::getLight(std::function<void(bool didSucceed, bool isOn)> cb){
 	return false;
 }
 
+
+// Aux relay state
+
+// light state
+bool CoopDevices::setAux(bool isOn, boolCallback_t cb){
+	bool didSucceed = false;
+
+	if(!_relay.isAvailable())
+		return false;
+ 
+	didSucceed = _relay.setRelays({{RelayHat::CH2, isOn}});
+
+	if(cb) (cb)(didSucceed);
+	return  true;
+}
+
+
+bool CoopDevices::getAux(std::function<void(bool didSucceed, bool isOn)> cb){
+	
+	if(!_relay.isAvailable())
+		return false;
+	
+	RelayHat::relayStates_t  states;
+	
+	if(_relay.getRelays(states)){
+		for(const auto& [relay, state] : states) {
+			
+			if(relay == RelayHat::CH2) {
+				if(cb) (cb)(true, state);
+				return true;
+			}
+		}
+	}
+	
+	if(cb) (cb)(false, false);
+	return false;
+}
  
 bool CoopDevices::stringToRelayState(const std::string str, bool* stateOut){
 	bool valid = false;

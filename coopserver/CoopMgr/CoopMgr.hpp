@@ -90,7 +90,10 @@ public:
 	bool setLight(bool isOn, boolCallback_t callback = NULL);
 	bool getLight(std::function<void(bool didSucceed, bool isOn)> callback = NULL);
 
-	
+	// aux relay state
+	bool setAux(bool isOn, boolCallback_t callback = NULL);
+	bool getAux(std::function<void(bool didSucceed, bool isOn)> callback = NULL);
+ 
 	typedef struct {
 		DoorMgr::state_t doorstate;
 		bool 					lightState;

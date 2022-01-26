@@ -163,6 +163,26 @@ static bool Devices_NounHandler_GET(ServerCmdQueue* cmdQueue,
 					
 				});
 			}
+			else if(deviceStr == SUBPATH_AUX){
+				
+				queued = coopMgr->getAux([=] (bool didSucceed,bool isOn ){
+					json reply;
+					
+					if(didSucceed){
+						
+						reply[string(JSON_ARG_AUX)]= isOn;
+						
+						makeStatusJSON(reply,STATUS_OK);
+						(completion) (reply, STATUS_OK);
+					}
+					else {
+						makeStatusJSON(reply, STATUS_BAD_REQUEST, "Get Failed" );;
+						(completion) (reply, STATUS_BAD_REQUEST);
+					}
+					
+				});
+			}
+ 
 			else if(deviceStr == SUBPATH_POWER){
 				json reply;
 				
@@ -270,7 +290,22 @@ static bool Devices_NounHandler_PUT(ServerCmdQueue* cmdQueue,
 						
 					});
 				}
-				
+				else if(deviceStr == SUBPATH_AUX){
+					queued = coopMgr->setAux(relayState,[=]( bool didSucceed){
+						json reply;
+						
+						if(didSucceed){
+							makeStatusJSON(reply,STATUS_OK);
+							(completion) (reply, STATUS_OK);
+						}
+						else {
+							makeStatusJSON(reply, STATUS_BAD_REQUEST, "Set Failed" );;
+							(completion) (reply, STATUS_BAD_REQUEST);
+						}
+						
+					});
+				}
+			
 				if(!queued) {
 					makeStatusJSON(reply, STATUS_UNAVAILABLE, "Server is not running" );;
 					(completion) (reply, STATUS_UNAVAILABLE);

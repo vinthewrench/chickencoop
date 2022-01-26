@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2E123D0727A1F4880020EBCE /* RelayHat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2E123D0527A1F2FD0020EBCE /* RelayHat.cpp */; };
 		2EFD1392276FF5DF0073F6AD /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD1391276FF5DF0073F6AD /* main.cpp */; };
 		2EFD145B277003520073F6AD /* libFOOServer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2EFD1457277001B60073F6AD /* libFOOServer.a */; };
 		2EFD1463277101D10073F6AD /* CoopMgr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD1460277100AA0073F6AD /* CoopMgr.cpp */; };
@@ -26,7 +27,6 @@
 		2EFD149C27725EC50073F6AD /* GPIO.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD149B27725EC50073F6AD /* GPIO.cpp */; };
 		2EFD149F27725F710073F6AD /* CoopDevices.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD149D27725F710073F6AD /* CoopDevices.cpp */; };
 		2EFD14A62772A80A0073F6AD /* QwiicButton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD14A42772A80A0073F6AD /* QwiicButton.cpp */; };
-		2EFD14AD277539670073F6AD /* RPi_RelayHat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD14AB277539670073F6AD /* RPi_RelayHat.cpp */; };
 		2EFD14B5277691BB0073F6AD /* macos_gpiod.c in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD14B4277691BB0073F6AD /* macos_gpiod.c */; };
 		2EFD14BC277A50790073F6AD /* DoorMgr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD14BA277A50790073F6AD /* DoorMgr.cpp */; };
 		2EFD14C3277D1E270073F6AD /* Action.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD14C1277D1E270073F6AD /* Action.cpp */; };
@@ -67,6 +67,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		2E123D0527A1F2FD0020EBCE /* RelayHat.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RelayHat.cpp; sourceTree = "<group>"; };
+		2E123D0627A1F2FD0020EBCE /* RelayHat.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = RelayHat.hpp; sourceTree = "<group>"; };
 		2E30B62E2784DB03003CAA43 /* WittyPi3.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = WittyPi3.cpp; sourceTree = "<group>"; };
 		2E30B62F2784DB03003CAA43 /* WittyPi3.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = WittyPi3.hpp; sourceTree = "<group>"; };
 		2EFD138E276FF5DF0073F6AD /* coopserver */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = coopserver; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -218,6 +220,8 @@
 				2EFD14BB277A50790073F6AD /* DoorMgr.hpp */,
 				2EFD14AB277539670073F6AD /* RPi_RelayHat.cpp */,
 				2EFD14AC277539670073F6AD /* RPi_RelayHat.hpp */,
+				2E123D0527A1F2FD0020EBCE /* RelayHat.cpp */,
+				2E123D0627A1F2FD0020EBCE /* RelayHat.hpp */,
 				2EFD149B27725EC50073F6AD /* GPIO.cpp */,
 				2EFD149A27725EC50073F6AD /* GPIO.hpp */,
 				2EFD14B327768DCC0073F6AD /* macos_gpiod.h */,
@@ -338,11 +342,11 @@
 				2EFD1463277101D10073F6AD /* CoopMgr.cpp in Sources */,
 				2EFD14C3277D1E270073F6AD /* Action.cpp in Sources */,
 				2EFD1473277108070073F6AD /* ServerNouns.cpp in Sources */,
-				2EFD14AD277539670073F6AD /* RPi_RelayHat.cpp in Sources */,
 				2EFD1493277167BE0073F6AD /* sunset.cpp in Sources */,
 				2EFD14BC277A50790073F6AD /* DoorMgr.cpp in Sources */,
 				2EFD147A27710A770073F6AD /* CoopMgrDB.cpp in Sources */,
 				2EFD149F27725F710073F6AD /* CoopDevices.cpp in Sources */,
+				2E123D0727A1F4880020EBCE /* RelayHat.cpp in Sources */,
 				2EFD14C6277D276A0073F6AD /* Event.cpp in Sources */,
 				2EFD146D277106270073F6AD /* I2C.cpp in Sources */,
 				2EFD14962771680B0073F6AD /* SolarTimeMgr.cpp in Sources */,

@@ -17,7 +17,7 @@
 #include "json.hpp"
 
 #include "CoopMgrDevice.hpp"
-#include "RPi_RelayHat.hpp"
+#include "RelayHat.hpp"
 #include "DoorMgr.hpp"
 #include "QwiicButton.hpp"
 
@@ -26,9 +26,11 @@ using namespace std;
 
 constexpr string_view COOP_DEVICE_LIGHT_STATE	= "LIGHT_STATE";
 constexpr string_view COOP_DEVICE_DOOR_STATE		= "DOOR_STATE";
+constexpr string_view COOP_DEVICE_AUX_STATE		= "AUX_STATE";
 
 constexpr static string_view JSON_DEVICE_LIGHT	= "light";
 constexpr static string_view JSON_DEVICE_DOOR	= "door";
+constexpr static string_view JSON_DEVICE_AUX		= "aux";
 
 constexpr static string_view JSON_CMD_ON				= "on";
 constexpr static string_view JSON_CMD_OFF				= "off";
@@ -37,8 +39,7 @@ class CoopDevices : public CoopMgrDevice{
 	friend DoorMgr;
 	
 public:
-	
- 
+
 	CoopDevices();
 	~CoopDevices();
 	
@@ -53,7 +54,6 @@ public:
 	void reset(); 	// reset from timeout
 	
 	device_state_t getDeviceState();
-	
 
 	// initiate change in door state
 	bool doorOpen(boolCallback_t callback = NULL);
@@ -66,6 +66,10 @@ public:
 	// light state
 	bool setLight(bool isOn, boolCallback_t callback = NULL);
 	bool getLight(std::function<void(bool didSucceed, bool isOn)> callback = NULL);
+ 
+	// Aux relay state
+	bool setAux(bool isOn, boolCallback_t callback = NULL);
+	bool getAux(std::function<void(bool didSucceed, bool isOn)> callback = NULL);
  
 	static bool stringToRelayState(const std::string str, bool* stateOut = NULL);
 	static bool jsonToRelayState( nlohmann::json j, bool* stateOut = NULL);
@@ -91,7 +95,7 @@ private:
 	timeval			_lastQueryTime;
 	uint64_t     	_queryDelay;			// how long to wait before next query
 
-	RPi_RelayHat		_relay;
+	RelayHat		_relay;
 	DoorMgr 				_doorMgr;
 	QwiicButton			_greenButton;
 	QwiicButton			_redButton;

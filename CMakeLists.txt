@@ -53,7 +53,8 @@ set(SOURCES
 	coopserver/CoopMgr/TempSensor.cpp
 #	coopserver/CoopMgr/WittyPi3.cpp
  	coopserver/CoopMgr/QwiicButton.cpp
-	coopserver/CoopMgr/RPi_RelayHat.cpp
+#	coopserver/CoopMgr/RPi_RelayHat.cpp
+	coopserver/CoopMgr/RelayHat.cpp
 	coopserver/CoopMgr/GPIO.cpp
 	Submodule/FooServer/src/RESTutils.cpp
 	Submodule/FooServer/src/ServerCmdQueue.cpp

@@ -1,12 +1,12 @@
 //
-//  RPi_RelayHat.hpp
+//  RelayHat.hpp
 //  coopserver
 //
 //  Created by Vincent Moscaritolo on 12/23/21.
 //
 
-#ifndef RPi_RelayHat_hpp
-#define RPi_RelayHat_hpp
+#ifndef RelayHat_hpp
+#define RelayHat_hpp
  
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,32 +23,33 @@
 #include "GPIO.hpp"
 
 /*
- 	Driver for waveshare RPi_Relay_Board
+	Driver for keyestudio RPI 4-channel Relay Shield
  
-	https://www.waveshare.com/wiki/RPi_Relay_Board
+ https://wiki.keyestudio.com/KS0212_keyestudio_RPI_4-channel_Relay_Shield
 
  */
  
 using namespace std;
 
 
-class RPi_RelayHat  {
+class RelayHat  {
 	
 public:
 	
 	typedef enum {
 		CH1	= 26,
-		CH2	= 20,
-		CH3 	= 21,
+		CH2	= 22,
+		CH3 	= 6,
+		CH4	= 4,
 		}relaysID_t;
 
-	typedef vector<pair<RPi_RelayHat::relaysID_t, bool>> relayStates_t;
+	typedef vector<pair<RelayHat::relaysID_t, bool>> relayStates_t;
 
-	RPi_RelayHat();
-	~RPi_RelayHat();
+	RelayHat();
+	~RelayHat();
 
 	bool begin(string	path);
- 	bool begin(string	path, int &error);
+	bool begin(string	path, int &error);
 
 	void stop();
 
@@ -60,9 +61,9 @@ public:
 
 private:
  
-  	bool 				_isSetup;
+	bool 				_isSetup;
 
 	GPIO				_gpio;
 };
 
-#endif /* RPi_RelayHat_hpp */
+#endif /* RelayHat_hpp */

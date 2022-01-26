@@ -420,8 +420,20 @@ bool CoopMgr::setLight(bool isOpen, boolCallback_t cb){
 
 bool CoopMgr::getLight(std::function<void(bool didSucceed, bool isOn)>cb){
 	return _coopHW.getLight(cb);
-
 }
+
+// MARK: Aux Relay
+
+bool CoopMgr::setAux(bool isOpen, boolCallback_t cb){
+	
+	LOGT_INFO("AUX RELAY %s", isOpen?"ON":"OFF");
+	return _coopHW.setAux(isOpen, cb);
+}
+
+bool CoopMgr::getAux(std::function<void(bool didSucceed, bool isOn)>cb){
+	return _coopHW.getAux(cb);
+}
+ 
 
 // MARK: Combined coop state
 
