@@ -339,6 +339,7 @@ enum CoopRequest: Error {
 	
 	case devices
 	case door
+	case aux
 	case light
 	case power
 	
@@ -357,6 +358,7 @@ struct CoopValues {
 	
 	var door: DoorState
 	var light: Bool
+	var aux: Bool
 
 	// Tempurature Values
 	var temp1: Double
@@ -367,6 +369,7 @@ struct CoopValues {
  		self.cpuTemp = 0
 		self.door = .unknown
 		self.light = false
+		self.aux = false
 	}
 }
 
@@ -408,6 +411,11 @@ public class ChickenCoop {
 					if let s1 = v.values["LIGHT_STATE"]?.value {
  						ccv.light = s1.boolValue
 					}
+					
+					if let s1 = v.values["AUX_STATE"]?.value {
+						ccv.aux = s1.boolValue
+					}
+		
 					completionHandler(.success(ccv))
 				}
 				else {
@@ -452,6 +460,9 @@ public class ChickenCoop {
 
 		case .light:
 			urlPath = "devices/light"
+	
+		case .aux:
+			urlPath = "devices/aux"
 	
 		case .devices:
 			urlPath = "devices"
@@ -502,6 +513,9 @@ public class ChickenCoop {
 			completionHandler(.success(dev))
 			}
 			else 	if let dev = json as? RESTDeviceLight {
+			completionHandler(.success(dev))
+			}
+			else 	if let dev = json as? RESTDeviceAux {
 			completionHandler(.success(dev))
 			}
 			else 	if let dev = json as? RESTDevicePower {
@@ -579,13 +593,13 @@ public class ChickenCoop {
 
 		result.append( keyGroupEntry(title: "Coop State" ))
 		result.append( keyGroupEntry(title: "Temperature" ))
-		result.append( keyGroupEntry(title: "Power System" ))
+	//	result.append( keyGroupEntry(title: "Power System" ))
  
-		let coopKeys = ["LIGHT_STATE", "DOOR_STATE" ]
+		let coopKeys = ["LIGHT_STATE", "DOOR_STATE", "AUX_STATE"  ]
 
 		let tempKeys = ["TEMP_0x48","CPU_TEMP"]
 
-		let powerKeys = [ "PWR_MODE", "V_IN", "V_OUT", "I_OUT", "WP_TEMP"]
+//		let powerKeys = [ "PWR_MODE", "V_IN", "V_OUT", "I_OUT", "WP_TEMP"]
  
 		let keys = Array(keys).sorted(by: <)
 
@@ -595,9 +609,10 @@ public class ChickenCoop {
 				result[0].keys.append(key)
 			}else if(tempKeys.contains(key)){
 				result[1].keys.append(key)
-			}else if(powerKeys.contains(key)){
-				result[2].keys.append(key)
 			}
+//			else if(powerKeys.contains(key)){
+//				result[2].keys.append(key)
+//			}
 		}
 
 		return result
@@ -621,6 +636,23 @@ public class ChickenCoop {
 			
 		}
 	}
+	
+	func setAux(_ isOn: Bool,
+					  completion:  @escaping (Bool) -> Void = {_ in }) {
+		
+		CCServerManager.shared.setAux(isOn)
+		{ (error)  in
+			
+			if(error == nil){
+				completion(true)
+			}
+			else {
+				completion(false)
+			}
+			
+		}
+	}
+
 	func setDoor(_ shouldOpen: Bool,
 					  completion:  @escaping (Bool) -> Void = {_ in }) {
 		

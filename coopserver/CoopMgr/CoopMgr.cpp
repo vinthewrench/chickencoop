@@ -527,6 +527,11 @@ bool CoopMgr::runAction(Action action,
 			handled = setLight(relayState , cb);
  		}
  	}
+	else if(action.deviceID() == JSON_DEVICE_AUX){
+		if( CoopDevices::stringToRelayState(action.cmd(), &relayState)){
+			handled = setAux(relayState , cb);
+		}
+	}
 	
 	return handled;
 }

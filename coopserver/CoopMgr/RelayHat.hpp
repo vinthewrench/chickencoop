@@ -38,8 +38,8 @@ public:
 	
 	typedef enum {
 		CH1	= 26,
-		CH2	= 22,
-		CH3 	= 6,
+		CH2	= 6,
+		CH3 	= 22,
 		CH4	= 4,
 		}relaysID_t;
 

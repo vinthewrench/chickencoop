@@ -583,7 +583,8 @@ struct RESTEvent: Codable {
 		var cmds : [actionCmd] = []
 		
 		switch devID {
-		case .light:
+		case .light,
+			  .aux:
 			cmds = [.on, .off]
 
 		case .door:
@@ -600,7 +601,8 @@ struct RESTEvent: Codable {
 		var event = self
 		
 		switch (event.deviceIDValue()) {
-		case .light:
+		case .light,
+				.aux:
 			switch event.cmdValue() {
 			case .on, .off:
 				break  // these are OK
@@ -650,13 +652,15 @@ struct RESTEvent: Codable {
 	case invalid = ""
 	case door	= "door"
 	case light	= "light"
- 
+	case aux	= "aux"
+
 	func description() -> String {
 		var str = "Invalid"
 		
 		switch self {
 		case .door:			str = "Coop Door"
 		case .light:  		str = "Coop Light"
+		case .aux:  		str = "Aux Relay"
  		default:
 			break
 		}
@@ -668,6 +672,7 @@ struct RESTEvent: Codable {
 		switch (action.deviceID?.lowercased()){
 		case "door": return .door
 		case "light": return .light
+		case "aux": return .aux
 		default: return .invalid
 		}
 	}
@@ -804,13 +809,23 @@ struct RESTDeviceLight: Codable {
 	}
 }
 
+struct RESTDeviceAux: Codable {
+	var aux: Bool
+
+	enum CodingKeys: String, CodingKey {
+		case aux = "aux"
+	}
+}
+
 struct RESTDevices: Codable {
 	var light: Bool
+	var aux: Bool
 	var door: DoorState.RawValue
 	var coopTemp: Double
 
 	enum CodingKeys: String, CodingKey {
 		case light = "light"
+		case aux = "aux"
 		case door = "door"
 		case coopTemp = "coopTemp"
 	}
@@ -1117,6 +1132,50 @@ class CCServerManager: ObservableObject {
 		}
 	}
  
+	func setAux(_ isOn: Bool,
+					  completion: @escaping (Error?) -> Void)  {
+		
+			let urlPath = "devices/aux"
+			
+			if let requestUrl: URL = AppData.serverInfo.url ,
+				let apiKey = AppData.serverInfo.apiKey,
+				let apiSecret = AppData.serverInfo.apiSecret {
+				let unixtime = String(Int(Date().timeIntervalSince1970))
+				
+				let urlComps = NSURLComponents(string: requestUrl.appendingPathComponent(urlPath).absoluteString)!
+				//			if let queries = queries {
+				//				urlComps.queryItems = queries
+				//			}
+				var request = URLRequest(url: urlComps.url!)
+				
+				
+				let json = ["state":isOn]
+				let jsonData = try? JSONSerialization.data(withJSONObject: json)
+				request.httpBody = jsonData
+		
+				// Specify HTTP Method to use
+				request.httpMethod = "PUT"
+				request.setValue(apiKey,forHTTPHeaderField: "X-auth-key")
+				request.setValue(String(unixtime),forHTTPHeaderField: "X-auth-date")
+				let sig =  calculateSignature(forRequest: request, apiSecret: apiSecret)
+				request.setValue(sig,forHTTPHeaderField: "Authorization")
+				
+				// Send HTTP Request
+				request.timeoutInterval = 10
+				
+				let session = URLSession(configuration: .ephemeral, delegate: nil, delegateQueue: .main)
+				
+				let task = session.dataTask(with: request) { (data, response, urlError) in
+					
+					completion(urlError	)
+				}
+				task.resume()
+			}
+				else {
+					completion(ServerError.invalidURL)
+				}
+	}
+	
 	
 	func setLight(_ isOn: Bool,  
 					  completion: @escaping (Error?) -> Void)  {
@@ -1332,6 +1391,9 @@ class CCServerManager: ObservableObject {
 						completion(response, obj, nil)
 					}
 					else if let obj = try? decoder.decode(RESTDeviceLight.self, from: data){
+						completion(response, obj, nil)
+					}
+					else if let obj = try? decoder.decode(RESTDeviceAux.self, from: data){
 						completion(response, obj, nil)
 					}
 					else if let obj = try? decoder.decode(RESTDevicePower.self, from: data){

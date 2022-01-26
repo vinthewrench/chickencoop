@@ -32,6 +32,8 @@ class CoopViewController: MainSubviewViewController {
 	@IBOutlet var vwDownCircle	: UIView!
 
 	@IBOutlet var swLight	: UISwitch!
+	@IBOutlet var swAux	: UISwitch!
+
 	@IBOutlet var lblTemp	: UILabel!
 	
 	func tempInFahrenheit(_ temperature: Double) -> Double {
@@ -171,6 +173,7 @@ class CoopViewController: MainSubviewViewController {
 						self.refreshButtons(state)
 					}
 					self.swLight.isOn = dev.light
+					self.swAux.isOn = dev.aux
 					self.lblTemp.text =  String(format: "%.0f°F", self.tempInFahrenheit(dev.coopTemp ))
 					self.vwOverlay.isHidden = true
 					
@@ -192,27 +195,32 @@ class CoopViewController: MainSubviewViewController {
 	@IBAction func switchChanged(sender: UISwitch) {
 		stopPollng()
 		DispatchQueue.main.async  {
-			ChickenCoop.shared.setLight(sender.isOn) {_ in
-				self.startPolling()
-			}
-		}
-	}
-		
-	
-	@IBAction func tapGesture(recognizer : UITapGestureRecognizer) {
-		if recognizer.state == .ended{
-			
-			stopPollng()
-			
-	 		self.swLight.isOn = !self.swLight.isOn
-			DispatchQueue.main.async  {
-				ChickenCoop.shared.setLight(self.swLight.isOn) {_ in
+			if(sender == self.swLight){
+				ChickenCoop.shared.setLight(sender.isOn) {_ in
+					self.startPolling()
+				}
+			}else if(sender == self.swAux){
+				ChickenCoop.shared.setAux(sender.isOn) {_ in
 					self.startPolling()
 				}
 			}
 		}
 	}
 	
+//	@IBAction func tapGesture(recognizer : UITapGestureRecognizer) {
+//		if recognizer.state == .ended{
+//			
+//			stopPollng()
+//			
+//	 		self.swLight.isOn = !self.swLight.isOn
+//			DispatchQueue.main.async  {
+//				ChickenCoop.shared.setLight(self.swLight.isOn) {_ in
+//					self.startPolling()
+//				}
+//			}
+//		}
+//	}
+//	
 	@IBAction func btnUpClicked(_ sender: UIButton) -> Void {
 		
 		stopPollng()
