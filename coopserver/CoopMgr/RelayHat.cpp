@@ -29,7 +29,7 @@ bool RelayHat::begin(string	path,  int &error){
 	// the RelayHat runs positive logic..
 
 	_isSetup = _gpio.begin(path,
-								  {CH1,CH2, CH3} ,
+								  {CH1,CH2, CH3, CH4} ,
 								  GPIOD_LINE_REQUEST_DIRECTION_OUTPUT ,
 								  0,
 								  {false,false,false} ,error);

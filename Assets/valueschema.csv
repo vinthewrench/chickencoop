@@ -1,5 +1,6 @@
 CPU_TEMP,degC,3,CPU Temp
 LIGHT_STATE,on-off,2,Light State
+AUX_STATE,on-off,2,Aux Relay State
 DOOR_STATE,doorstate,2,Door State
 I_OUT,A,2,Current
 V_IN,V,2,Input Voltage
