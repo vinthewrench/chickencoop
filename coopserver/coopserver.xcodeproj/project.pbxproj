@@ -69,8 +69,6 @@
 /* Begin PBXFileReference section */
 		2E123D0527A1F2FD0020EBCE /* RelayHat.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RelayHat.cpp; sourceTree = "<group>"; };
 		2E123D0627A1F2FD0020EBCE /* RelayHat.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = RelayHat.hpp; sourceTree = "<group>"; };
-		2E30B62E2784DB03003CAA43 /* WittyPi3.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = WittyPi3.cpp; sourceTree = "<group>"; };
-		2E30B62F2784DB03003CAA43 /* WittyPi3.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = WittyPi3.hpp; sourceTree = "<group>"; };
 		2EFD138E276FF5DF0073F6AD /* coopserver */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = coopserver; sourceTree = BUILT_PRODUCTS_DIR; };
 		2EFD1391276FF5DF0073F6AD /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		2EFD1452277001B60073F6AD /* FooServer.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = FooServer.xcodeproj; path = FooServer/FooServer.xcodeproj; sourceTree = "<group>"; };
@@ -110,8 +108,6 @@
 		2EFD149E27725F710073F6AD /* CoopDevices.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CoopDevices.hpp; sourceTree = "<group>"; };
 		2EFD14A42772A80A0073F6AD /* QwiicButton.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = QwiicButton.cpp; sourceTree = "<group>"; };
 		2EFD14A52772A80A0073F6AD /* QwiicButton.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = QwiicButton.hpp; sourceTree = "<group>"; };
-		2EFD14AB277539670073F6AD /* RPi_RelayHat.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RPi_RelayHat.cpp; sourceTree = "<group>"; };
-		2EFD14AC277539670073F6AD /* RPi_RelayHat.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = RPi_RelayHat.hpp; sourceTree = "<group>"; };
 		2EFD14B327768DCC0073F6AD /* macos_gpiod.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = macos_gpiod.h; sourceTree = "<group>"; };
 		2EFD14B4277691BB0073F6AD /* macos_gpiod.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = macos_gpiod.c; sourceTree = "<group>"; };
 		2EFD14BA277A50790073F6AD /* DoorMgr.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DoorMgr.cpp; sourceTree = "<group>"; };
@@ -218,8 +214,6 @@
 				2EFD149E27725F710073F6AD /* CoopDevices.hpp */,
 				2EFD14BA277A50790073F6AD /* DoorMgr.cpp */,
 				2EFD14BB277A50790073F6AD /* DoorMgr.hpp */,
-				2EFD14AB277539670073F6AD /* RPi_RelayHat.cpp */,
-				2EFD14AC277539670073F6AD /* RPi_RelayHat.hpp */,
 				2E123D0527A1F2FD0020EBCE /* RelayHat.cpp */,
 				2E123D0627A1F2FD0020EBCE /* RelayHat.hpp */,
 				2EFD149B27725EC50073F6AD /* GPIO.cpp */,
@@ -228,8 +222,6 @@
 				2EFD14B4277691BB0073F6AD /* macos_gpiod.c */,
 				2EFD1466277102C20073F6AD /* I2C.cpp */,
 				2EFD1464277102C20073F6AD /* I2C.hpp */,
-				2E30B62E2784DB03003CAA43 /* WittyPi3.cpp */,
-				2E30B62F2784DB03003CAA43 /* WittyPi3.hpp */,
 				2EFD1465277102C20073F6AD /* TempSensor.cpp */,
 				2EFD146A277102C20073F6AD /* TempSensor.hpp */,
 				2EFD146B277102C20073F6AD /* TMP102.cpp */,
