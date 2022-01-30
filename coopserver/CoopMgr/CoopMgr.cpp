@@ -501,9 +501,9 @@ bool CoopMgr::getCoopState(std::function<void(bool didSucceed, CoopMgr::coopStat
 		.coopTempC = 0.0
 #ifdef  PIJUICE
 		,
-		.battery_soc = 0,
+		.pjStatus.byteWrapped = 0,
 		.pjFault.byteWrapped = 0,
-		.pjStatus.byteWrapped = 0
+		.battery_soc = 0
 #endif
 	} ;
 	
