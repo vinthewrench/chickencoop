@@ -593,14 +593,15 @@ public class ChickenCoop {
 
 		result.append( keyGroupEntry(title: "Coop State" ))
 		result.append( keyGroupEntry(title: "Temperature" ))
-	//	result.append( keyGroupEntry(title: "Power System" ))
+		result.append( keyGroupEntry(title: "Power System" ))
  
 		let coopKeys = ["LIGHT_STATE", "DOOR_STATE", "AUX_STATE"  ]
 
 		let tempKeys = ["TEMP_0x48","CPU_TEMP"]
 
-//		let powerKeys = [ "PWR_MODE", "V_IN", "V_OUT", "I_OUT", "WP_TEMP"]
- 
+		let powerKeys = [ "PJ_TEMP", "PJ_SOC", "PJ_I", "PJ_BV"]
+		//		let powerKeys = [ "PWR_MODE", "V_IN", "V_OUT", "I_OUT", "WP_TEMP"]
+
 		let keys = Array(keys).sorted(by: <)
 
 		for key in keys {
@@ -610,9 +611,9 @@ public class ChickenCoop {
 			}else if(tempKeys.contains(key)){
 				result[1].keys.append(key)
 			}
-//			else if(powerKeys.contains(key)){
-//				result[2].keys.append(key)
-//			}
+			else if(powerKeys.contains(key)){
+				result[2].keys.append(key)
+			}
 		}
 
 		return result

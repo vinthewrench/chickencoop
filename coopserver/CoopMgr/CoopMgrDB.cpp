@@ -165,16 +165,16 @@ bool CoopMgrDB::valueShouldUpdate(string key, string value){
 	
 	bool shouldInsert = true;
 	double triggerDiff = 0;
-
-
+	
+	
 	valueSchema_t schema = schemaForKey(key);
 	if(schema.tracking == TR_IGNORE)
 		return false;
-
+	
 	if(_values.count(key)){
 		auto lastpair = _values[key];
 		valueSchema_t vs = _schema[key];
-	
+		
 		// do we ignore it
 		if(vs.units == IGNORE)
 			return false;
@@ -182,7 +182,7 @@ bool CoopMgrDB::valueShouldUpdate(string key, string value){
 		// quick string compare to see if its the same
 		if(lastpair.second == value)
 			return false;
-
+		
 		// see if it's a number
 		char *p1, *p;
 		double newVal = strtod(value.c_str(), &p);
@@ -190,18 +190,18 @@ bool CoopMgrDB::valueShouldUpdate(string key, string value){
 		if(*p == 0 && *p1 == 0 ){
 			
 			double diff = abs(oldval-newVal);
-		
+			
 			switch (vs.units) {
 				case DEGREES_C:
 					triggerDiff = 1.0;
 					break;
-	
+					
 				case MILLIVOLTS:
 				case MILLIAMPS:
 				case MAH:
 					triggerDiff = 500;
 					break;
-	
+					
 				case WATTS:
 					triggerDiff = 5;
 					break;
@@ -209,7 +209,7 @@ bool CoopMgrDB::valueShouldUpdate(string key, string value){
 				case VOLTS:
 					triggerDiff = 0.5;
 					break;
-
+					
 				case AMPS:
 					triggerDiff = 1.0;
 					break;
@@ -217,7 +217,7 @@ bool CoopMgrDB::valueShouldUpdate(string key, string value){
 				case PERMILLE:
 					triggerDiff = 10;
 					break;
-	
+					
 				case PERCENT:
 					triggerDiff = 1;
 					break;
@@ -229,30 +229,21 @@ bool CoopMgrDB::valueShouldUpdate(string key, string value){
 				case DOOR_STATE:
 					triggerDiff = 0;
 					break;
-		
+					
 				case ON_OFF:
 					triggerDiff = 0;
 					break;
-		
+					
 				default:
 					triggerDiff = 0;
 					break;
 			}
 			
 			// override trigger
-			string str;
-			if(getProperty( string(CoopMgrDB::PROP_TRIGGER_PREFIX)+key, &str)){
-				double trigVal = strtod(str.c_str(), &p);
-				if(*p == 0){
-					triggerDiff  = trigVal;
-				}
+			if(vs.theshold >= 0) {
+				triggerDiff = vs.theshold;
 			}
-				
 			shouldInsert = diff > triggerDiff;
-			
-	//		if(key == INVERTER_BATTERY_V)
-//  				printf("%s %8s %5.3f -  %5.3f = %f.3 > %f.3\n", shouldInsert?"T":"F", key.c_str(),
-// 					 oldval, newVal, diff , triggerDiff );
 		}
 	}
 	
@@ -856,15 +847,20 @@ bool CoopMgrDB::initSchemaFromFile(string filePath){
 			if(line[0] == '#')  continue;
 			
 			vector<string> v = split<string>(line, ",");
-			if(v.size() != 4)  continue;
+			if(v.size() != 5)  continue;
 			
 			string key = v[0];
 			string typ = v[1];
 			string track = v[2];
-			string desc = v[3];
+			string thesh = v[3];
+			string desc  = v[4];
+			
 			
 			if(_schemaMap.count(typ)){
-				addSchema(key, _schemaMap[typ], desc, (valueTracking_t) std::stoi( track ));
+				addSchema(key, _schemaMap[typ],
+							 atof(thesh.c_str()),
+							 desc,
+							 (valueTracking_t) std::stoi( track ));
 			}
 		}
 		
@@ -882,10 +878,15 @@ bool CoopMgrDB::initSchemaFromFile(string filePath){
 }
 
 
-void CoopMgrDB::addSchema(string key,  valueSchemaUnits_t units, string description, valueTracking_t tracking){
+void CoopMgrDB::addSchema(string key,
+								  valueSchemaUnits_t units,
+								  double threshold,
+								  string description,
+								  valueTracking_t tracking){
 	
 	valueSchema_t sc;
 	sc.units = units;
+	sc.theshold = threshold;
 	sc.description = description;
 	sc.tracking = tracking;
 	

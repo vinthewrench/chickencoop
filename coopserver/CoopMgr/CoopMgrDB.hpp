@@ -43,8 +43,6 @@ class CoopMgrDB {
 public:
 
 	
-	constexpr static string_view PROP_TRIGGER_PREFIX 			= "trigger-";
-
 	constexpr static string_view PROP_LOG_FLAGS					= "log-flags";
 	constexpr static string_view PROP_LOG_FILE					= "log-filepath";
 	constexpr static string_view PROP_API_KEY						= "api-key";
@@ -105,8 +103,9 @@ private:
 	
 	typedef struct {
 	  string  					description;
-	  valueSchemaUnits_t  		units;
+	  valueSchemaUnits_t  	units;
 	  valueTracking_t			tracking;
+		double					theshold;	// used by valueShouldUpdate for  database diff. , minus == default
   } valueSchema_t;
 
 public:
@@ -132,7 +131,11 @@ public:
 	bool insertValue(string key, string value, time_t when,  eTag_t eTag);
 	bool insertValues(map<string,string>  values, time_t when = 0);
 
-	void addSchema(string key,  valueSchemaUnits_t units, string description, valueTracking_t tracking);
+	void addSchema(string key,
+							valueSchemaUnits_t units,
+							 double threshold,
+							 string description,
+							 valueTracking_t tracking);
 
 	vector<string> keysChangedSinceEtag( eTag_t eTag);
 

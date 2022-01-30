@@ -396,7 +396,7 @@ void CoopMgr::startTempSensor( std::function<void(bool didSucceed, std::string e
 	didSucceed =  _tempSensor1.begin(deviceAddress, resultKey, errnum);
 	if(didSucceed){
 		_db.addSchema(resultKey,
-						  CoopMgrDB::DEGREES_C,
+						  CoopMgrDB::DEGREES_C,2,
 						  "Coop Temperature",
 						  CoopMgrDB::TR_TRACK);
 		
