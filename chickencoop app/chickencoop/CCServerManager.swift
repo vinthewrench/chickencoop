@@ -817,17 +817,119 @@ struct RESTDeviceAux: Codable {
 	}
 }
 
+enum PowerInputStatus: UInt8 {
+	case not_present = 0
+	case weak
+	case bad
+	case present
+	case unknown
+}
+
+extension PowerInputStatus: Codable {
+	
+	enum Key: CodingKey {
+		case rawValue
+	}
+	
+	enum CodingError: Error {
+		case unknownValue
+	}
+	
+	init(from decoder: Decoder) throws {
+		let container = try decoder.container(keyedBy: Key.self)
+		let rawValue = try container.decode(Int.self, forKey: .rawValue)
+		switch rawValue {
+		case 0:
+			self = .not_present
+		case 1:
+			self = .weak
+		case 2:
+			self = .bad
+		case 3:
+			self = .present
+		default:
+			self = .unknown
+		}
+	}
+	
+	func encode(to encoder: Encoder) throws {
+		var container = encoder.container(keyedBy: Key.self)
+		switch self {
+		case .not_present:
+			try container.encode(0, forKey: .rawValue)
+		case .weak:
+			try container.encode(1, forKey: .rawValue)
+		case .bad:
+			try container.encode(2, forKey: .rawValue)
+		case .present:
+			try container.encode(3, forKey: .rawValue)
+		case .unknown:
+			break;
+		}
+	}
+	
+	func description() -> String {
+		var str = "Unknown"
+		
+		switch self {
+		case .not_present:	str = "Not Present"
+		case .weak:				str = "Weak"
+		case .bad:				str = "Bad"
+		case .present: 		str = "Present"
+			
+		default:
+			break
+		}
+		return str
+	}
+	
+	func image() -> UIImage {
+		
+		var image = UIImage(systemName: "questionmark")
+	
+		switch self {
+		case .not_present:
+			image = UIImage(named: "Battery")
+
+		case .present:
+			image = UIImage(named: "Battery_charge")
+
+		case .weak:
+			image = UIImage(systemName: "bolt.slash")
+			
+		case .bad:
+			image = UIImage(systemName: "bolt.slash.circle.fill")
+
+		default:
+			break
+		}
+
+		return image ??  UIImage()
+	}
+ 
+}
+
+	
+
+ 
 struct RESTDevices: Codable {
 	var light: Bool
 	var aux: Bool
 	var door: DoorState.RawValue
 	var coopTemp: Double
-
+	
+	var SOC: Double?
+	var pijuice_fault: UInt8?
+	var pijuice_status: UInt8?
+ 
 	enum CodingKeys: String, CodingKey {
 		case light = "light"
 		case aux = "aux"
 		case door = "door"
 		case coopTemp = "coopTemp"
+		case SOC = "SOC"
+		case pijuice_fault = "pijuice.fault"
+		case pijuice_status = "pijuice.status"
 	}
 }
 

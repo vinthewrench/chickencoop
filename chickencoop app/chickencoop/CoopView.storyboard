@@ -18,38 +18,65 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="8A1-q5-YgN">
-                                <rect key="frame" x="82" y="650" width="250" height="74"/>
+                                <rect key="frame" x="82" y="645" width="250" height="98"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="74° C" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Fb7-ZW-QHp">
-                                        <rect key="frame" x="72.5" y="20" width="37" height="17"/>
+                                        <rect key="frame" x="72" y="10" width="37" height="17"/>
+                                        <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="100%" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="57c-w2-Y3f">
+                                        <rect key="frame" x="72" y="54" width="39" height="17"/>
                                         <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Coop Temperature" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="7CZ-5U-9y8">
-                                        <rect key="frame" x="72.5" y="39" width="105.5" height="15"/>
+                                        <rect key="frame" x="72" y="29" width="106" height="15"/>
                                         <fontDescription key="fontDescription" style="UICTFontTextStyleSubhead"/>
                                         <color key="textColor" white="0.33333333329999998" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="thermometer" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="g0S-Ol-xG9">
-                                        <rect key="frame" x="48.5" y="27" width="20" height="20.5"/>
+                                        <rect key="frame" x="48" y="17" width="20" height="20.5"/>
                                         <color key="tintColor" white="0.33333333329999998" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="20" id="DtS-XI-neK"/>
                                             <constraint firstAttribute="width" constant="20" id="V8Q-yy-kp3"/>
                                         </constraints>
                                     </imageView>
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="bolt.fill.batteryblock" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="Ybj-Yy-3mi">
+                                        <rect key="frame" x="48" y="61.5" width="20" height="17.5"/>
+                                        <color key="tintColor" white="0.33333333329999998" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="20" id="IBN-th-n9c"/>
+                                            <constraint firstAttribute="height" constant="20" id="iIa-O1-Guo"/>
+                                        </constraints>
+                                    </imageView>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Battery Charge" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="lA8-iG-7Mi">
+                                        <rect key="frame" x="72" y="73" width="85.5" height="15"/>
+                                        <fontDescription key="fontDescription" style="UICTFontTextStyleSubhead"/>
+                                        <color key="textColor" white="0.33333333329999998" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
                                 </subviews>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <constraints>
+                                    <constraint firstItem="Ybj-Yy-3mi" firstAttribute="centerX" secondItem="g0S-Ol-xG9" secondAttribute="centerX" id="7bx-NC-yJT"/>
+                                    <constraint firstItem="lA8-iG-7Mi" firstAttribute="top" secondItem="57c-w2-Y3f" secondAttribute="bottom" constant="2" id="NQB-uD-PYp"/>
                                     <constraint firstItem="Fb7-ZW-QHp" firstAttribute="leading" secondItem="7CZ-5U-9y8" secondAttribute="leading" id="OdM-CT-c3a"/>
+                                    <constraint firstItem="57c-w2-Y3f" firstAttribute="top" secondItem="7CZ-5U-9y8" secondAttribute="bottom" constant="10" id="Pez-Y6-pHk"/>
                                     <constraint firstItem="7CZ-5U-9y8" firstAttribute="centerX" secondItem="8A1-q5-YgN" secondAttribute="centerX" id="QB1-RN-qNl"/>
-                                    <constraint firstItem="Fb7-ZW-QHp" firstAttribute="top" secondItem="8A1-q5-YgN" secondAttribute="top" constant="20" id="SqJ-A5-wTt"/>
-                                    <constraint firstAttribute="bottom" secondItem="7CZ-5U-9y8" secondAttribute="bottom" constant="20" id="ZfU-FR-YbE"/>
+                                    <constraint firstItem="lA8-iG-7Mi" firstAttribute="leading" secondItem="57c-w2-Y3f" secondAttribute="leading" id="QNg-Q7-Xy8"/>
+                                    <constraint firstItem="Fb7-ZW-QHp" firstAttribute="top" secondItem="8A1-q5-YgN" secondAttribute="top" constant="10" id="SqJ-A5-wTt"/>
+                                    <constraint firstItem="7CZ-5U-9y8" firstAttribute="leading" secondItem="57c-w2-Y3f" secondAttribute="leading" id="ecM-96-Up1"/>
                                     <constraint firstItem="Fb7-ZW-QHp" firstAttribute="leading" secondItem="g0S-Ol-xG9" secondAttribute="trailing" constant="4" id="kON-C0-16e"/>
                                     <constraint firstItem="7CZ-5U-9y8" firstAttribute="top" secondItem="Fb7-ZW-QHp" secondAttribute="bottom" constant="2" id="mmJ-gq-a3J"/>
+                                    <constraint firstItem="57c-w2-Y3f" firstAttribute="centerY" secondItem="Ybj-Yy-3mi" secondAttribute="centerY" constant="-8" id="tjb-w5-SkA"/>
                                     <constraint firstItem="Fb7-ZW-QHp" firstAttribute="centerY" secondItem="g0S-Ol-xG9" secondAttribute="centerY" constant="-8" id="y89-dB-YFb"/>
+                                    <constraint firstItem="57c-w2-Y3f" firstAttribute="leading" secondItem="Ybj-Yy-3mi" secondAttribute="trailing" constant="4" id="yV1-vK-rhX"/>
+                                    <constraint firstAttribute="bottom" secondItem="lA8-iG-7Mi" secondAttribute="bottom" constant="10" id="zBC-8Q-EkJ"/>
                                 </constraints>
                                 <userDefinedRuntimeAttributes>
                                     <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
@@ -64,7 +91,7 @@
                                 </userDefinedRuntimeAttributes>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="bji-ih-oMf">
-                                <rect key="frame" x="82" y="138" width="250" height="360"/>
+                                <rect key="frame" x="82" y="143" width="250" height="350"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="oX0-Jr-7Xh" customClass="CircleBackgroundView" customModule="chickencoop" customModuleProvider="target">
                                         <rect key="frame" x="65" y="200" width="120" height="120"/>
@@ -144,7 +171,7 @@
                                     <constraint firstItem="11y-Fv-yEV" firstAttribute="top" secondItem="bji-ih-oMf" secondAttribute="top" constant="20" id="aeP-0v-EQC"/>
                                     <constraint firstItem="OSR-7u-q7z" firstAttribute="top" secondItem="11y-Fv-yEV" secondAttribute="bottom" constant="20" id="gcn-Z2-AMk"/>
                                     <constraint firstItem="GaW-N7-mKB" firstAttribute="centerY" secondItem="oX0-Jr-7Xh" secondAttribute="centerY" id="gvA-hN-PMa"/>
-                                    <constraint firstAttribute="bottom" secondItem="GaW-N7-mKB" secondAttribute="bottom" constant="50" id="li2-q3-iM2"/>
+                                    <constraint firstAttribute="bottom" secondItem="GaW-N7-mKB" secondAttribute="bottom" constant="40" id="li2-q3-iM2"/>
                                     <constraint firstItem="GaW-N7-mKB" firstAttribute="centerX" secondItem="oX0-Jr-7Xh" secondAttribute="centerX" id="mz2-2c-62Y"/>
                                     <constraint firstItem="GaW-N7-mKB" firstAttribute="centerX" secondItem="OSR-7u-q7z" secondAttribute="centerX" id="oKX-Xo-WK7"/>
                                     <constraint firstItem="Wds-gh-A1u" firstAttribute="centerY" secondItem="OSR-7u-q7z" secondAttribute="centerY" id="v4l-QX-2rD"/>
@@ -164,25 +191,25 @@
                                 </userDefinedRuntimeAttributes>
                             </view>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Aux Relay" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="N5O-4a-Ivm">
-                                <rect key="frame" x="129" y="589.5" width="106" height="30"/>
+                                <rect key="frame" x="129" y="584.5" width="106" height="30"/>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleTitle1"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Coop Light" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cWc-Er-EgK">
-                                <rect key="frame" x="116" y="528.5" width="119" height="30"/>
+                                <rect key="frame" x="116" y="523.5" width="119" height="30"/>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleTitle1"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ZhH-zt-VCd">
-                                <rect key="frame" x="243" y="528" width="51" height="31"/>
+                                <rect key="frame" x="243" y="523" width="51" height="31"/>
                                 <connections>
                                     <action selector="switchChangedWithSender:" destination="Y6W-OH-hqX" eventType="valueChanged" id="4KL-b7-twJ"/>
                                 </connections>
                             </switch>
                             <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="NCH-73-tIP">
-                                <rect key="frame" x="243" y="589" width="51" height="31"/>
+                                <rect key="frame" x="243" y="584" width="51" height="31"/>
                                 <color key="onTintColor" red="1" green="0.57637232540000005" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <connections>
                                     <action selector="switchChangedWithSender:" destination="Y6W-OH-hqX" eventType="valueChanged" id="H5I-YN-C6r"/>
@@ -192,7 +219,7 @@
                                 <rect key="frame" x="40" y="733" width="334" height="72"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Not Connected..." textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Qvp-Uf-T0J">
-                                        <rect key="frame" x="55" y="191" width="224" height="37"/>
+                                        <rect key="frame" x="55" y="196" width="224" height="37"/>
                                         <fontDescription key="fontDescription" style="UICTFontTextStyleTitle0"/>
                                         <color key="textColor" systemColor="systemRedColor"/>
                                         <nil key="highlightedColor"/>
@@ -236,6 +263,8 @@
                     <connections>
                         <outlet property="btnDown" destination="GaW-N7-mKB" id="Gmq-Ca-Hlc"/>
                         <outlet property="btnUp" destination="OSR-7u-q7z" id="M78-ZB-O1K"/>
+                        <outlet property="imgBattery" destination="Ybj-Yy-3mi" id="zGc-jF-KTI"/>
+                        <outlet property="lblCharge" destination="57c-w2-Y3f" id="zXS-S0-dUl"/>
                         <outlet property="lblTemp" destination="Fb7-ZW-QHp" id="aKB-rT-fqi"/>
                         <outlet property="swAux" destination="NCH-73-tIP" id="nDc-7H-3bL"/>
                         <outlet property="swLight" destination="ZhH-zt-VCd" id="veH-nY-QAs"/>
@@ -255,6 +284,7 @@
         </scene>
     </scenes>
     <resources>
+        <image name="bolt.fill.batteryblock" catalog="system" width="128" height="93"/>
         <image name="chevron.down.circle.fill" catalog="system" width="128" height="121"/>
         <image name="chevron.up.circle.fill" catalog="system" width="128" height="121"/>
         <image name="thermometer" catalog="system" width="93" height="128"/>

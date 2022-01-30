@@ -36,6 +36,10 @@ class CoopViewController: MainSubviewViewController {
 
 	@IBOutlet var lblTemp	: UILabel!
 	
+ 	@IBOutlet var lblCharge	: UILabel!
+	@IBOutlet var imgBattery: UIImageView!
+
+	
 	func tempInFahrenheit(_ temperature: Double) -> Double {
 		let fahrenheitTemperature = temperature * 9 / 5 + 32
 		return fahrenheitTemperature
@@ -175,6 +179,20 @@ class CoopViewController: MainSubviewViewController {
 					self.swLight.isOn = dev.light
 					self.swAux.isOn = dev.aux
 					self.lblTemp.text =  String(format: "%.0f°F", self.tempInFahrenheit(dev.coopTemp ))
+					
+					if let soc = dev.SOC {
+						self.lblCharge.text = String(format: "%.0f%%",soc)
+					}
+					else {
+						self.lblCharge.text = "---"
+					}
+ 
+					if let stat_raw = dev.pijuice_status {
+						let pi_stat = PowerInputStatus(rawValue:(stat_raw >> 4) & 0x03);
+						self.imgBattery.image = pi_stat?.image()
+					}
+		
+					
 					self.vwOverlay.isHidden = true
 					
 				}
