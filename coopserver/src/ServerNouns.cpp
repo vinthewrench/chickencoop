@@ -100,6 +100,13 @@ static bool Devices_NounHandler_GET(ServerCmdQueue* cmdQueue,
 				reply[string(JSON_ARG_LIGHT)]= coopState.lightState;
 				reply[string(JSON_ARG_AUX)]= coopState.auxState;
 				reply[string(JSON_ARG_COOP_TEMP)]= coopState.coopTempC;
+				
+#ifdef  PIJUICE
+				reply[string(JSON_ARG_SOC)]= coopState.battery_soc;
+				reply[string(JSON_ARG_PIJUICE_STATUS)]= coopState.pjStatus.byteWrapped;
+				reply[string(JSON_ARG_PIJUICE_FAULT)]= coopState.pjFault.byteWrapped;
+#endif
+				
 				makeStatusJSON(reply,STATUS_OK);
 				(completion) (reply, STATUS_OK);
 

@@ -7,6 +7,7 @@
 
 #include "PiJuice.hpp"
 #include "LogMgr.hpp"
+#include "Utils.hpp"
 
 enum PiJuice_cmd : uint8_t
 {
@@ -178,14 +179,18 @@ bool  PiJuice::tempC(double &val){
 	return success;
 }
 
-bool PiJuice::status(){
+bool PiJuice::status(piStatus_t &status,  piFault_t &fault){
 	bool success = false;
-	I2C::i2c_block_t block;
+	I2C::i2c_block_t statusBlock;
+	I2C::i2c_block_t faultBlock;
 
 	if( _i2cPJ.isAvailable()
-		&& _i2cPJ.readBlock(PiJuice_cmd::STATUS_CMD,1, block) ){
+		&& _i2cPJ.readBlock(PiJuice_cmd::STATUS_CMD,1, statusBlock)
+		&&  _i2cPJ.readBlock(PiJuice_cmd::FAULT_EVENT_CMD,1, faultBlock)){
 	 
-		uint8_t i = block[1];
+		status = {.byteWrapped = statusBlock[1]};
+		fault = {.byteWrapped = faultBlock[1]};
+	
  		success = true;
 	}
 
@@ -232,7 +237,7 @@ void PiJuice::idle(){
 			bool hasValue = false;
 			
 			double dbl;
-			bool bl;
+//			bool bl;
 
 			if( tempC(dbl)){
 				_resultMap["PJ_TEMP"] =  to_string(dbl);
@@ -253,7 +258,17 @@ void PiJuice::idle(){
 				_resultMap["PJ_BV"] =  to_string(dbl);
 				hasValue = true;
 		}
-
+			
+			piStatus_t  pi_status;
+			piFault_t   pi_fault;
+			
+			if( status(pi_status, pi_fault)){
+				_resultMap["PJ_STATUS"] =  to_hex<unsigned char> (pi_status.byteWrapped);
+				_resultMap["PJ_FAULT"] =  to_hex<unsigned char> (pi_fault.byteWrapped);
+				hasValue = true;
+		}
+	
+		 
 //			if( powerMode(bl)){
 //				_resultMap["PWR_MODE"] =  to_string(bl);
 //				hasValue = true;

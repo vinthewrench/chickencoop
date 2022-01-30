@@ -111,7 +111,13 @@ public:
 		bool 					lightState;
 		bool 					auxState;
 		float 				coopTempC;
-   } coopState_t;
+#ifdef  PIJUICE
+		PiJuice::piStatus_t 	pjStatus;
+		PiJuice::piFault_t 	pjFault;
+		double					battery_soc;
+#endif
+		
+	} coopState_t;
 
 	// combined coop state
 	bool getCoopState(std::function<void(bool didSucceed, coopState_t coopState)> callback = NULL);

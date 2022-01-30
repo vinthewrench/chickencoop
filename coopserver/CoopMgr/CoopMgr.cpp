@@ -499,6 +499,12 @@ bool CoopMgr::getCoopState(std::function<void(bool didSucceed, CoopMgr::coopStat
 		.lightState	= false,
 		.auxState = false,
 		.coopTempC = 0.0
+#ifdef  PIJUICE
+		,
+		.battery_soc = 0,
+		.pjFault.byteWrapped = 0,
+		.pjStatus.byteWrapped = 0
+#endif
 	} ;
 	
 	return _coopHW.getDoor([&coopState, cb, this] (bool didSucceed, DoorMgr::state_t doorState ){
@@ -514,8 +520,11 @@ bool CoopMgr::getCoopState(std::function<void(bool didSucceed, CoopMgr::coopStat
 						if(didSucceed) {
 							coopState.auxState = isOn;
 							
-							
 							bool status =  _tempSensor1.tempC(coopState.coopTempC);
+#ifdef  PIJUICE
+							status &= _piJuice.SOC(coopState.battery_soc);
+							status &= _piJuice.status(coopState.pjStatus, coopState.pjFault);
+#endif
 							if(cb) (cb)( status, coopState);
 						}
 						else {

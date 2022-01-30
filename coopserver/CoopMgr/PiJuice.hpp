@@ -24,6 +24,43 @@ class PiJuice : public CoopMgrDevice{
 
 public:
    
+	typedef union {
+		 struct
+		 {
+			  bool isFault : 1;
+			 //  True if there are faults or fault events waiting to be read or False if there are no faults and no fault events.
+
+			  bool isButton : 1;
+			 //True if there are button events, False if not.
+			 
+			 unsigned int battery_status: 2;
+			//  current battery status, one of four: 'NORMAL', 'CHARGING_FROM_IN', 'CHARGING_FROM_5V_IO', 'NOT_PRESENT'.
+		
+			 unsigned int power_input_status: 2;
+			//  current status of USB Micro power input, one of four: 'NOT_PRESENT', 'BAD', 'WEAK', 'PRESENT'.
+			 
+			 unsigned int FiveV_power_input_status: 2;
+			 //  current status of USB Micro power input, one of four: 'NOT_PRESENT', 'BAD', 'WEAK', 'PRESENT'.
+		 };
+		 uint8_t byteWrapped;
+	} piStatus_t;
+
+	typedef union {
+		 struct
+		{
+			 bool button_power_off : 1;
+			 bool forced_power_off : 1;
+			 bool forced_sys_power_off : 1;
+			 bool watchdog_reset : 1;
+			 
+			 bool unused : 1;
+			 bool battery_profile_invalid : 1;
+			 unsigned int charging_temperature_fault: 2;
+			//  'NORMAL', 'SUSPEND', 'COOL', 'WARM'
+		 };
+		 uint8_t byteWrapped;
+	} piFault_t;
+	
 	PiJuice();
   ~PiJuice();
 
@@ -44,7 +81,7 @@ public:
 	bool currentOut(double &val);
 
 	bool SOC(double &val);	// state of charge
-	bool status();
+	bool status(piStatus_t &status,  piFault_t &fault);
 
 	bool  tempC(double &val);
 

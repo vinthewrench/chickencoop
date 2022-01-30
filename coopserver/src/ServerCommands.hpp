@@ -94,6 +94,12 @@ constexpr string_view JSON_ARG_IOUT			= "current.out";
 constexpr string_view JSON_ARG_P_MODE		= "powermode";
 constexpr string_view JSON_ARG_TEMPC		= "tempc";
 
+constexpr string_view JSON_ARG_SOC				= "SOC";
+constexpr string_view JSON_ARG_PIJUICE_STATUS = "pijuice.status";
+constexpr string_view JSON_ARG_PIJUICE_FAULT = "pijuice.fault";
+constexpr string_view JSON_ARG_BATTERY_TEMP = "battery.temp";
+constexpr string_view JSON_ARG_BATTERY_VOLT = "battery.volt";
+
 constexpr string_view JSON_ARG_OS_SYSNAME	= "os.sysname";
 constexpr string_view JSON_ARG_OS_NODENAME	= "os.nodename";
 constexpr string_view JSON_ARG_OS_RELEASE	= "os.release";
