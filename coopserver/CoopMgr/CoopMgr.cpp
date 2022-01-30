@@ -91,6 +91,7 @@ void CoopMgr::start(){
 	initDataBase();
 
 // 	startWittyPi3();
+	startPiJuice();
 	startTempSensor();
 		
 	startCoopDevices([=](bool didSucceed, string error_text){
@@ -112,6 +113,7 @@ void CoopMgr::stop(){
  
 	runShutdownEvents([=](){
 //		stopWittyPi3();
+		stopPiJuice();
 		stopTempSensor();
 		stopCoopDevices();
 		_state = CoopMgrDevice::DEVICE_STATE_DISCONNECTED;
@@ -184,6 +186,15 @@ void CoopMgr::run(){
 				});
 			}
  
+#ifdef  PIJUICE
+		if(_piJuice.isConnected()){
+				// handle input
+			_piJuice.rcvResponse([=]( map<string,string> results){
+					_db.insertValues(results);
+				});
+			}
+#endif
+
 #ifdef  WITTYPI3
 		if(_wittyPi3.isConnected()){
 				// handle input
@@ -195,9 +206,15 @@ void CoopMgr::run(){
 			sleep(SLEEP_SEC);
 	 
 			_tempSensor1.idle();
+
 #ifdef  WITTYPI3
 			_wittyPi3.idle();
 #endif
+			
+#ifdef  PIJUICE
+			_piJuice.idle();
+#endif
+			
 			_coopHW.idle();
 			_cpuInfo.idle();
 			
@@ -240,9 +257,47 @@ string CoopMgr::deviceStateString(CoopMgrDevice::device_state_t st) {
 	}
 };
 
+// MARK: -   I2C PiJuice
+
+ 
+void CoopMgr::startPiJuice( std::function<void(bool didSucceed, std::string error_text)> cb){
+	
+	int  errnum = 0;
+	bool didSucceed = false;
+ 
+#ifdef  PIJUICE
+
+	didSucceed =  _piJuice.begin(errnum);
+	if(didSucceed){
+
+		LOGT_DEBUG("Start PiJuice - OK");
+	}
+	else
+		LOGT_ERROR("Start PiJuice - FAIL %s", string(strerror(errnum)).c_str());
+#endif
+ 
+	if(cb)
+		(cb)(didSucceed, didSucceed?"": string(strerror(errnum) ));
+}
+
+void CoopMgr::stopPiJuice(){
+#ifdef  PIJUICE
+	_piJuice.stop();
+#else
+#endif
+}
+
+CoopMgrDevice::device_state_t CoopMgr::PiJuiceState(){
+#ifdef  PIJUICE
+	return _piJuice.getDeviceState();
+#else
+	return CoopMgrDevice::DEVICE_STATE_DISCONNECTED;
+#endif
+
+}
+
+
 // MARK: -   I2C WittyPi3
-
-
 
 void CoopMgr::startWittyPi3( std::function<void(bool didSucceed, std::string error_text)> cb){
 	

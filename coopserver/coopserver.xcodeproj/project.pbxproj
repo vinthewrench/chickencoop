@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		2E123D0727A1F4880020EBCE /* RelayHat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2E123D0527A1F2FD0020EBCE /* RelayHat.cpp */; };
+		2E123D0C27A629F50020EBCE /* PiJuice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2E123D0A27A629F50020EBCE /* PiJuice.cpp */; };
 		2EFD1392276FF5DF0073F6AD /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD1391276FF5DF0073F6AD /* main.cpp */; };
 		2EFD145B277003520073F6AD /* libFOOServer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2EFD1457277001B60073F6AD /* libFOOServer.a */; };
 		2EFD1463277101D10073F6AD /* CoopMgr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2EFD1460277100AA0073F6AD /* CoopMgr.cpp */; };
@@ -69,6 +70,8 @@
 /* Begin PBXFileReference section */
 		2E123D0527A1F2FD0020EBCE /* RelayHat.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RelayHat.cpp; sourceTree = "<group>"; };
 		2E123D0627A1F2FD0020EBCE /* RelayHat.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = RelayHat.hpp; sourceTree = "<group>"; };
+		2E123D0A27A629F50020EBCE /* PiJuice.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = PiJuice.cpp; sourceTree = "<group>"; };
+		2E123D0B27A629F50020EBCE /* PiJuice.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = PiJuice.hpp; sourceTree = "<group>"; };
 		2EFD138E276FF5DF0073F6AD /* coopserver */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = coopserver; sourceTree = BUILT_PRODUCTS_DIR; };
 		2EFD1391276FF5DF0073F6AD /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		2EFD1452277001B60073F6AD /* FooServer.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = FooServer.xcodeproj; path = FooServer/FooServer.xcodeproj; sourceTree = "<group>"; };
@@ -221,6 +224,8 @@
 				2EFD14B327768DCC0073F6AD /* macos_gpiod.h */,
 				2EFD14B4277691BB0073F6AD /* macos_gpiod.c */,
 				2EFD1466277102C20073F6AD /* I2C.cpp */,
+				2E123D0B27A629F50020EBCE /* PiJuice.hpp */,
+				2E123D0A27A629F50020EBCE /* PiJuice.cpp */,
 				2EFD1464277102C20073F6AD /* I2C.hpp */,
 				2EFD1465277102C20073F6AD /* TempSensor.cpp */,
 				2EFD146A277102C20073F6AD /* TempSensor.hpp */,
@@ -334,6 +339,7 @@
 				2EFD1463277101D10073F6AD /* CoopMgr.cpp in Sources */,
 				2EFD14C3277D1E270073F6AD /* Action.cpp in Sources */,
 				2EFD1473277108070073F6AD /* ServerNouns.cpp in Sources */,
+				2E123D0C27A629F50020EBCE /* PiJuice.cpp in Sources */,
 				2EFD1493277167BE0073F6AD /* sunset.cpp in Sources */,
 				2EFD14BC277A50790073F6AD /* DoorMgr.cpp in Sources */,
 				2EFD147A27710A770073F6AD /* CoopMgrDB.cpp in Sources */,

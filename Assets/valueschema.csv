@@ -7,4 +7,7 @@ V_IN,V,2,Input Voltage
 V_OUT,V,2,Output Voltage
 WP_TEMP,degC,2,WittyPi Temp
 PWR_MODE,Bool,2,WittyPi Power mode
-
+PJ_TEMP,degC,2,Battery Temp
+PJ_SOC,%,2,BatteryState of Charge
+PJ_I,A,2,Current
+PJ_BV,V,2,Battery Voltage

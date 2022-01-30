@@ -21,10 +21,10 @@
 #include <string>
 
 class I2C  {
-	
-	
-	
+ 
 public:
+	typedef uint8_t  i2c_block_t [32];
+	
 	I2C();
 	~I2C();
 	
@@ -42,6 +42,7 @@ public:
 	bool readByte(uint8_t regAddr,  uint8_t& byte);
 	bool readWord(uint8_t regAddr,  uint16_t& word);
 
+	bool readBlock(uint8_t regAddr, uint8_t size, i2c_block_t & block );
 		
 private:
 

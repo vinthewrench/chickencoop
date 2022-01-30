@@ -52,6 +52,7 @@ set(SOURCES
 	coopserver/CoopMgr/CPUInfo.cpp
 	coopserver/CoopMgr/TempSensor.cpp
 #	coopserver/CoopMgr/WittyPi3.cpp
+	coopserver/CoopMgr/PiJuice.cpp
  	coopserver/CoopMgr/QwiicButton.cpp
 #	coopserver/CoopMgr/RPi_RelayHat.cpp
 	coopserver/CoopMgr/RelayHat.cpp

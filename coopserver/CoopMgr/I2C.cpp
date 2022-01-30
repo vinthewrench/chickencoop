@@ -191,66 +191,19 @@ bool I2C::readWord(uint8_t regAddr,  uint16_t& word){
 }
  
 
-//ssize_t I2C::readBytes(void *buf, size_t nbyte){
-//
-//	ssize_t count = 0;
-//
-//	if(!_isSetup)
-//		return -1;
-//
-//	if (::ioctl(_fd, I2C_SLAVE, _devAddr) < 0)
-//	{
-//		LOGT_ERROR("Failed to select I2C  device(%02X): %s\n", _devAddr,strerror(errno));
-//		return -1;
-//	}
-//
-//	count =  ::read(_fd, buf, nbyte);
-//	if (count < 0) {
-//		LOGT_ERROR( "Failed to read device %02x: %s\n", _devAddr, strerror(errno));
-//		return(-1);
-//	} else if (count != nbyte) {
-//		LOGT_ERROR( "Short read from device(%02x): expected %d, got %d \n", _devAddr, nbyte, count);
-//		return(-1);
-//	}
-//
-//	return count;
-//}
-//
-//ssize_t I2C::readByte(void *buf){
-//	return readBytes(buf, 1);
-//}
-//
-//ssize_t I2C::readByte(uint8_t regAddr, void *buf) {
-//	 return readBytes(regAddr,  buf, 1);
-//}
-//
-//
-//ssize_t I2C::readBytes(uint8_t regAddr, void *buf, size_t nbyte){
-//
-//	ssize_t count = 0;
-//
-//	if(!_isSetup)
-//		return -1;
-//
-//	if (::ioctl(_fd, I2C_SLAVE, _devAddr) < 0)
-//	{
-//		LOGT_ERROR("Failed to select I2C  device(%02X): %s\n", _devAddr,strerror(errno));
-//		return -1;
-//	}
-//
-//	if (::write(_fd, &regAddr, 1) != 1) {
-//		LOGT_ERROR( "Failed to write reg(%02x) on device(%02X) : %s\n", regAddr, _devAddr,strerror(errno));
-//		return(-1);
-//	}
-//
-//	count =  ::read(_fd, buf, nbyte);
-//	if (count < 0) {
-//		LOGT_ERROR( "Failed to read reg(%02x) on device(%02X) : %s\n", regAddr, _devAddr,strerror(errno));
-//		return(-1);
-//	} else if (count != nbyte) {
-//		LOGT_ERROR( "Short read from device(%02x): expected %d, got %d \n", regAddr, nbyte, count);
-//		return(-1);
-//	}
-//
-//	return count;
-//}
+
+bool I2C::readBlock(uint8_t regAddr, uint8_t size, i2c_block_t & block ){
+	union i2c_smbus_data data;
+
+	memset(data.block, 0, sizeof(data.block));
+	data.block[0] = size + 1;
+
+	if(i2c_smbus_access (_fd, I2C_SMBUS_READ, regAddr, I2C_SMBUS_I2C_BLOCK_DATA, &data) < 0){
+		LOGT_ERROR("Failed to i2c_smbus read block from device(%02X): %s\n", _devAddr,strerror(errno));
+		return false;
+	}
+
+	memcpy(block, data.block, sizeof(block));
+	
+	return true;
+}

@@ -8,6 +8,8 @@
 #ifndef CoopMgr_hpp
 #define CoopMgr_hpp
 
+#define PIJUICE 1
+
 #include <stdio.h>
 #include <strings.h>
 #include <unistd.h>
@@ -30,6 +32,11 @@
 #include "WittyPi3.hpp"
 #endif
 
+#ifdef  PIJUICE
+#include "PiJuice.hpp"
+#endif
+
+ 
 using namespace std;
  
 class CoopMgr {
@@ -57,6 +64,11 @@ public:
 	void startWittyPi3( std::function<void(bool didSucceed, std::string error_text)> callback = NULL);
 	void stopWittyPi3();
 	CoopMgrDevice::device_state_t wittyPi3tate();
+ 
+	
+	void startPiJuice( std::function<void(bool didSucceed, std::string error_text)> callback = NULL);
+	void stopPiJuice();
+	CoopMgrDevice::device_state_t PiJuiceState();
  
 	
 	void startCoopDevices( std::function<void(bool didSucceed, std::string error_text)> callback = NULL);
@@ -130,6 +142,11 @@ private:
 	
 	CPUInfo				_cpuInfo;
 	TempSensor			_tempSensor1;
+	
+#ifdef  PIJUICE
+	PiJuice				_piJuice;
+#endif
+
 #ifdef  WITTYPI3
 	WittyPi3				_wittyPi3;
 #endif
