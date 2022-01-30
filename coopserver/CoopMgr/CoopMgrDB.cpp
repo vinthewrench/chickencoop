@@ -853,7 +853,7 @@ bool CoopMgrDB::initSchemaFromFile(string filePath){
 			string typ = v[1];
 			string track = v[2];
 			string thesh = v[3];
-			string desc  = v[4];
+			string desc  = Utils::trimStart(v[4]);
 			
 			
 			if(_schemaMap.count(typ)){
