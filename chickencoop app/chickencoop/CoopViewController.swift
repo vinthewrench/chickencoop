@@ -38,6 +38,7 @@ class CoopViewController: MainSubviewViewController {
 	
  	@IBOutlet var lblCharge	: UILabel!
 	@IBOutlet var imgBattery: UIImageView!
+	@IBOutlet var lblBattery	: UILabel!
 
 	
 	func tempInFahrenheit(_ temperature: Double) -> Double {
@@ -188,10 +189,9 @@ class CoopViewController: MainSubviewViewController {
 					}
  
 					if let stat_raw = dev.pijuice_status {
-						let pi_stat = PowerInputStatus(rawValue:(stat_raw >> 4) & 0x03);
-						self.imgBattery.image = pi_stat?.image()
+						self.imgBattery.image = piJuiceImageForStatus(stat_raw)
+						self.lblBattery.text = piJuiceTextForStatus(stat_raw)
 					}
-		
 					
 					self.vwOverlay.isHidden = true
 					

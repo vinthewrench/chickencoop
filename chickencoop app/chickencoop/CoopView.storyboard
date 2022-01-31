@@ -264,6 +264,7 @@
                         <outlet property="btnDown" destination="GaW-N7-mKB" id="Gmq-Ca-Hlc"/>
                         <outlet property="btnUp" destination="OSR-7u-q7z" id="M78-ZB-O1K"/>
                         <outlet property="imgBattery" destination="Ybj-Yy-3mi" id="zGc-jF-KTI"/>
+                        <outlet property="lblBattery" destination="lA8-iG-7Mi" id="z63-MZ-5JJ"/>
                         <outlet property="lblCharge" destination="57c-w2-Y3f" id="zXS-S0-dUl"/>
                         <outlet property="lblTemp" destination="Fb7-ZW-QHp" id="aKB-rT-fqi"/>
                         <outlet property="swAux" destination="NCH-73-tIP" id="nDc-7H-3bL"/>

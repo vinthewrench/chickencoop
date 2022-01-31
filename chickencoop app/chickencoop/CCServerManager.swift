@@ -817,6 +817,60 @@ struct RESTDeviceAux: Codable {
 	}
 }
 
+
+enum BatteryStatus: UInt8 {
+	case normal = 0
+	case charging_from_in
+	case charging_from_5v
+	case not_present
+	case unknown
+}
+
+
+extension BatteryStatus: Codable {
+	
+	enum Key: CodingKey {
+		case rawValue
+	}
+	
+	enum CodingError: Error {
+		case unknownValue
+	}
+	
+	init(from decoder: Decoder) throws {
+		let container = try decoder.container(keyedBy: Key.self)
+		let rawValue = try container.decode(Int.self, forKey: .rawValue)
+		switch rawValue {
+		case 0:
+			self = .normal
+		case 1:
+			self = .charging_from_in
+		case 2:
+			self = .charging_from_5v
+		case 3:
+			self = .not_present
+		default:
+			self = .unknown
+		}
+	}
+	
+	func encode(to encoder: Encoder) throws {
+		var container = encoder.container(keyedBy: Key.self)
+		switch self {
+		case .normal:
+			try container.encode(0, forKey: .rawValue)
+		case .charging_from_in:
+			try container.encode(1, forKey: .rawValue)
+		case .charging_from_5v:
+			try container.encode(2, forKey: .rawValue)
+		case .not_present:
+			try container.encode(3, forKey: .rawValue)
+		case .unknown:
+			break;
+		}
+	}
+}
+
 enum PowerInputStatus: UInt8 {
 	case not_present = 0
 	case weak
@@ -867,50 +921,69 @@ extension PowerInputStatus: Codable {
 			break;
 		}
 	}
-	
-	func description() -> String {
-		var str = "Unknown"
-		
-		switch self {
-		case .not_present:	str = "Not Present"
-		case .weak:				str = "Weak"
-		case .bad:				str = "Bad"
-		case .present: 		str = "Present"
-			
-		default:
-			break
-		}
-		return str
-	}
-	
-	func image() -> UIImage {
-		
-		var image = UIImage(systemName: "questionmark")
-	
-		switch self {
-		case .not_present:
-			image = UIImage(named: "Battery")
-
-		case .present:
-			image = UIImage(named: "Battery_charge")
-
-		case .weak:
-			image = UIImage(systemName: "bolt.slash")
-			
-		case .bad:
-			image = UIImage(systemName: "bolt.slash.circle.fill")
-
-		default:
-			break
-		}
-
-		return image ??  UIImage()
-	}
  
 }
 
+func piJuiceImageForStatus(_ status :UInt8?) -> UIImage {
 	
+	var image = UIImage(systemName: "questionmark")
+	
+	if let statusByte = status {
+		let bat_stat = BatteryStatus(rawValue:(statusByte >> 2) & 0x03);
+		let pwr_in_stat = PowerInputStatus(rawValue:(statusByte >> 4) & 0x03);
+		let pwr_5v_stat = PowerInputStatus(rawValue:(statusByte >> 6) & 0x03);
+		
+		if(bat_stat == .charging_from_5v){
+			image = UIImage(named: "Battery_charge")
+		} else if(bat_stat == .charging_from_in){
+			image = UIImage(named: "Battery_charge")
+		} else if(bat_stat == .normal){
+ 			if(pwr_5v_stat == .present) {
+				image = UIImage(named: "Battery_charge")		}
+			else if(pwr_in_stat == .present) {
+				image = UIImage(named: "Battery_charge")			}
+			else {
+				image = UIImage(named: "Battery")
+			}
+		} else if(bat_stat == .none){
+			image = UIImage(systemName: "bolt.slash.circle.fill")
+		}
+	}
+	
+	return image ??  UIImage()
+}
 
+func piJuiceTextForStatus(_ status :UInt8?) -> String {
+
+	var str = "Unknown"
+ 	
+	if let statusByte = status {
+		let bat_stat = BatteryStatus(rawValue:(statusByte >> 2) & 0x03);
+		let pwr_in_stat = PowerInputStatus(rawValue:(statusByte >> 4) & 0x03);
+		let pwr_5v_stat = PowerInputStatus(rawValue:(statusByte >> 6) & 0x03);
+		
+		
+		if(bat_stat == .charging_from_5v){
+			str = "Charging"
+		} else if(bat_stat == .charging_from_in){
+			str = "Charging"
+		} else if(bat_stat == .normal){
+			if(pwr_5v_stat == .present) {
+				str = "Charged"
+			}
+			else if(pwr_in_stat == .present) {
+				str = "Charged"
+			}
+			else {
+				str = "Battery"
+			}
+	
+		} else if(bat_stat == .none){
+			str = "No Battery"
+		}
+	}
+	return str
+}
  
 struct RESTDevices: Codable {
 	var light: Bool
