@@ -61,6 +61,18 @@
 		  },
 		  {
 				"action": {
+					 "cmd": "on",
+					 "deviceID": "aux"
+				},
+				"eventID": "9c88",
+				"name": "aux on",
+				"trigger": {
+					 "mins": 10,
+					 "timeBase": 3
+				}
+		  },
+		  {
+				"action": {
 					 "cmd": "off",
 					 "deviceID": "light"
 				},
@@ -81,6 +93,18 @@
 				"trigger": {
 					 "mins": 0,
 					 "timeBase": 3
+				}
+		  },
+		  {
+				"action": {
+					 "cmd": "off",
+					 "deviceID": "aux"
+				},
+				"eventID": "e469",
+				"name": "aux off",
+				"trigger": {
+					 "mins": 0,
+					 "timeBase": 5
 				}
 		  }
 	 ],

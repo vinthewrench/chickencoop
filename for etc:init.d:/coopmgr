@@ -1,5 +1,5 @@
 #!/bin/bash
-# /etc/init.d/coopmgr
+# /etc/init.d/fan
 
 ### BEGIN INIT INFO
 
@@ -28,13 +28,3 @@ case "$1" in
         ;;
 esac
 exit 0
-
-##### notes
-# sudo cp coopmgr.startup.sh /etc/init.d/coopmgr
-# sudo chmod +x /etc/init.d/coopmgr
-# sudo update-rc.d coopmgr defaults
-# sudo update-rc.d  -f coopmgr remove
-# sudo service coopmgr start 
-# sudo service coopmgr stop
-# sudo service coopmgr status
-

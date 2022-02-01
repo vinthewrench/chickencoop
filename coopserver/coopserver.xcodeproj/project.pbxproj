@@ -100,7 +100,6 @@
 		2EFD148527711D410073F6AD /* helpfile.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = helpfile.txt; sourceTree = "<group>"; };
 		2EFD1488277121250073F6AD /* valueschema.csv */ = {isa = PBXFileReference; lastKnownFileType = text; path = valueschema.csv; sourceTree = "<group>"; };
 		2EFD148D277124BC0073F6AD /* CMakeLists.txt */ = {isa = PBXFileReference; lastKnownFileType = text; name = CMakeLists.txt; path = ../CMakeLists.txt; sourceTree = "<group>"; };
-		2EFD148E277124C40073F6AD /* sync.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = sync.sh; path = ../sync.sh; sourceTree = "<group>"; };
 		2EFD1491277167BE0073F6AD /* sunset.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sunset.cpp; sourceTree = "<group>"; };
 		2EFD1492277167BE0073F6AD /* sunset.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sunset.h; sourceTree = "<group>"; };
 		2EFD14942771680B0073F6AD /* SolarTimeMgr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SolarTimeMgr.cpp; sourceTree = "<group>"; };
@@ -253,7 +252,6 @@
 		2EFD148C277124720073F6AD /* Build Stuff */ = {
 			isa = PBXGroup;
 			children = (
-				2EFD148E277124C40073F6AD /* sync.sh */,
 				2EFD148D277124BC0073F6AD /* CMakeLists.txt */,
 			);
 			name = "Build Stuff";
