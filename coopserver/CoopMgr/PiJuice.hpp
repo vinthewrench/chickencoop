@@ -81,6 +81,10 @@ public:
 	bool currentOut(double &val);
 
 	bool SOC(double &val);	// state of charge
+	
+	bool ioPin1(bool &val);
+	bool ioPin2(bool &val);
+
 	bool status(piStatus_t &status,  piFault_t &fault);
 
 	bool  tempC(double &val);

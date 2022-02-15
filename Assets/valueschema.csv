@@ -13,4 +13,7 @@ PJ_I,A,2,0.1,Current
 PJ_BV,V,2,0.1,Battery Voltage
 PJ_STATUS,Int,2,0,PiJuice Status
 PJ_FAULT,Int,2,0,PiJuice Fault
+PJ_IN1,on-off,2,0,Pin1
+PJ_IN2,on-off,2,0,Pin2
+
 

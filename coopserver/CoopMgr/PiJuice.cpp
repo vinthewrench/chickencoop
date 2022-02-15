@@ -179,6 +179,32 @@ bool  PiJuice::tempC(double &val){
 	return success;
 }
 
+bool PiJuice::ioPin1(bool &val){
+	bool success = false;
+	
+	I2C::i2c_block_t block;
+	if( _i2cPJ.isAvailable()
+		&& _i2cPJ.readBlock(PiJuice_cmd::IO_PIN_ACCESS_CMD,1, block) ){
+		val =  (block[1] == 0x00);
+		success = true;
+	}
+	
+	return success;
+}
+
+bool PiJuice::ioPin2(bool &val){
+	bool success = false;
+	
+	I2C::i2c_block_t block;
+	if( _i2cPJ.isAvailable()
+		&& _i2cPJ.readBlock(PiJuice_cmd::IO_PIN_ACCESS_CMD + 5,1, block) ){
+		val =  (block[1] == 0x00);
+		success = true;
+	}
+	
+	return success;
+}
+
 bool PiJuice::status(piStatus_t &status,  piFault_t &fault){
 	bool success = false;
 	I2C::i2c_block_t statusBlock;
@@ -237,7 +263,7 @@ void PiJuice::idle(){
 			bool hasValue = false;
 			
 			double dbl;
-//			bool bl;
+			bool bl;
 
 			if( tempC(dbl)){
 				_resultMap["PJ_TEMP"] =  to_string(dbl);
@@ -257,7 +283,18 @@ void PiJuice::idle(){
 			if( batteryVoltage(dbl)){
 				_resultMap["PJ_BV"] =  to_string(dbl);
 				hasValue = true;
-		}
+			}
+			
+			if( ioPin1(bl)){
+				_resultMap["PJ_IN1"] =  to_string(bl);
+				hasValue = true;
+			}
+
+			if( ioPin2(bl)){
+				_resultMap["PJ_IN2"] =  to_string(bl);
+				hasValue = true;
+			}
+
 			
 			piStatus_t  pi_status;
 			piFault_t   pi_fault;
