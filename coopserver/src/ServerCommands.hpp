@@ -99,6 +99,8 @@ constexpr string_view JSON_ARG_PIJUICE_STATUS = "pijuice.status";
 constexpr string_view JSON_ARG_PIJUICE_FAULT = "pijuice.fault";
 constexpr string_view JSON_ARG_BATTERY_TEMP = "battery.temp";
 constexpr string_view JSON_ARG_BATTERY_VOLT = "battery.volt";
+constexpr string_view JSON_ARG_PIJUICE_PIN1 = "pijuice.pin1";
+constexpr string_view JSON_ARG_PIJUICE_PIN2 = "pijuice.pin2";
 
 constexpr string_view JSON_ARG_OS_SYSNAME	= "os.sysname";
 constexpr string_view JSON_ARG_OS_NODENAME	= "os.nodename";

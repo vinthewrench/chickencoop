@@ -105,6 +105,8 @@ static bool Devices_NounHandler_GET(ServerCmdQueue* cmdQueue,
 				reply[string(JSON_ARG_SOC)]= coopState.battery_soc;
 				reply[string(JSON_ARG_PIJUICE_STATUS)]= coopState.pjStatus.byteWrapped;
 				reply[string(JSON_ARG_PIJUICE_FAULT)]= coopState.pjFault.byteWrapped;
+				reply[string(JSON_ARG_PIJUICE_PIN1)]= coopState.pin1;
+				reply[string(JSON_ARG_PIJUICE_PIN2)]= coopState.pin2;
 #endif
 				
 				makeStatusJSON(reply,STATUS_OK);

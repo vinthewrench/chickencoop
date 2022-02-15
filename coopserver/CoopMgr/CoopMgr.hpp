@@ -115,6 +115,8 @@ public:
 		PiJuice::piStatus_t 	pjStatus;
 		PiJuice::piFault_t 	pjFault;
 		double					battery_soc;
+		bool 						pin1;
+		bool 						pin2;
 #endif
 		
 	} coopState_t;
@@ -128,6 +130,7 @@ public:
 	bool getCurrentOut(double &val);
 	bool getPowerMode(bool &val);
 	bool getPowerTemp(double &val);
+	
 
 private:
 	void runShutdownEvents(std::function<void()> callback = NULL);

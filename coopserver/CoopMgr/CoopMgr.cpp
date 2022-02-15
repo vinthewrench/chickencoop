@@ -503,7 +503,9 @@ bool CoopMgr::getCoopState(std::function<void(bool didSucceed, CoopMgr::coopStat
 		,
 		.pjStatus.byteWrapped = 0,
 		.pjFault.byteWrapped = 0,
-		.battery_soc = 0
+		.battery_soc = 0,
+		.pin1 = false,
+		.pin2 = false
 #endif
 	} ;
 	
@@ -524,6 +526,8 @@ bool CoopMgr::getCoopState(std::function<void(bool didSucceed, CoopMgr::coopStat
 #ifdef  PIJUICE
 							status &= _piJuice.SOC(coopState.battery_soc);
 							status &= _piJuice.status(coopState.pjStatus, coopState.pjFault);
+							status &= _piJuice.ioPin1(coopState.pin1);
+							status &= _piJuice.ioPin2(coopState.pin2);
 #endif
 							if(cb) (cb)( status, coopState);
 						}
