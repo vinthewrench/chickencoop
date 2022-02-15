@@ -598,7 +598,7 @@ public class ChickenCoop {
 
 		let tempKeys = ["TEMP_0x48","CPU_TEMP"]
 
-		let powerKeys = [ "PJ_STATUS", "PJ_FAULT", "PJ_TEMP", "PJ_SOC", "PJ_I", "PJ_BV"]
+		let powerKeys = [ "PJ_STATUS", "PJ_FAULT", "PJ_TEMP", "PJ_SOC", "PJ_I", "PJ_BV", "PJ_IN1", "PJ_IN2"]
 
 		let keys = Array(keys).sorted(by: <)
 

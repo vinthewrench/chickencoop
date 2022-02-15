@@ -962,7 +962,6 @@ func piJuiceTextForStatus(_ status :UInt8?) -> String {
 		let pwr_in_stat = PowerInputStatus(rawValue:(statusByte >> 4) & 0x03);
 		let pwr_5v_stat = PowerInputStatus(rawValue:(statusByte >> 6) & 0x03);
 		
-		
 		if(bat_stat == .charging_from_5v){
 			str = "Charging"
 		} else if(bat_stat == .charging_from_in){
@@ -994,7 +993,9 @@ struct RESTDevices: Codable {
 	var SOC: Double?
 	var pijuice_fault: UInt8?
 	var pijuice_status: UInt8?
- 
+	var pijuice_pin1: Bool
+	var pijuice_pin2: Bool
+
 	enum CodingKeys: String, CodingKey {
 		case light = "light"
 		case aux = "aux"
@@ -1003,6 +1004,8 @@ struct RESTDevices: Codable {
 		case SOC = "SOC"
 		case pijuice_fault = "pijuice.fault"
 		case pijuice_status = "pijuice.status"
+		case pijuice_pin1 = "pijuice.pin1"
+		case pijuice_pin2 = "pijuice.pin2"
 	}
 }
 
