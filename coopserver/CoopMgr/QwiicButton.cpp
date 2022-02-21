@@ -124,7 +124,7 @@ bool QwiicButton::isPressed(bool &state)
 
 	statusRegisterBitField buttonStatus = {.byteWrapped = 0};
  
-	if(_i2cPort.readByte(BUTTON_STATUS, buttonStatus.byteWrapped)){
+	if(_isSetup &&  _i2cPort.readByte(BUTTON_STATUS, buttonStatus.byteWrapped)){
  		state =  buttonStatus.isPressed;
 		success = true;
 	}
@@ -174,10 +174,11 @@ bool QwiicButton::LEDconfig(uint8_t brightness,
 									 uint16_t offTime,
 									 uint8_t granularity){
 	
-	bool success = _i2cPort.writeByte(LED_BRIGHTNESS, brightness);
-	success &= _i2cPort.writeByte(LED_PULSE_GRANULARITY, granularity);
-	success &= _i2cPort.writeWord(LED_PULSE_CYCLE_TIME, cycleTime);
-	success &= _i2cPort.writeWord(LED_PULSE_OFF_TIME, offTime);
+	bool success = _isSetup;
+	success =  success ?  _i2cPort.writeByte(LED_BRIGHTNESS, brightness):false;
+	success =  success ?  _i2cPort.writeByte(LED_PULSE_GRANULARITY, granularity):false;
+	success =  success ?  _i2cPort.writeWord(LED_PULSE_CYCLE_TIME, cycleTime):false;
+	success =  success ?  _i2cPort.writeWord(LED_PULSE_OFF_TIME, offTime):false;
 	
 	return success;
 }
