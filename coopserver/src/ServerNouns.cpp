@@ -654,6 +654,8 @@ static void ValueHistory_NounHandler(ServerCmdQueue* cmdQueue,
 	}
 };
 
+
+
 // MARK:  HISTORY NOUN HANDLER
  
 static bool History_NounHandler_GET(ServerCmdQueue* cmdQueue,
@@ -791,6 +793,163 @@ static void History_NounHandler(ServerCmdQueue* cmdQueue,
 //
 		case HTTP_DELETE:
 			isValidURL = History_NounHandler_DELETE(cmdQueue,url,cInfo, completion);
+			break;
+  
+		default:
+			(completion) (reply, STATUS_INVALID_METHOD);
+			return;
+	}
+	
+	if(!isValidURL) {
+		(completion) (reply, STATUS_NOT_FOUND);
+	}
+};
+
+
+// MARK: ERROR_HISTORY NOUN HANDLER
+
+static bool Errors_NounHandler_GET(ServerCmdQueue* cmdQueue,
+											  REST_URL url,
+											  TCPClientInfo cInfo,
+											  ServerCmdQueue::cmdCallback_t completion) {
+	using namespace rest;
+	json reply;
+	ServerCmdArgValidator v1;
+	string str;
+
+	auto path = url.path();
+	string noun;
+	
+	if(path.size() > 0) {
+		noun = path.at(0);
+	}
+	
+	auto coopMgr = CoopMgr::shared();
+	auto db = coopMgr->getDB();
+
+	// CHECK sub paths
+	 if (path.size() == 1){
+		
+		CoopMgrDB::historicValues_t history;
+ 
+		 float days = 0;
+		 int limit = 0;
+	 
+		 if(v1.getStringFromMap(JSON_ARG_LIMIT, url.headers(), str)){
+			 char* p;
+			 limit = (int) strtol(str.c_str(), &p, 10);
+			 if(*p != 0) days = 0;
+		 }
+
+		 if(v1.getStringFromMap(JSON_ARG_DAYS, url.headers(), str)){
+			 char* p;
+			 days =  strtof(str.c_str(), &p);
+			 if(*p != 0) days = 0;
+		 }
+		 
+		 if(db->historyForErrors(history, days, limit)){
+
+			 json j;
+			 for (auto& entry : history) {
+			 
+				 json j1;
+				 j1[string(CoopMgrDB::JSON_ARG_VALUE)] 	=  entry.second;
+				 j1[string(CoopMgrDB::JSON_ARG_TIME)] 		=   entry.first;
+				 j.push_back(j1);
+			 }
+
+			 reply[string(JSON_ARG_VALUES)] = j;
+		 }
+		else {
+			return false;
+		}
+	}
+	else {
+		return false;
+	}
+ 
+	makeStatusJSON(reply,STATUS_OK);
+	(completion) (reply, STATUS_OK);
+	return true;
+}
+
+static bool Errors_NounHandler_DELETE(ServerCmdQueue* cmdQueue,
+											  REST_URL url,
+											  TCPClientInfo cInfo,
+												  ServerCmdQueue::cmdCallback_t completion) {
+	using namespace rest;
+	json reply;
+	ServerCmdArgValidator v1;
+	string str;
+	
+	auto path = url.path();
+	string noun;
+	
+	if(path.size() > 0) {
+		noun = path.at(0);
+	}
+	
+	auto coopMgr = CoopMgr::shared();
+	auto db = coopMgr->getDB();
+
+	// CHECK sub paths
+	float days = 0;
+	
+	if(v1.getStringFromMap(JSON_ARG_DAYS, url.headers(), str)){
+		char* p;
+		days =  strtof(str.c_str(), &p);
+		if(*p != 0) days = 0;
+	}
+	
+	
+	if(db->trimHistoryForErrors(days)){
+		makeStatusJSON(reply,STATUS_NO_CONTENT);
+		(completion) (reply, STATUS_NO_CONTENT);
+		return true;
+	}
+	
+	return false;
+}
+
+
+static void Errors_NounHandler(ServerCmdQueue* cmdQueue,
+										  REST_URL url,
+										  TCPClientInfo cInfo,
+										  ServerCmdQueue::cmdCallback_t completion) {
+
+	using namespace rest;
+	json reply;
+	
+	auto path = url.path();
+	auto queries = url.queries();
+	auto headers = url.headers();
+	string noun;
+	
+	bool isValidURL = false;
+	
+	if(path.size() > 0) {
+		noun = path.at(0);
+	}
+
+	switch(url.method()){
+		case HTTP_GET:
+ 			isValidURL = Errors_NounHandler_GET(cmdQueue,url,cInfo, completion);
+			break;
+			
+//		case HTTP_PUT:
+//			isValidURL = Errors_NounHandler_PUT(cmdQueue,url,cInfo, completion);
+//			break;
+
+//		case HTTP_PATCH:
+//			isValidURL = Errors_NounHandler_PATCH(cmdQueue,url,cInfo, completion);
+//			break;
+
+//		case HTTP_POST:
+//			isValidURL = Errors_NounHandler_POST(cmdQueue,url,cInfo, completion);
+//			break;
+//
+		case HTTP_DELETE:
+ 			isValidURL = Errors_NounHandler_DELETE(cmdQueue,url,cInfo, completion);
 			break;
   
 		default:
@@ -2209,7 +2368,10 @@ void registerServerNouns() {
 	cmdQueue->registerNoun(NOUN_HISTORY, 	History_NounHandler);
 	cmdQueue->registerNoun(NOUN_EVENTS,		 Events_NounHandler);
 	cmdQueue->registerNoun(NOUN_EVENTS_GROUPS,  EventGroups_NounHandler);
+	cmdQueue->registerNoun(NOUN_ERRORS,  Errors_NounHandler);
 
+	
+	
 }
 
 

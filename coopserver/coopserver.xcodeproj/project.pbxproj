@@ -197,10 +197,10 @@
 			isa = PBXGroup;
 			children = (
 				2EFD145F277100320073F6AD /* CoopMgrCommon.h */,
-				2EFD1460277100AA0073F6AD /* CoopMgr.cpp */,
 				2EFD1461277100AA0073F6AD /* CoopMgr.hpp */,
-				2EFD147827710A770073F6AD /* CoopMgrDB.cpp */,
+				2EFD1460277100AA0073F6AD /* CoopMgr.cpp */,
 				2EFD147927710A770073F6AD /* CoopMgrDB.hpp */,
+				2EFD147827710A770073F6AD /* CoopMgrDB.cpp */,
 				2EFD1462277101390073F6AD /* CoopMgrDevice.hpp */,
 				2EFD147B277111C20073F6AD /* CoopMgrAPISecretMgr.cpp */,
 				2EFD147C277111C20073F6AD /* CoopMgrAPISecretMgr.hpp */,

@@ -10,6 +10,13 @@
 #include "Utils.hpp"
 #include <regex>
 #include <ctype.h>
+#include "CoopMgr.hpp"
+
+#define DBLOGT_ERROR( _msg_, ...)  \
+		{										\
+		LogMgr::shared()->logMessage(LogMgr::LogFlagError, true, _msg_, ##__VA_ARGS__); \
+		CoopMgr::shared()->logErrorMsg(_msg_, ##__VA_ARGS__); \
+}
 
 CoopDevices::CoopDevices():
 						_doorMgr(this)
@@ -33,14 +40,15 @@ bool CoopDevices::begin(int &error){
 	  _lastQueryTime = {0,0};
 
 	if(! _relay.begin("/dev/gpiochip0", error )){
+		DBLOGT_ERROR("OPEN RELAY - FAIL %s", string(strerror(errnum)).c_str());
 		return false;
 	}
 	
  	if( ! _redButton.begin(0x6E, errnum))
-		LOGT_ERROR("Start RedButton  - FAIL %s", string(strerror(errnum)).c_str());
+		DBLOGT_ERROR("Start RedButton  - FAIL %s", string(strerror(errnum)).c_str());
 	
 	if(! _greenButton.begin(0x6F, errnum))
-		LOGT_ERROR("Start GreenButton  - FAIL %s", string(strerror(errnum)).c_str());
+		DBLOGT_ERROR("Start GreenButton  - FAIL %s", string(strerror(errnum)).c_str());
 	
 	_doorMgr.begin();
 

@@ -9,6 +9,14 @@
 #include "LogMgr.hpp"
 #include "Utils.hpp"
  
+
+#define DBLOGT_ERROR( _msg_, ...)  \
+	  {										\
+	  LogMgr::shared()->logMessage(LogMgr::LogFlagError, true, _msg_, ##__VA_ARGS__); \
+	  logErrorMsg(_msg_, ##__VA_ARGS__); \
+}
+
+
  const char* 	CoopMgr::CoopMgr_Version = "1.0.0 dev 2";
 
 CoopMgr *CoopMgr::sharedInstance = NULL;
@@ -273,7 +281,7 @@ void CoopMgr::startPiJuice( std::function<void(bool didSucceed, std::string erro
 		LOGT_DEBUG("Start PiJuice - OK");
 	}
 	else
-		LOGT_ERROR("Start PiJuice - FAIL %s", string(strerror(errnum)).c_str());
+		DBLOGT_ERROR("Start PiJuice - FAIL %s", string(strerror(errnum)).c_str());
 #endif
  
 	if(cb)
@@ -316,7 +324,7 @@ void CoopMgr::startWittyPi3( std::function<void(bool didSucceed, std::string err
 		LOGT_DEBUG("Start WittyPi3 - OK");
 	}
 	else
-		LOGT_ERROR("Start WittyPi3 - FAIL %s", string(strerror(errnum)).c_str());
+		DBLOGT_ERROR("Start WittyPi3 - FAIL %s", string(strerror(errnum)).c_str());
 #endif
  
 	if(cb)
@@ -403,7 +411,7 @@ void CoopMgr::startTempSensor( std::function<void(bool didSucceed, std::string e
 		LOGT_DEBUG("Start TempSensor 1 - OK");
 	}
 	else
-		LOGT_ERROR("Start TempSensor 1  - FAIL %s", string(strerror(errnum)).c_str());
+		DBLOGT_ERROR("Start TempSensor 1  - FAIL %s", string(strerror(errnum)).c_str());
  	
 	if(cb)
 		(cb)(didSucceed, didSucceed?"": string(strerror(errnum) ));
@@ -429,7 +437,7 @@ void CoopMgr::startCoopDevices( std::function<void(bool didSucceed, std::string 
 	
 	didSucceed =  _coopHW.begin(errnum);
 	if(!didSucceed) 
-		LOGT_ERROR("Start CoopDevices  - FAIL %s", string(strerror(errnum)).c_str());
+		DBLOGT_ERROR("Start CoopDevices  - FAIL %s", string(strerror(errnum)).c_str());
 	
 	if(cb)
 		(cb)(didSucceed, didSucceed?"": string(strerror(errnum) ));
@@ -603,6 +611,21 @@ bool CoopMgr::runAction(Action action,
 	
 	return handled;
 }
+
+// MARK: -  error logging into database
+void CoopMgr::logErrorMsg(const char *format __restrict, ...){
+	
+	char *str;
+	va_list args;
+	va_start(args, format);
+	vasprintf(&str, format, args);
+
+	_db.logErrorMsg(str);
+	
+	free(str);
+	va_end(args);
+}
+
 //MARK: -  idle loop
 
 void CoopMgr::idleLoop() {

@@ -36,7 +36,7 @@ int main(int argc, const char * argv[]) {
 	CoopMgrAPISecretMgr apiSecrets(coopMgr->getDB());
 
 	auto db = coopMgr->getDB();
-
+	
 	uint16_t restPort = 	8080;
 	uint16_t telnetPort = 0;
 	bool remoteTelnet = false;

@@ -28,8 +28,8 @@ CoopMgrDB::CoopMgrDB(){
 	_etagMap.clear();
 	_properties.clear();
 	_sdb = NULL;
+	_isSetup = false;
  
-
 	// create RNG engine
 	constexpr std::size_t SEED_LENGTH = 8;
   std::array<uint_fast32_t, SEED_LENGTH> random_data;
@@ -67,6 +67,8 @@ CoopMgrDB::CoopMgrDB(){
 
 CoopMgrDB::~CoopMgrDB(){
 	
+	_isSetup = false;
+
 	if(_sdb)
 	{
 		sqlite3_close(_sdb);
@@ -445,6 +447,109 @@ void CoopMgrDB::dumpMap(){
 				 );
 	}
 }
+
+// MARK: -  error logging into database
+void CoopMgrDB::logErrorMsg( const char *str __restrict){
+	if(_isSetup){
+		
+		auto ts = TimeStamp(time(NULL));
+		
+		string sql = string("INSERT INTO ERROR_LOG (ERR,DATE) ")
+		+ "VALUES  (\"" + str + "\", '" + ts.ISO8601String() + "' );";
+		
+		//	 printf("%s\n", sql.c_str());
+		
+		char *zErrMsg = 0;
+		if(sqlite3_exec(_sdb,sql.c_str(),NULL, 0, &zErrMsg  ) != SQLITE_OK){
+			LOGT_ERROR("sqlite3_exec FAILED: %s\n\t%s", sql.c_str(), sqlite3_errmsg(_sdb	) );
+			sqlite3_free(zErrMsg);
+		}
+		
+	}
+}
+
+bool CoopMgrDB::historyForErrors(historicValues_t &valuesOut, float days, int limit){
+
+	std::lock_guard<std::mutex> lock(_mutex);
+	bool success = false;
+	
+	historicValues_t values;
+	values.clear();
+ 
+	string sql = string("SELECT strftime('%s', DATE) AS DATE, ERR FROM ERROR_LOG ");
+
+	if(limit){
+		sql += " ORDER BY DATE DESC LIMIT " + to_string(limit) + ";";
+	}
+	else if(days > 0) {
+		sql += " WHERE DATE > datetime('now' , '-" + to_string(days) + " days');";
+	}
+	else {
+		sql += ";";
+	}
+
+	sqlite3_stmt* stmt = NULL;
+
+	sqlite3_prepare_v2(_sdb, sql.c_str(), -1,  &stmt, NULL);
+
+	while ( (sqlite3_step(stmt)) == SQLITE_ROW) {
+		time_t  when =  sqlite3_column_int64(stmt, 0);
+		string  value = string((char*) sqlite3_column_text(stmt, 1));
+		values.push_back(make_pair(when, value)) ;
+	}
+	sqlite3_finalize(stmt);
+
+	success = values.size() > 0;
+	
+	if(success){
+		valuesOut = values;
+	}
+	
+	return success;
+}
+ 
+bool CoopMgrDB::trimHistoryForErrors(float days){
+	
+ 
+	std::lock_guard<std::mutex> lock(_mutex);
+	bool success = false;
+	
+	string sql = string("DELETE FROM ERROR_LOG ");
+		
+	if(days > 0) {
+		sql += "WHERE DATE < datetime('now' , '-" + to_string(days) + " days'); ";
+	}
+	else {
+		sql += ";";
+	}
+	sqlite3_stmt* stmt = NULL;
+	
+	if(sqlite3_prepare_v2(_sdb, sql.c_str(), -1,  &stmt, NULL)  == SQLITE_OK){
+		
+		if(sqlite3_step(stmt) == SQLITE_DONE) {
+ 
+			int count =  sqlite3_changes(_sdb);
+			LOGT_DEBUG("sqlite %s\n %d rows affected", sql.c_str(), count );
+			success = true;
+		}
+		else
+		{
+			LOGT_ERROR("sqlite3_step FAILED: %s\n\t%s", sql.c_str(), sqlite3_errmsg(_sdb	) );
+		}
+		sqlite3_finalize(stmt);
+		
+	}
+	else {
+		LOGT_ERROR("sqlite3_prepare_v2 FAILED: %s\n\t%s", sql.c_str(), sqlite3_errmsg(_sdb	) );
+		sqlite3_errmsg(_sdb);
+	}
+	
+	return success;
+
+ }
+
+
+
 // MARK: - Historical Events
 bool CoopMgrDB::logHistoricalEvent(h_event_t evt, time_t when ){
 	
@@ -809,11 +914,24 @@ bool CoopMgrDB::initLogDatabase(string filePath){
 		return false;
 	}
 
+	// make sure primary tables are there.
+	string sql3 = "CREATE TABLE IF NOT EXISTS ERROR_LOG("  \
+						"ERR 		  TEXT    NOT NULL," \
+						"DATE      DATETIME	NOT NULL);";
 	
+	if(sqlite3_exec(_sdb,sql3.c_str(),NULL, 0, &zErrMsg  ) != SQLITE_OK){
+		LOGT_ERROR("sqlite3_exec FAILED: %s\n\t%s", sql3.c_str(), sqlite3_errmsg(_sdb	) );
+		sqlite3_free(zErrMsg);
+		return false;
+	}
+
+ 
 	if(!restoreValuesFromDB()){
 		LOGT_ERROR("restoreValuesFromDB FAILED");
 		return false;
 	}
+	
+	_isSetup = true;
 	
 	return true;
 }

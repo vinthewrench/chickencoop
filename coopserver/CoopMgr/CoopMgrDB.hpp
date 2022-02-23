@@ -125,7 +125,7 @@ public:
   ~CoopMgrDB();
 	bool initSchemaFromFile(string filePath);
 	bool initLogDatabase(string filePath);
-
+ 
 	void clear();
 	
 	bool insertValue(string key, string value, time_t when,  eTag_t eTag);
@@ -158,7 +158,6 @@ public:
 
 	bool	historyForKey(string key, historicValues_t &values, float days = 0.0, int limit = 0);
 	bool 	removeHistoryForKey(string key, float days);
-
 
 	// MARK: - History
 	bool logHistoricalEvent(h_event_t evt, time_t when = 0);
@@ -214,10 +213,15 @@ public:
 	vector<eventGroupID_t> allEventGroupIDs();
 	void reconcileEventGroups(const solarTimes_t &solar, time_t localNow);
 
- 
+	// MARK: -  error logging into database // called by coopMgr
+	void logErrorMsg(const char *str __restrict);
+	bool historyForErrors(historicValues_t &values, float days = 0.0, int limit = 0);
+	bool trimHistoryForErrors(float days);
+
+
 private:
-	
-	
+	bool 		_isSetup;
+
 	sqlite3 	*_sdb;
 	mutable std::mutex _mutex;
 

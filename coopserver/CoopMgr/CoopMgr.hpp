@@ -130,7 +130,9 @@ public:
 	bool getCurrentOut(double &val);
 	bool getPowerMode(bool &val);
 	bool getPowerTemp(double &val);
-	
+
+	//  error logging into database
+	void logErrorMsg(const char *format __restrict, ...);
 
 private:
 	void runShutdownEvents(std::function<void()> callback = NULL);

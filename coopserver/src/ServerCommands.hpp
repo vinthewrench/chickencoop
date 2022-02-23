@@ -22,6 +22,7 @@ constexpr string_view NOUN_LOG	 				= "log";
 constexpr string_view NOUN_HISTORY	 	 		= "history";
 constexpr string_view NOUN_EVENTS				= "events";
 constexpr string_view NOUN_EVENTS_GROUPS		= "event.groups";
+constexpr string_view NOUN_ERRORS	 	 		= "errors";
 
 constexpr string_view SUBPATH_FILE	 			= "file";
 constexpr string_view SUBPATH_STATE	 			= "state";

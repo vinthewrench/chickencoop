@@ -15,6 +15,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include "LogMgr.hpp"
+#include "CoopMgr.hpp"
 
 // I2C definitions
 
@@ -74,6 +75,11 @@ static inline int i2c_smbus_access (int fd, char rw, uint8_t command, int size, 
 #endif /* I2C_SLAVE */
 
  
+#define DBLOGT_ERROR( _msg_, ...)  \
+		{										\
+		LogMgr::shared()->logMessage(LogMgr::LogFlagError, true, _msg_, ##__VA_ARGS__); \
+		CoopMgr::shared()->logErrorMsg(_msg_, ##__VA_ARGS__); \
+}
 
 I2C::I2C(){
 	_isSetup = false;
@@ -102,7 +108,7 @@ bool I2C::begin(uint8_t	devAddr,   int &error){
 
 	if((fd = open( ic2_device, O_RDWR)) <0) {
 
-		LOG_INFO("Failed to open I2C bus %s,  %s\n",
+		DBLOGT_ERROR("Failed to open I2C bus %s,  %s\n",
 					ic2_device,
 					string(strerror(errno)).c_str());
 		
@@ -111,7 +117,7 @@ bool I2C::begin(uint8_t	devAddr,   int &error){
 	}
 	
 	if (::ioctl(fd, I2C_SLAVE, devAddr) < 0) {
-	 LOG_INFO("Failed to set I2C (%02x)  as slave.\n",devAddr );
+		DBLOGT_ERROR("Failed to set I2C (%02x)  as slave.\n",devAddr );
 		error = errno;
 		return false;
 	}
@@ -144,7 +150,7 @@ bool I2C::writeByte(uint8_t regAddr, uint8_t b1){
 	union i2c_smbus_data data = {.byte = b1};
  
 	if(i2c_smbus_access (_fd, I2C_SMBUS_WRITE, regAddr, I2C_SMBUS_BYTE_DATA, &data) < 0){
-		LOGT_ERROR("Failed to i2c_smbus write byte to device(%02X): %s\n", _devAddr,strerror(errno));
+		DBLOGT_ERROR("Failed to i2c_smbus write byte to device(%02X): %s\n", _devAddr,strerror(errno));
 		return false;
 	}
 	
@@ -157,7 +163,7 @@ bool I2C::writeWord(uint8_t regAddr, uint16_t word){
 	union i2c_smbus_data data = {.word = word};
  
 	if(i2c_smbus_access (_fd, I2C_SMBUS_WRITE, regAddr, I2C_SMBUS_WORD_DATA, &data) < 0){
-		LOGT_ERROR("Failed to i2c_smbus write word to device(%02X): %s\n", _devAddr,strerror(errno));
+		DBLOGT_ERROR("Failed to i2c_smbus write word to device(%02X): %s\n", _devAddr,strerror(errno));
 		return false;
 	}
 	
@@ -169,7 +175,7 @@ bool I2C::readByte(uint8_t regAddr,  uint8_t& byte){
 	union i2c_smbus_data data;
 	
 	if(i2c_smbus_access (_fd, I2C_SMBUS_READ, regAddr, I2C_SMBUS_BYTE_DATA, &data) < 0){
-		LOGT_ERROR("Failed to i2c_smbus read byte from device(%02X): %s\n", _devAddr,strerror(errno));
+		DBLOGT_ERROR("Failed to i2c_smbus read byte from device(%02X): %s\n", _devAddr,strerror(errno));
 		return false;
 	}
 
@@ -182,7 +188,7 @@ bool I2C::readWord(uint8_t regAddr,  uint16_t& word){
 	union i2c_smbus_data data;
 	
 	if(i2c_smbus_access (_fd, I2C_SMBUS_READ, regAddr, I2C_SMBUS_WORD_DATA, &data) < 0){
-		LOGT_ERROR("Failed to i2c_smbus read word from device(%02X): %s\n", _devAddr,strerror(errno));
+		DBLOGT_ERROR("Failed to i2c_smbus read word from device(%02X): %s\n", _devAddr,strerror(errno));
 		return false;
 	}
 
@@ -199,7 +205,7 @@ bool I2C::readBlock(uint8_t regAddr, uint8_t size, i2c_block_t & block ){
 	data.block[0] = size + 1;
 
 	if(i2c_smbus_access (_fd, I2C_SMBUS_READ, regAddr, I2C_SMBUS_I2C_BLOCK_DATA, &data) < 0){
-		LOGT_ERROR("Failed to i2c_smbus read block from device(%02X): %s\n", _devAddr,strerror(errno));
+		DBLOGT_ERROR("Failed to i2c_smbus read block from device(%02X): %s\n", _devAddr,strerror(errno));
 		return false;
 	}
 
