@@ -449,7 +449,7 @@ void CoopMgrDB::dumpMap(){
 }
 
 // MARK: -  error logging into database
-void CoopMgrDB::logErrorMsg( const char *str __restrict){
+void CoopMgrDB::logErrorMsg( const char *str){
 	if(_isSetup){
 		
 		auto ts = TimeStamp(time(NULL));

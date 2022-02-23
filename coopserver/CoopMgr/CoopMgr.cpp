@@ -613,7 +613,7 @@ bool CoopMgr::runAction(Action action,
 }
 
 // MARK: -  error logging into database
-void CoopMgr::logErrorMsg(const char *format __restrict, ...){
+void CoopMgr::logErrorMsg(const char *format, ...){
 	
 	char *str;
 	va_list args;

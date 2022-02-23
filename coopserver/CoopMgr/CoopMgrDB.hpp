@@ -214,7 +214,7 @@ public:
 	void reconcileEventGroups(const solarTimes_t &solar, time_t localNow);
 
 	// MARK: -  error logging into database // called by coopMgr
-	void logErrorMsg(const char *str __restrict);
+	void logErrorMsg(const char *str);
 	bool historyForErrors(historicValues_t &values, float days = 0.0, int limit = 0);
 	bool trimHistoryForErrors(float days);
 
