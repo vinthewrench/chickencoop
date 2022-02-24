@@ -489,6 +489,8 @@ static bool ValueHistory_NounHandler_GET(ServerCmdQueue* cmdQueue,
 											  TCPClientInfo cInfo,
 											  ServerCmdQueue::cmdCallback_t completion) {
 	using namespace rest;
+	using namespace timestamp;
+
 	json reply;
 	ServerCmdArgValidator v1;
 	string str;
@@ -813,6 +815,8 @@ static bool Errors_NounHandler_GET(ServerCmdQueue* cmdQueue,
 											  TCPClientInfo cInfo,
 											  ServerCmdQueue::cmdCallback_t completion) {
 	using namespace rest;
+	using namespace timestamp;
+
 	json reply;
 	ServerCmdArgValidator v1;
 	string str;
@@ -831,10 +835,16 @@ static bool Errors_NounHandler_GET(ServerCmdQueue* cmdQueue,
 	 if (path.size() == 1){
 		
 		CoopMgrDB::historicValues_t history;
- 
+		 uint64_t  lastEtag = 0;
 		 float days = 0;
 		 int limit = 0;
-	 
+		 long eTag = 0;
+		 
+		 if(v1.getStringFromMap("If-None-Match", url.headers(), str)){
+			 char* p;
+				eTag = strtol(str.c_str(), &p, 0);
+		 }
+ 
 		 if(v1.getStringFromMap(JSON_ARG_LIMIT, url.headers(), str)){
 			 char* p;
 			 limit = (int) strtol(str.c_str(), &p, 10);
@@ -847,7 +857,7 @@ static bool Errors_NounHandler_GET(ServerCmdQueue* cmdQueue,
 			 if(*p != 0) days = 0;
 		 }
 		 
-		 if(db->historyForErrors(history, days, limit)){
+		 if(db->historyForErrors(history, lastEtag, eTag, days, limit)){
 
 			 json j;
 			 for (auto& entry : history) {
@@ -858,6 +868,7 @@ static bool Errors_NounHandler_GET(ServerCmdQueue* cmdQueue,
 				 j.push_back(j1);
 			 }
 
+			 reply[string(JSON_ARG_ETAG)] = lastEtag;
 			 reply[string(JSON_ARG_VALUES)] = j;
 		 }
 		else {
@@ -884,6 +895,7 @@ static bool Errors_NounHandler_DELETE(ServerCmdQueue* cmdQueue,
 	
 	auto path = url.path();
 	string noun;
+	bool success = false;
 	
 	if(path.size() > 0) {
 		noun = path.at(0);
@@ -891,24 +903,31 @@ static bool Errors_NounHandler_DELETE(ServerCmdQueue* cmdQueue,
 	
 	auto coopMgr = CoopMgr::shared();
 	auto db = coopMgr->getDB();
-
-	// CHECK sub paths
-	float days = 0;
-	
+ 
 	if(v1.getStringFromMap(JSON_ARG_DAYS, url.headers(), str)){
 		char* p;
-		days =  strtof(str.c_str(), &p);
+		float days =  strtof(str.c_str(), &p);
 		if(*p != 0) days = 0;
+		success = db->trimHistoryForErrorsByDays(days);
 	}
-	
-	
-	if(db->trimHistoryForErrors(days)){
+	else if(v1.getStringFromMap(JSON_ARG_ETAG, url.headers(), str)){
+		char* p;
+		uint64_t eTag =  strtoull(str.c_str(), &p, 10);
+		if(*p != 0) eTag = 0;
+		success = db->trimHistoryForErrorsByEtag(eTag);
+	}
+	else
+	{
+		success = db->trimHistoryForErrorsByDays(0);
+	}
+
+	if(success) {
 		makeStatusJSON(reply,STATUS_NO_CONTENT);
 		(completion) (reply, STATUS_NO_CONTENT);
 		return true;
 	}
 	
-	return false;
+	return success;
 }
 
 

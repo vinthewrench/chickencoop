@@ -468,21 +468,26 @@ void CoopMgrDB::logErrorMsg( const char *str){
 	}
 }
 
-bool CoopMgrDB::historyForErrors(historicValues_t &valuesOut, float days, int limit){
-
+bool CoopMgrDB::historyForErrors(historicValues_t &valuesOut, uint64_t &eTagOut,
+											uint64_t eTag,  float days, int limit){
+	
 	std::lock_guard<std::mutex> lock(_mutex);
 	bool success = false;
 	
 	historicValues_t values;
 	values.clear();
  
-	string sql = string("SELECT strftime('%s', DATE) AS DATE, ERR FROM ERROR_LOG ");
+	string sql = string("SELECT strftime('%s', DATE) AS DATE, ERR , rowid FROM ERROR_LOG ");
 
 	if(limit){
 		sql += " ORDER BY DATE DESC LIMIT " + to_string(limit) + ";";
 	}
-	else if(days > 0) {
+	
+	if(days > 0) {
 		sql += " WHERE DATE > datetime('now' , '-" + to_string(days) + " days');";
+	}
+	else if(eTag > 0) {
+		sql += " WHERE rowid > " +  to_string(eTag) + ";";
 	}
 	else {
 		sql += ";";
@@ -492,9 +497,13 @@ bool CoopMgrDB::historyForErrors(historicValues_t &valuesOut, float days, int li
 
 	sqlite3_prepare_v2(_sdb, sql.c_str(), -1,  &stmt, NULL);
 
+	uint64_t lastrowID = 0;
+	
 	while ( (sqlite3_step(stmt)) == SQLITE_ROW) {
 		time_t  when =  sqlite3_column_int64(stmt, 0);
 		string  value = string((char*) sqlite3_column_text(stmt, 1));
+		uint64_t rowID  = sqlite3_column_int64(stmt, 2);
+		if(rowID > lastrowID) lastrowID = rowID;
 		values.push_back(make_pair(when, value)) ;
 	}
 	sqlite3_finalize(stmt);
@@ -502,14 +511,53 @@ bool CoopMgrDB::historyForErrors(historicValues_t &valuesOut, float days, int li
 	success = values.size() > 0;
 	
 	if(success){
+		eTagOut = lastrowID;
 		valuesOut = values;
 	}
 	
 	return success;
 }
  
-bool CoopMgrDB::trimHistoryForErrors(float days){
+bool CoopMgrDB::trimHistoryForErrorsByEtag(uint64_t eTag){
+
+	  std::lock_guard<std::mutex> lock(_mutex);
+	  bool success = false;
+	  
+	  string sql = string("DELETE FROM ERROR_LOG ");
+		  
+	  if(eTag > 0) {
+		  sql += "WHERE rowID <=  " +  to_string(eTag) + " ;";
+	  }
+	  else {
+		  sql += ";";
+	  }
+	  sqlite3_stmt* stmt = NULL;
+	  
+	  if(sqlite3_prepare_v2(_sdb, sql.c_str(), -1,  &stmt, NULL)  == SQLITE_OK){
+		  
+		  if(sqlite3_step(stmt) == SQLITE_DONE) {
 	
+			  int count =  sqlite3_changes(_sdb);
+			  LOGT_DEBUG("sqlite %s\n %d rows affected", sql.c_str(), count );
+			  success = true;
+		  }
+		  else
+		  {
+			  LOGT_ERROR("sqlite3_step FAILED: %s\n\t%s", sql.c_str(), sqlite3_errmsg(_sdb	) );
+		  }
+		  sqlite3_finalize(stmt);
+		  
+	  }
+	  else {
+		  LOGT_ERROR("sqlite3_prepare_v2 FAILED: %s\n\t%s", sql.c_str(), sqlite3_errmsg(_sdb	) );
+		  sqlite3_errmsg(_sdb);
+	  }
+	  
+	  return success;
+
+}
+
+bool CoopMgrDB::trimHistoryForErrorsByDays(float days){
  
 	std::lock_guard<std::mutex> lock(_mutex);
 	bool success = false;

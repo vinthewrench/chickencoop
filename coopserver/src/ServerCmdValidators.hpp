@@ -44,6 +44,7 @@ public:
 		}
 		return false;
 	}
+	
 	virtual bool getStringFromMap(string_view key, const map<string, string> &m, string &result) {
 		string k = string(key);
 		

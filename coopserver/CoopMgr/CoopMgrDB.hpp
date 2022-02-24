@@ -215,8 +215,10 @@ public:
 
 	// MARK: -  error logging into database // called by coopMgr
 	void logErrorMsg(const char *str);
-	bool historyForErrors(historicValues_t &values, float days = 0.0, int limit = 0);
-	bool trimHistoryForErrors(float days);
+	bool historyForErrors(historicValues_t &values, uint64_t &eTagOut,
+								 uint64_t eTag,  float days = 0.0, int limit = 0);
+	bool trimHistoryForErrorsByDays(float days);
+	bool trimHistoryForErrorsByEtag(uint64_t eTag);
 
 
 private:
