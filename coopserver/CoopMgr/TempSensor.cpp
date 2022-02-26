@@ -59,6 +59,12 @@ void TempSensor::reset(){
 	
 }
 
+void TempSensor::setQueryDelay(uint64_t delay){
+	_queryDelay = delay;
+	_lastQueryTime = {0,0};
+};
+
+
 CoopMgrDevice::response_result_t
 TempSensor::rcvResponse(std::function<void(map<string,string>)> cb){
 

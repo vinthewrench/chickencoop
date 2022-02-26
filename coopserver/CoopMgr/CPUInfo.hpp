@@ -18,12 +18,13 @@
 
 using namespace std;
 
-
-constexpr string_view CPU_INFO_TEMP	 	= "CPU_TEMP";
-
 class CPUInfo : public CoopMgrDevice{
  
 public:
+
+	constexpr static string_view CPU_INFO_TEMP	 				= "CPU_TEMP";
+	constexpr static string_view PROP_CPU_TEMP_QUERY_DELAY	= "cputemp-query-delay";
+
 	CPUInfo();
 	~CPUInfo();
 
@@ -37,6 +38,7 @@ public:
 	
 	void idle(); 	// called from loop
 	void reset(); 	// reset from timeout
+	void setQueryDelay(uint64_t);
 
 	device_state_t getDeviceState();
 	

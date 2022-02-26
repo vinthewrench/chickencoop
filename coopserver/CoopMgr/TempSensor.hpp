@@ -22,12 +22,18 @@ using namespace std;
 class TempSensor : public CoopMgrDevice{
  
 public:
+
+	constexpr static string_view PROP_TEMPSENSOR_QUERY_DELAY				= "temp-query-delay";
+
+
 	TempSensor();
 	~TempSensor();
 
 	bool begin(int deviceAddress, string resultKey);
 	bool begin(int deviceAddress, string resultKey,  int &error);
 	void stop();
+	
+	void setQueryDelay(uint64_t);
 
 	bool isConnected();
  

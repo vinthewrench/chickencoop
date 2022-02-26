@@ -73,6 +73,11 @@ bool PiJuice::isConnected(){
 }
  
  
+void PiJuice::setQueryDelay(uint64_t delay){
+	_queryDelay = delay;
+	_lastQueryTime = {0,0};
+};
+
 
 void PiJuice::reset(){
   

@@ -821,6 +821,8 @@ static bool Errors_NounHandler_GET(ServerCmdQueue* cmdQueue,
 	ServerCmdArgValidator v1;
 	string str;
 
+	bool success = false;
+	
 	auto path = url.path();
 	string noun;
 	
@@ -828,18 +830,18 @@ static bool Errors_NounHandler_GET(ServerCmdQueue* cmdQueue,
 		noun = path.at(0);
 	}
 	
+	CoopMgrDB::historicValues_t history;
+	 uint64_t  lastEtag = 0;
+	 float days = 0;
+	 int limit = 0;
+	 long eTag = 0;
+
 	auto coopMgr = CoopMgr::shared();
 	auto db = coopMgr->getDB();
 
 	// CHECK sub paths
 	 if (path.size() == 1){
-		
-		CoopMgrDB::historicValues_t history;
-		 uint64_t  lastEtag = 0;
-		 float days = 0;
-		 int limit = 0;
-		 long eTag = 0;
-		 
+ 
 		 if(v1.getStringFromMap("If-None-Match", url.headers(), str)){
 			 char* p;
 				eTag = strtol(str.c_str(), &p, 0);
@@ -848,7 +850,16 @@ static bool Errors_NounHandler_GET(ServerCmdQueue* cmdQueue,
 		 if(v1.getStringFromMap(JSON_ARG_LIMIT, url.headers(), str)){
 			 char* p;
 			 limit = (int) strtol(str.c_str(), &p, 10);
-			 if(*p != 0) days = 0;
+			 if(*p != 0) limit = 0;
+			 
+			 // are we just asking for the etag?
+			 if(limit == 0){
+				 if(db->getErrorLogEtag(lastEtag)){
+					 reply[string(JSON_ARG_ETAG)] = lastEtag;
+					 success = true;
+					 goto done;
+				 }
+			 }
 		 }
 
 		 if(v1.getStringFromMap(JSON_ARG_DAYS, url.headers(), str)){
@@ -867,21 +878,27 @@ static bool Errors_NounHandler_GET(ServerCmdQueue* cmdQueue,
 				 j1[string(CoopMgrDB::JSON_ARG_TIME)] 		=   entry.first;
 				 j.push_back(j1);
 			 }
-
+	
 			 reply[string(JSON_ARG_ETAG)] = lastEtag;
 			 reply[string(JSON_ARG_VALUES)] = j;
+
+			 success = true;
 		 }
+ 	}
+ 
+done:
+	if(success){
+		
+		if(eTag != 0 && history.size() == 0){
+			makeStatusJSON(reply,STATUS_NOT_MODIFIED);
+			(completion) (reply, STATUS_NOT_MODIFIED);
+		}
 		else {
-			return false;
+			makeStatusJSON(reply,STATUS_OK);
+			(completion) (reply, STATUS_OK);
 		}
 	}
-	else {
-		return false;
-	}
- 
-	makeStatusJSON(reply,STATUS_OK);
-	(completion) (reply, STATUS_OK);
-	return true;
+	return success;
 }
 
 static bool Errors_NounHandler_DELETE(ServerCmdQueue* cmdQueue,

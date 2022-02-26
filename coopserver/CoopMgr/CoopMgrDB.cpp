@@ -29,6 +29,7 @@ CoopMgrDB::CoopMgrDB(){
 	_properties.clear();
 	_sdb = NULL;
 	_isSetup = false;
+	_cachedErrorTag = MAX_ETAG;
  
 	// create RNG engine
 	constexpr std::size_t SEED_LENGTH = 8;
@@ -449,6 +450,32 @@ void CoopMgrDB::dumpMap(){
 }
 
 // MARK: -  error logging into database
+
+bool CoopMgrDB::getErrorLogEtag(eTag_t &eTagOut){
+	bool success = false;
+	
+	if(_isSetup){
+		if(_cachedErrorTag != MAX_ETAG) {
+			eTagOut = _cachedErrorTag;
+			success = true;
+		}
+		else {
+			
+			string sql = "select seq from sqlite_sequence where name = \"ERROR_LOG\";";
+			sqlite3_stmt* stmt = NULL;
+
+			sqlite3_prepare_v2(_sdb, sql.c_str(), -1,  &stmt, NULL);
+ 
+			while ( (sqlite3_step(stmt)) == SQLITE_ROW) {
+				eTagOut  = sqlite3_column_int64(stmt, 0);
+				success = true;
+			}
+			sqlite3_finalize(stmt);
+  		}
+	}
+	return success;
+}
+
 void CoopMgrDB::logErrorMsg( const char *str){
 	if(_isSetup){
 		
@@ -465,11 +492,12 @@ void CoopMgrDB::logErrorMsg( const char *str){
 			sqlite3_free(zErrMsg);
 		}
 		
+		_cachedErrorTag = MAX_ETAG;
 	}
 }
 
-bool CoopMgrDB::historyForErrors(historicValues_t &valuesOut, uint64_t &eTagOut,
-											uint64_t eTag,  float days, int limit){
+bool CoopMgrDB::historyForErrors(historicValues_t &valuesOut, eTag_t &eTagOut,
+											eTag_t eTag,  float days, int limit){
 	
 	std::lock_guard<std::mutex> lock(_mutex);
 	bool success = false;
@@ -477,17 +505,17 @@ bool CoopMgrDB::historyForErrors(historicValues_t &valuesOut, uint64_t &eTagOut,
 	historicValues_t values;
 	values.clear();
  
-	string sql = string("SELECT strftime('%s', DATE) AS DATE, ERR , rowid FROM ERROR_LOG ");
+	string sql = string("SELECT strftime('%s', DATE) AS DATE, ERR , err_id FROM ERROR_LOG ");
 
 	if(limit){
-		sql += " ORDER BY DATE DESC LIMIT " + to_string(limit) + ";";
+		sql += " ORDER BY err_id DESC LIMIT " + to_string(limit) + ";";
 	}
 	
 	if(days > 0) {
 		sql += " WHERE DATE > datetime('now' , '-" + to_string(days) + " days');";
 	}
 	else if(eTag > 0) {
-		sql += " WHERE rowid > " +  to_string(eTag) + ";";
+		sql += " WHERE err_id > " +  to_string(eTag) + ";";
 	}
 	else {
 		sql += ";";
@@ -497,20 +525,19 @@ bool CoopMgrDB::historyForErrors(historicValues_t &valuesOut, uint64_t &eTagOut,
 
 	sqlite3_prepare_v2(_sdb, sql.c_str(), -1,  &stmt, NULL);
 
-	uint64_t lastrowID = 0;
+	eTag_t lastrowID = 0;
 	
 	while ( (sqlite3_step(stmt)) == SQLITE_ROW) {
 		time_t  when =  sqlite3_column_int64(stmt, 0);
 		string  value = string((char*) sqlite3_column_text(stmt, 1));
-		uint64_t rowID  = sqlite3_column_int64(stmt, 2);
-		if(rowID > lastrowID) lastrowID = rowID;
 		values.push_back(make_pair(when, value)) ;
 	}
 	sqlite3_finalize(stmt);
-
-	success = values.size() > 0;
+ 
+	success = getErrorLogEtag(lastrowID);
 	
 	if(success){
+		_cachedErrorTag = lastrowID;
 		eTagOut = lastrowID;
 		valuesOut = values;
 	}
@@ -518,7 +545,7 @@ bool CoopMgrDB::historyForErrors(historicValues_t &valuesOut, uint64_t &eTagOut,
 	return success;
 }
  
-bool CoopMgrDB::trimHistoryForErrorsByEtag(uint64_t eTag){
+bool CoopMgrDB::trimHistoryForErrorsByEtag(eTag_t eTag){
 
 	  std::lock_guard<std::mutex> lock(_mutex);
 	  bool success = false;
@@ -526,7 +553,7 @@ bool CoopMgrDB::trimHistoryForErrorsByEtag(uint64_t eTag){
 	  string sql = string("DELETE FROM ERROR_LOG ");
 		  
 	  if(eTag > 0) {
-		  sql += "WHERE rowID <=  " +  to_string(eTag) + " ;";
+		  sql += "WHERE err_id <=  " +  to_string(eTag) + " ;";
 	  }
 	  else {
 		  sql += ";";
@@ -553,8 +580,11 @@ bool CoopMgrDB::trimHistoryForErrorsByEtag(uint64_t eTag){
 		  sqlite3_errmsg(_sdb);
 	  }
 	  
+		if(success){
+			_cachedErrorTag = MAX_ETAG;
+		}
+	
 	  return success;
-
 }
 
 bool CoopMgrDB::trimHistoryForErrorsByDays(float days){
@@ -591,9 +621,12 @@ bool CoopMgrDB::trimHistoryForErrorsByDays(float days){
 		LOGT_ERROR("sqlite3_prepare_v2 FAILED: %s\n\t%s", sql.c_str(), sqlite3_errmsg(_sdb	) );
 		sqlite3_errmsg(_sdb);
 	}
-	
-	return success;
 
+	if(success){
+		_cachedErrorTag = MAX_ETAG;
+	}
+
+	return success;
  }
 
 
@@ -964,6 +997,7 @@ bool CoopMgrDB::initLogDatabase(string filePath){
 
 	// make sure primary tables are there.
 	string sql3 = "CREATE TABLE IF NOT EXISTS ERROR_LOG("  \
+						"err_id 	  INTEGER PRIMARY KEY AUTOINCREMENT," \
 						"ERR 		  TEXT    NOT NULL," \
 						"DATE      DATETIME	NOT NULL);";
 	
@@ -1270,6 +1304,12 @@ bool CoopMgrDB::restorePropertiesFromFile(string filePath){
 			}
 			else if( it.value().is_string()){
 				_properties[it.key() ] = string(it.value());
+			}
+			else if (it.value().is_number()){
+				_properties[it.key() ] = to_string(it.value());
+			}
+			else if (it.value().is_boolean()){
+				_properties[it.key() ] = to_string(it.value());
 			}
 		}
  		refreshSolarEvents();

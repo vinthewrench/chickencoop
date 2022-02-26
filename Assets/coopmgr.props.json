@@ -113,5 +113,8 @@
 	 "log-flags": "0x0f",
 	 "random-thing": "foobar the dog",
 	 "rest-port": "8081",
-	 "telnet-port": "2020"
+	 "telnet-port": "2020",
+	 "temp-query-delay" : 60,
+	 "cputemp-query-delay" : 60,
+	 "pijuice-query-delay" : 10
 }

@@ -46,6 +46,7 @@ CoopMgr::CoopMgr(){
 	
 	_thread = std::thread(&CoopMgr::run, this);
 	_cpuInfo.begin();
+	
 }
 
 CoopMgr::~CoopMgr(){
@@ -84,6 +85,12 @@ bool CoopMgr::initDataBase(string schemaFilePath,
 					&& _db.initLogDatabase(logDBFilePath);
 
 	if(success) {
+		
+		uint16_t queryDelay = 0;
+		if(_db.getUint16Property(string(CPUInfo::PROP_CPU_TEMP_QUERY_DELAY), &queryDelay)){
+			_cpuInfo.setQueryDelay(queryDelay);
+		}
+
 		_state = CoopMgrDevice::DEVICE_STATE_DISCONNECTED;
 		_db.logHistoricalEvent(CoopMgrDB::EV_START );
 		
@@ -278,6 +285,11 @@ void CoopMgr::startPiJuice( std::function<void(bool didSucceed, std::string erro
 	didSucceed =  _piJuice.begin(errnum);
 	if(didSucceed){
 
+		uint16_t queryDelay = 0;
+		if(_db.getUint16Property(string(PiJuice::PROP_PIJUICE_QUERY_DELAY), &queryDelay)){
+			_piJuice.setQueryDelay(queryDelay);
+		}
+
 		LOGT_DEBUG("Start PiJuice - OK");
 	}
 	else
@@ -403,6 +415,12 @@ void CoopMgr::startTempSensor( std::function<void(bool didSucceed, std::string e
  
 	didSucceed =  _tempSensor1.begin(deviceAddress, resultKey, errnum);
 	if(didSucceed){
+		
+		uint16_t queryDelay = 0;
+		if(_db.getUint16Property(string(TempSensor::PROP_TEMPSENSOR_QUERY_DELAY), &queryDelay)){
+			_tempSensor1.setQueryDelay(queryDelay);
+		}
+		
 		_db.addSchema(resultKey,
 						  CoopMgrDB::DEGREES_C,2,
 						  "Coop Temperature",

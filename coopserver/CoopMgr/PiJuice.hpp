@@ -23,7 +23,8 @@ using namespace std;
 class PiJuice : public CoopMgrDevice{
 
 public:
-   
+	constexpr static string_view PROP_PIJUICE_QUERY_DELAY				= "pijuice-query-delay";
+
 	typedef union {
 		 struct
 		 {
@@ -69,7 +70,8 @@ public:
   void stop();
 
   bool isConnected();
-
+  void setQueryDelay(uint64_t delay);
+	
   response_result_t rcvResponse(std::function<void(map<string,string>)> callback = NULL);
   
   void idle(); 	// called from loop

@@ -46,6 +46,10 @@ void CPUInfo::reset(){
 	
 }
 
+void CPUInfo::setQueryDelay(uint64_t delay){
+	_queryDelay = delay;
+	_lastQueryTime = {0,0};
+};
 
 CoopMgrDevice::response_result_t
 CPUInfo::rcvResponse(std::function<void(map<string,string>)> cb){
@@ -115,7 +119,7 @@ void CPUInfo::idle(){
 			double tempC;
 			
 			if(getCPUTemp(&tempC)){
-				_resultMap[string(CPU_INFO_TEMP)] =  to_string(tempC);
+				_resultMap[string(CPUInfo::CPU_INFO_TEMP)] =  to_string(tempC);
 				_state = INS_RESPONSE;
 				gettimeofday(&_lastQueryTime, NULL);
 				

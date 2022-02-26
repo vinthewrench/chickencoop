@@ -31,8 +31,9 @@
 using namespace std;
 using namespace nlohmann;
 
-typedef  unsigned long eTag_t;
- 
+typedef uint64_t eTag_t;
+#define MAX_ETAG UINT64_MAX
+
 typedef  unsigned short eventGroupID_t;
 bool str_to_EventGroupID(const char* str, eventGroupID_t *eventGroupIDOut = NULL);
 string  EventGroupID_to_string(eventGroupID_t eventGroupID);
@@ -166,7 +167,6 @@ public:
 	string displayStringForHistoricalEvent(h_event_t evt);
 
 	// MARK: - properties
-	
 	bool savePropertiesToFile(string filePath = "") ;
 	bool restorePropertiesFromFile(string filePath = "");
  
@@ -214,12 +214,15 @@ public:
 	void reconcileEventGroups(const solarTimes_t &solar, time_t localNow);
 
 	// MARK: -  error logging into database // called by coopMgr
+	
 	void logErrorMsg(const char *str);
-	bool historyForErrors(historicValues_t &values, uint64_t &eTagOut,
-								 uint64_t eTag,  float days = 0.0, int limit = 0);
-	bool trimHistoryForErrorsByDays(float days);
-	bool trimHistoryForErrorsByEtag(uint64_t eTag);
+	bool historyForErrors(historicValues_t &values, eTag_t &eTagOut,
+								 eTag_t eTag,  float days = 0.0, int limit = 0);
 
+	bool getErrorLogEtag(eTag_t &eTagOut);
+
+	bool trimHistoryForErrorsByDays(float days);
+	bool trimHistoryForErrorsByEtag(eTag_t eTag);
 
 private:
 	bool 		_isSetup;
@@ -261,6 +264,8 @@ private:
 
 	map<string, eTag_t> 			_etagMap;
 	eTag_t							_eTag;		// last change tag
+	
+	eTag_t							_cachedErrorTag;
 
 	map<string,string> 			_properties;
 	string 						_propertyFilePath;
