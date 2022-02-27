@@ -816,11 +816,11 @@ static bool Errors_NounHandler_GET(ServerCmdQueue* cmdQueue,
 											  ServerCmdQueue::cmdCallback_t completion) {
 	using namespace rest;
 	using namespace timestamp;
-
+	
 	json reply;
 	ServerCmdArgValidator v1;
 	string str;
-
+	
 	bool success = false;
 	
 	auto path = url.path();
@@ -831,72 +831,65 @@ static bool Errors_NounHandler_GET(ServerCmdQueue* cmdQueue,
 	}
 	
 	CoopMgrDB::historicValues_t history;
-	 uint64_t  lastEtag = 0;
-	 float days = 0;
-	 int limit = 0;
-	 long eTag = 0;
-
+	eTag_t  lastEtag = 0;
+	float days = 0;
+	int limit = 0;
+	eTag_t eTag = 0;
+	
 	auto coopMgr = CoopMgr::shared();
 	auto db = coopMgr->getDB();
-
-	// CHECK sub paths
-	 if (path.size() == 1){
- 
-		 if(v1.getStringFromMap("If-None-Match", url.headers(), str)){
-			 char* p;
-				eTag = strtol(str.c_str(), &p, 0);
-		 }
- 
-		 if(v1.getStringFromMap(JSON_ARG_LIMIT, url.headers(), str)){
-			 char* p;
-			 limit = (int) strtol(str.c_str(), &p, 10);
-			 if(*p != 0) limit = 0;
-			 
-			 // are we just asking for the etag?
-			 if(limit == 0){
-				 if(db->getErrorLogEtag(lastEtag)){
-					 reply[string(JSON_ARG_ETAG)] = lastEtag;
-					 success = true;
-					 goto done;
-				 }
-			 }
-		 }
-
-		 if(v1.getStringFromMap(JSON_ARG_DAYS, url.headers(), str)){
-			 char* p;
-			 days =  strtof(str.c_str(), &p);
-			 if(*p != 0) days = 0;
-		 }
-		 
-		 if(db->historyForErrors(history, lastEtag, eTag, days, limit)){
-
-			 json j;
-			 for (auto& entry : history) {
-			 
-				 json j1;
-				 j1[string(CoopMgrDB::JSON_ARG_VALUE)] 	=  entry.second;
-				 j1[string(CoopMgrDB::JSON_ARG_TIME)] 		=   entry.first;
-				 j.push_back(j1);
-			 }
 	
-			 reply[string(JSON_ARG_ETAG)] = lastEtag;
-			 reply[string(JSON_ARG_VALUES)] = j;
-
-			 success = true;
-		 }
- 	}
- 
+	// CHECK sub paths
+	if (path.size() == 1){
+		
+		if(v1.getStringFromMap("If-None-Match", url.headers(), str)){
+			char* p;
+			eTag = strtoull(str.c_str(), &p, 10);
+		}
+		
+		if(v1.getStringFromMap(JSON_ARG_LIMIT, url.headers(), str)){
+			char* p;
+			limit = (int) strtol(str.c_str(), &p, 10);
+			if(*p != 0) limit = 0;
+			
+			// are we just asking for the etag?
+			if(limit == 0){
+				if(db->getErrorLogEtag(lastEtag)){
+					reply[string(JSON_ARG_ETAG)] = lastEtag;
+					success = true;
+					goto done;
+				}
+			}
+		}
+		
+		if(v1.getStringFromMap(JSON_ARG_DAYS, url.headers(), str)){
+			char* p;
+			days =  strtof(str.c_str(), &p);
+			if(*p != 0) days = 0;
+		}
+		
+		if(db->historyForErrors(history, lastEtag, eTag, days, limit)){
+			
+			json j;
+			for (auto& entry : history) {
+				
+				json j1;
+				j1[string(CoopMgrDB::JSON_ARG_VALUE)] 	=  entry.second;
+				j1[string(CoopMgrDB::JSON_ARG_TIME)] 		=   entry.first;
+				j.push_back(j1);
+			}
+			
+			reply[string(JSON_ARG_ETAG)] = lastEtag;
+			reply[string(JSON_ARG_VALUES)] = j;
+			
+			success = true;
+		}
+	}
+	
 done:
 	if(success){
-		
-		if(eTag != 0 && history.size() == 0){
-			makeStatusJSON(reply,STATUS_NOT_MODIFIED);
-			(completion) (reply, STATUS_NOT_MODIFIED);
-		}
-		else {
-			makeStatusJSON(reply,STATUS_OK);
-			(completion) (reply, STATUS_OK);
-		}
+		makeStatusJSON(reply,STATUS_OK);
+		(completion) (reply, STATUS_OK);
 	}
 	return success;
 }
