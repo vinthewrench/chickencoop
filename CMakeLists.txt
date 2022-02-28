@@ -39,6 +39,7 @@ set(SOURCES
 	coopserver/src/ServerNouns.cpp
 	coopserver/CoopMgr/CoopMgr.cpp
 	coopserver/CoopMgr/CoopMgrDB.cpp
+	coopserver/CoopMgr/ErrorMgr.cpp
 	coopserver/CoopMgr/CoopMgrAPISecretMgr.cpp
 	coopserver/CoopMgr/sunset.cpp
 	coopserver/CoopMgr/SolarTimeMgr.cpp

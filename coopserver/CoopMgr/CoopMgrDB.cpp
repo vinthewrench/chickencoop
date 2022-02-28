@@ -476,15 +476,31 @@ bool CoopMgrDB::getErrorLogEtag(eTag_t &eTagOut){
 	return success;
 }
 
-void CoopMgrDB::logErrorMsg( const char *str){
+
+void CoopMgrDB::logError(
+								  ErrorMgr::level_t level,
+								  ErrorMgr::facility_t 	facility,
+								  uint8_t 		deviceID,
+								  string 		message,
+								  string 		error){
+	
+	std::lock_guard<std::mutex> lock(_mutex);
+	
 	if(_isSetup){
 		
 		auto ts = TimeStamp(time(NULL));
 		
-		string sql = string("INSERT INTO ERROR_LOG (ERR,DATE) ")
-		+ "VALUES  (\"" + str + "\", '" + ts.ISO8601String() + "' );";
 		
-		//	 printf("%s\n", sql.c_str());
+		string sql = string("INSERT INTO ERROR_LOG (LEVEL, FACILITY, DEVICE_ID, MESSAGE, ERR, DATE) ")
+		+ "VALUES  ("
+		+ "\"" + to_string(level) + "\","
+		+ "\"" + to_string(facility) + "\","
+		+ "\"" + to_string(deviceID) +  "\","
+		+ "\"" + message +  "\","
+		+ "\"" + error +  "\","
+		+ "'" + ts.ISO8601String() + "' );";
+		
+		//			  printf("%s\n", sql.c_str());
 		
 		char *zErrMsg = 0;
 		if(sqlite3_exec(_sdb,sql.c_str(),NULL, 0, &zErrMsg  ) != SQLITE_OK){
@@ -496,21 +512,22 @@ void CoopMgrDB::logErrorMsg( const char *str){
 	}
 }
 
-bool CoopMgrDB::historyForErrors(historicValues_t &valuesOut, eTag_t &eTagOut,
+
+bool CoopMgrDB::historyForErrors(errorLogValues_t &valuesOut, eTag_t &eTagOut,
 											eTag_t eTag,  float days, int limit){
 	
 	std::lock_guard<std::mutex> lock(_mutex);
 	bool success = false;
 	
-	historicValues_t values;
+	errorLogValues_t values;
 	values.clear();
- 
-	string sql = string("SELECT strftime('%s', DATE) AS DATE, ERR , err_id FROM ERROR_LOG ");
 
-	if(limit){
+	string sql = string("SELECT err_id, LEVEL, FACILITY, DEVICE_ID, MESSAGE, ERR, strftime('%s', DATE) AS DATE FROM ERROR_LOG ") ;
+
+ 	if(limit){
 		sql += " ORDER BY err_id DESC LIMIT " + to_string(limit) + ";";
 	}
-	
+
 	if(days > 0) {
 		sql += " WHERE DATE > datetime('now' , '-" + to_string(days) + " days');";
 	}
@@ -526,16 +543,22 @@ bool CoopMgrDB::historyForErrors(historicValues_t &valuesOut, eTag_t &eTagOut,
 	sqlite3_prepare_v2(_sdb, sql.c_str(), -1,  &stmt, NULL);
 
 	eTag_t lastrowID = 0;
-	
+
 	while ( (sqlite3_step(stmt)) == SQLITE_ROW) {
-		time_t  when =  sqlite3_column_int64(stmt, 0);
-		string  value = string((char*) sqlite3_column_text(stmt, 1));
-		values.push_back(make_pair(when, value)) ;
-	}
+ 		eTag_t  tag = sqlite3_column_int64(stmt, 0);
+		ErrorMgr::level_t level = (ErrorMgr::level_t) sqlite3_column_int64(stmt, 1);
+		ErrorMgr::facility_t facility = (ErrorMgr::facility_t) sqlite3_column_int(stmt, 2);
+		uint8_t	deviceID = (uint8_t) (sqlite3_column_int(stmt, 3) & 0xFF);
+		string  message = string((char*) sqlite3_column_text(stmt, 4));
+		string  error = string((char*) sqlite3_column_text(stmt, 5));
+		time_t  when =  sqlite3_column_int64(stmt, 6);
+
+		values.push_back(  make_tuple(tag, when, level, facility, deviceID, message, error) );
+ 	}
 	sqlite3_finalize(stmt);
- 
+
 	success = getErrorLogEtag(lastrowID);
-	
+
 	if(success){
 		_cachedErrorTag = lastrowID;
 		eTagOut = lastrowID;
@@ -997,10 +1020,14 @@ bool CoopMgrDB::initLogDatabase(string filePath){
 
 	// make sure primary tables are there.
 	string sql3 = "CREATE TABLE IF NOT EXISTS ERROR_LOG("  \
-						"err_id 	  INTEGER PRIMARY KEY AUTOINCREMENT," \
-						"ERR 		  TEXT    NOT NULL," \
+						"err_id 	  	INTEGER PRIMARY KEY AUTOINCREMENT," \
+						"LEVEL 	 		INTEGER," \
+						"FACILITY 	 	INTEGER," \
+						"DEVICE_ID  	INTEGER," \
+						"MESSAGE  TEXT    NOT NULL," \
+						"ERR  TEXT," \
 						"DATE      DATETIME	NOT NULL);";
-	
+		
 	if(sqlite3_exec(_sdb,sql3.c_str(),NULL, 0, &zErrMsg  ) != SQLITE_OK){
 		LOGT_ERROR("sqlite3_exec FAILED: %s\n\t%s", sql3.c_str(), sqlite3_errmsg(_sdb	) );
 		sqlite3_free(zErrMsg);

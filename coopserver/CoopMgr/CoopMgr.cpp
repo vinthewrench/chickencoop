@@ -10,13 +10,7 @@
 #include "Utils.hpp"
  
 
-#define DBLOGT_ERROR( _msg_, ...)  \
-	  {										\
-	  LogMgr::shared()->logMessage(LogMgr::LogFlagError, true, _msg_, ##__VA_ARGS__); \
-	  logErrorMsg(_msg_, ##__VA_ARGS__); \
-}
-
-
+ 
  const char* 	CoopMgr::CoopMgr_Version = "1.0.0 dev 2";
 
 CoopMgr *CoopMgr::sharedInstance = NULL;
@@ -292,8 +286,9 @@ void CoopMgr::startPiJuice( std::function<void(bool didSucceed, std::string erro
 
 		LOGT_DEBUG("Start PiJuice - OK");
 	}
-	else
-		DBLOGT_ERROR("Start PiJuice - FAIL %s", string(strerror(errnum)).c_str());
+	else {
+		ELOG_ERROR(ErrorMgr::FAC_POWER, 0, errnum,  "Start PiJuice ");
+	}
 #endif
  
 	if(cb)
@@ -335,9 +330,10 @@ void CoopMgr::startWittyPi3( std::function<void(bool didSucceed, std::string err
 //
 		LOGT_DEBUG("Start WittyPi3 - OK");
 	}
-	else
-		DBLOGT_ERROR("Start WittyPi3 - FAIL %s", string(strerror(errnum)).c_str());
-#endif
+	else {
+		ELOG_ERROR(ErrorMgr::FAC_POWER, 0, errnum,  "Start WittyPi3 ");
+	}
+ #endif
  
 	if(cb)
 		(cb)(didSucceed, didSucceed?"": string(strerror(errnum) ));
@@ -412,7 +408,7 @@ void CoopMgr::startTempSensor( std::function<void(bool didSucceed, std::string e
 	
 	uint8_t deviceAddress = 0x48;
 	string resultKey =  string(TEMPSENSOR_KEY) + to_hex(deviceAddress,true);
- 
+	
 	didSucceed =  _tempSensor1.begin(deviceAddress, resultKey, errnum);
 	if(didSucceed){
 		
@@ -428,12 +424,14 @@ void CoopMgr::startTempSensor( std::function<void(bool didSucceed, std::string e
 		
 		LOGT_DEBUG("Start TempSensor 1 - OK");
 	}
-	else
-		DBLOGT_ERROR("Start TempSensor 1  - FAIL %s", string(strerror(errnum)).c_str());
- 	
+	else {
+		ELOG_ERROR(ErrorMgr::FAC_SENSOR, deviceAddress, errnum,  "Start TempSensor 1 ");
+	}
+	
+	
 	if(cb)
 		(cb)(didSucceed, didSucceed?"": string(strerror(errnum) ));
-
+	
 }
 
 void CoopMgr::stopTempSensor(){
@@ -454,9 +452,11 @@ void CoopMgr::startCoopDevices( std::function<void(bool didSucceed, std::string 
 	bool didSucceed = false;
 	
 	didSucceed =  _coopHW.begin(errnum);
-	if(!didSucceed) 
-		DBLOGT_ERROR("Start CoopDevices  - FAIL %s", string(strerror(errnum)).c_str());
-	
+	if(!didSucceed)
+	{
+			ELOG_ERROR(ErrorMgr::FAC_DEVICE, 0, errnum,  "Start CoopDevices");
+	}
+		
 	if(cb)
 		(cb)(didSucceed, didSucceed?"": string(strerror(errnum) ));
 }
@@ -628,20 +628,6 @@ bool CoopMgr::runAction(Action action,
 	}
 	
 	return handled;
-}
-
-// MARK: -  error logging into database
-void CoopMgr::logErrorMsg(const char *format, ...){
-	
-	char *str;
-	va_list args;
-	va_start(args, format);
-	vasprintf(&str, format, args);
-
-	_db.logErrorMsg(str);
-	
-	free(str);
-	va_end(args);
 }
 
 //MARK: -  idle loop

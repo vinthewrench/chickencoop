@@ -27,6 +27,7 @@
 #include "CoopMgrCommon.h"
 #include "Action.hpp"
 #include "Event.hpp"
+#include "ErrorMgr.hpp"
 
 using namespace std;
 using namespace nlohmann;
@@ -42,7 +43,6 @@ string  EventGroupID_to_string(eventGroupID_t eventGroupID);
 class CoopMgrDB {
  
 public:
-
 	
 	constexpr static string_view PROP_LOG_FLAGS					= "log-flags";
 	constexpr static string_view PROP_LOG_FILE					= "log-filepath";
@@ -118,9 +118,26 @@ public:
 	constexpr static string_view JSON_ARG_HISTORICAL_EVENT			= "historicalevent";
 	constexpr static string_view JSON_ARG_TIME			= "time";
 	constexpr static string_view JSON_ARG_DISPLAYSTR		= "display";
+	constexpr static string_view JSON_ARG_ETAG			= "ETag";
 	
+	
+	constexpr static string_view JSON_ARG_FACILITY			= "err.facility";
+	constexpr static string_view JSON_ARG_LEVEL				= "err.level";
+	constexpr static string_view JSON_ARG_DEVICE				= "err.device";
+	constexpr static string_view JSON_ARG_MESSAGE			= "err.message";
+	constexpr static string_view JSON_ARG_ERROR				= "err.error";
+ 
 	typedef vector<pair<time_t, string>> historicValues_t;
 	typedef vector<pair<time_t, h_event_t>> historicEvents_t;
+	
+	typedef vector<tuple<eTag_t, 	// eTag
+								time_t,	// time
+				ErrorMgr::level_t,	// level
+			ErrorMgr::facility_t,	// facility
+							uint8_t,	 // deviceID
+							string, // message
+							string  // error
+							>> errorLogValues_t;
 
 	CoopMgrDB();
   ~CoopMgrDB();
@@ -215,8 +232,13 @@ public:
 
 	// MARK: -  error logging into database // called by coopMgr
 	
-	void logErrorMsg(const char *str);
-	bool historyForErrors(historicValues_t &values, eTag_t &eTagOut,
+	void logError(ErrorMgr::level_t level,
+				ErrorMgr::facility_t 	facility,
+				uint8_t 		deviceID,
+				string message,
+				 string error = "");
+
+	bool historyForErrors(errorLogValues_t &values, eTag_t &eTagOut,
 								 eTag_t eTag,  float days = 0.0, int limit = 0);
 
 	bool getErrorLogEtag(eTag_t &eTagOut);
@@ -224,6 +246,8 @@ public:
 	bool trimHistoryForErrorsByDays(float days);
 	bool trimHistoryForErrorsByEtag(eTag_t eTag);
 
+	// MARK: -
+	
 private:
 	bool 		_isSetup;
 

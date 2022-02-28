@@ -11,12 +11,8 @@
 #include <regex>
 #include <ctype.h>
 #include "CoopMgr.hpp"
+#include "ErrorMgr.hpp"
 
-#define DBLOGT_ERROR( _msg_, ...)  \
-		{										\
-		LogMgr::shared()->logMessage(LogMgr::LogFlagError, true, _msg_, ##__VA_ARGS__); \
-		CoopMgr::shared()->logErrorMsg(_msg_, ##__VA_ARGS__); \
-}
 
 CoopDevices::CoopDevices():
 						_doorMgr(this)
@@ -39,18 +35,23 @@ bool CoopDevices::begin(int &error){
 	  _queryDelay = 2;	// seconds
 	  _lastQueryTime = {0,0};
 
-	if(! _relay.begin("/dev/gpiochip0", error )){
-		DBLOGT_ERROR("OPEN RELAY - FAIL %s", string(strerror(errnum)).c_str());
+	if(! _relay.begin("/dev/gpiochip0", errnum )){
+		error = errnum;
+		ELOG_ERROR(ErrorMgr::FAC_GPIO, 0, errnum,  "OPEN RELAY ");
 		return false;
 	}
 	
- 	if( ! _redButton.begin(0x6E, errnum))
-		DBLOGT_ERROR("Start RedButton  - FAIL %s", string(strerror(errnum)).c_str());
-	
-	if(! _greenButton.begin(0x6F, errnum))
-		DBLOGT_ERROR("Start GreenButton  - FAIL %s", string(strerror(errnum)).c_str());
+	if( ! _redButton.begin(0x6E, errnum)){
+		ELOG_ERROR(ErrorMgr::FAC_DEVICE, 0x6E, errnum,  "Start RedButton ");
+	}
+ 
+	if(! _greenButton.begin(0x6F, errnum)){
+		ELOG_ERROR(ErrorMgr::FAC_DEVICE, 0x6F, errnum,  "Start GreenButton ");
+	}
 	
 	_doorMgr.begin();
+
+	error = errnum;
 
 	return true;
 }

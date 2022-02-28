@@ -830,7 +830,7 @@ static bool Errors_NounHandler_GET(ServerCmdQueue* cmdQueue,
 		noun = path.at(0);
 	}
 	
-	CoopMgrDB::historicValues_t history;
+	CoopMgrDB::errorLogValues_t errorLog;
 	eTag_t  lastEtag = 0;
 	float days = 0;
 	int limit = 0;
@@ -868,14 +868,29 @@ static bool Errors_NounHandler_GET(ServerCmdQueue* cmdQueue,
 			if(*p != 0) days = 0;
 		}
 		
-		if(db->historyForErrors(history, lastEtag, eTag, days, limit)){
+		if(db->historyForErrors(errorLog, lastEtag, eTag, days, limit)){
 			
 			json j;
-			for (auto& entry : history) {
-				
+			for (auto& entry : errorLog) {
+
+				/*
+				 typedef vector<tuple<eTag_t, 	// eTag
+											 time_t,	// time
+							 ErrorMgr::level_t,	// level
+						 ErrorMgr::facility_t,	// facility
+										 uint8_t,	 // deviceID
+										 string, // message
+										 string  // error
+										 >> errorLogValues_t;
+				 */
 				json j1;
-				j1[string(CoopMgrDB::JSON_ARG_VALUE)] 	=  entry.second;
-				j1[string(CoopMgrDB::JSON_ARG_TIME)] 		=   entry.first;
+				j1[string(CoopMgrDB::JSON_ARG_ETAG)] 		= get<0>(entry);
+				j1[string(CoopMgrDB::JSON_ARG_TIME)] 		= get<1>(entry);
+				j1[string(CoopMgrDB::JSON_ARG_LEVEL)] 		= get<2>(entry);
+				j1[string(CoopMgrDB::JSON_ARG_FACILITY)] 	= get<3>(entry);
+				j1[string(CoopMgrDB::JSON_ARG_DEVICE)] 	= get<4>(entry);
+				j1[string(CoopMgrDB::JSON_ARG_MESSAGE)] 	= get<5>(entry);
+				j1[string(CoopMgrDB::JSON_ARG_ERROR)] 		= get<6>(entry);
 				j.push_back(j1);
 			}
 			

@@ -13,6 +13,7 @@
 
 GPIO::GPIO(){
 	_isSetup = false;
+	_chip = NULL;
  }
 
 
@@ -49,6 +50,10 @@ bool GPIO::begin(string	path, vector<uint8_t> pins, int request_type,  int flags
 //	for(auto x: offsets) { 	printf("Setup GPIO(%2d)\n", x); }
 //
 
+//	//DEBUG
+//	error = ENODEV;
+//	goto cleanup;
+
 	// open the device
 	_chip = gpiod_chip_open(path.c_str());
 	if(!_chip) {
@@ -81,8 +86,10 @@ bool GPIO::begin(string	path, vector<uint8_t> pins, int request_type,  int flags
 	return _isSetup;
 	
 cleanup:
-	 gpiod_line_release_bulk(&_lines);
-	 gpiod_chip_close(_chip);
+	if(_chip){
+		gpiod_line_release_bulk(&_lines);
+		gpiod_chip_close(_chip);
+	}
 	_isSetup = false;
 
 	return false;

@@ -36,11 +36,13 @@
 #include "PiJuice.hpp"
 #endif
 
+#include "ErrorMgr.hpp"
  
 using namespace std;
  
 class CoopMgr {
-	
+		friend ErrorMgr;
+
 public:
 	static const char* 	CoopMgr_Version;
 	
@@ -130,9 +132,6 @@ public:
 	bool getCurrentOut(double &val);
 	bool getPowerMode(bool &val);
 	bool getPowerTemp(double &val);
-
-	//  error logging into database
-	void logErrorMsg(const char *format, ...);
 
 private:
 	void runShutdownEvents(std::function<void()> callback = NULL);
