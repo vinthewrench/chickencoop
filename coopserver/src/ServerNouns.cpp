@@ -895,7 +895,7 @@ static bool Errors_NounHandler_GET(ServerCmdQueue* cmdQueue,
 			}
 			
 			reply[string(JSON_ARG_ETAG)] = lastEtag;
-			reply[string(JSON_ARG_VALUES)] = j;
+			reply[string(JSON_ARG_ERRORS)] = j;
 			
 			success = true;
 		}

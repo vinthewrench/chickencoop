@@ -59,6 +59,8 @@ constexpr string_view JSON_ARG_PROPERTIES	= "properties";
 
 constexpr string_view JSON_ARG_SCHEMA			= "schema";
 constexpr string_view JSON_ARG_VALUES			= "values";
+constexpr string_view JSON_ARG_ERRORS			= "errors";
+
 constexpr string_view JSON_ARG_HISTORICAL_EVENTS			= "historicalevents";
 
 constexpr string_view JSON_ARG_DAYS			= "days";
