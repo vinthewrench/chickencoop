@@ -9,13 +9,19 @@ import Foundation
 import UIKit
 import Toast
  
+public enum loginState {
+	case loading, success, failed, disconnected
+}
+
+public protocol SetupViewControllerDelegate  {
+	func setupViewChanged(state: loginState)
+}
+
 class SetupViewController: UIViewController,
 									UITextFieldDelegate,
 									UIAdaptivePresentationControllerDelegate {
 
-	enum loginState {
-		case loading, success, failed, disconnected
-	}
+
  	@IBOutlet var txtServerHost	: UITextField!
 	@IBOutlet var txtServerPort	: UITextField!
 	@IBOutlet var txtKey			: UITextField!
@@ -27,16 +33,18 @@ class SetupViewController: UIViewController,
 	@IBOutlet var btnInfo		: UIButton!
 	
 	
+	var delegate:SetupViewControllerDelegate? = nil
+
 //	var svc : StatusViewController?
  	var timer = Timer()
 	var isSecured: Bool = true
 	
 	private var connectState = loginState.disconnected
 
-	class func create() -> SetupViewController? {
+	class func createWith(delegate : SetupViewControllerDelegate? ) -> SetupViewController? {
 		let storyboard = UIStoryboard(name: "SetupView", bundle: nil)
 		let vc = storyboard.instantiateViewController(withIdentifier: "SetupViewController") as? SetupViewController
-		
+		vc?.delegate = delegate
 		return vc
 	}
  
@@ -186,6 +194,7 @@ class SetupViewController: UIViewController,
 
 //				self.startPolling();
 //				self.refreshView()
+				
 				break
 
 			case .success(let status as RESTError):
@@ -225,6 +234,8 @@ class SetupViewController: UIViewController,
 			}
 
 			self.btnConnect.isHidden = false
+
+			self.delegate?.setupViewChanged(state: self.connectState)
 
 	  }
 

@@ -89,42 +89,7 @@ class CoopValuesViewController: UIViewController,
 		
 	}
 		
-//
-//
-//			let dp = DispatchGroup()
-//
-//			dp.enter()
-//			ChickenCoop.shared.fetchData(.values) { result in
-//				if case .success(let v as RESTValuesList) = result {
-//
-//					self.groupedKeys = ChickenCoop.shared.groupValueKeys(Array(v.values.keys))
-//
-//					self.keys = Array(v.values.keys).sorted(by: <)
-//					self.values = v.values
-//
-//				}
-//				else {
-//					self.keys = []
-//				}
-//
-//				dp.leave()
-//			}
-//
-//			dp.enter()
-//			ChickenCoop.shared.fetchData(.schema) { result in
-//				if case .success(let scm as RESTSchemaList) = result {
-//					self.schema = scm.schema
-//				}
-//
-//				dp.leave()
-//			}
-//
-//			dp.notify(queue: .main) {
-//				self.tableView.reloadData()
-//			}
-// 		}
-//	}
-	
+
 	override func viewWillDisappear(_ animated: Bool) {
 		super.viewWillDisappear(animated)
 		
@@ -153,7 +118,7 @@ class CoopValuesViewController: UIViewController,
 	// MARK: - view refresh
 
 	private func refreshView() {
-		if(	AppData.serverInfo.validated){
+		if(AppData.serverInfo.validated){
 			
 			ChickenCoop.shared.fetchData(.values) { result in
 				if case .success(let v as RESTValuesList) = result {

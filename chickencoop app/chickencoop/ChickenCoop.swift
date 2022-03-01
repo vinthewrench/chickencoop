@@ -383,47 +383,6 @@ public class ChickenCoop {
 	}()
 	
 	
-		
-	func fetchValues(completionHandler: @escaping (Result<Any?, Error>) -> Void)  {
-		
-			fetchData(.values) { result in
-				
-				if case .success(let v as RESTValuesList) = result {
-					
-					var ccv :CoopValues = .init()
-	 
-					if let s1 = v.values["CPU_TEMP"]?.value,
-						let val = Double(s1) {
-						ccv.cpuTemp = val
-						
-					}
-					if let s1 = v.values["TEMP_0x48"]?.value,
-						let val = Double(s1) {
-						ccv.temp1 = val
-					}
-					
-					if let s1 = v.values["DOOR_STATE"]?.value,
-						let val = DoorState(rawValue: Int(s1)!) {
-						ccv.door = val
-					}
-					
-					if let s1 = v.values["LIGHT_STATE"]?.value {
- 						ccv.light = s1.boolValue
-					}
-					
-					if let s1 = v.values["AUX_STATE"]?.value {
-						ccv.aux = s1.boolValue
-					}
-		
-					completionHandler(.success(ccv))
-				}
-				else {
-					completionHandler(.failure(CoopError.connectFailed))
-				}
-				
-			}
-		 
-	}
 	
 	func fetchData(_ requestType: CoopRequest,  ID : String? = nil,
 						completionHandler: @escaping (Result<Any?, Error>) -> Void)  {
@@ -520,6 +479,9 @@ public class ChickenCoop {
 			else 	if let dev = json as? RESTDevicePower {
 			completionHandler(.success(dev))
 			}
+			else 	if let hist = json as? RESTHistory {
+				completionHandler(.success(hist))
+			}
  			else if let restErr = json as? RESTError {
 				completionHandler(.success(restErr))
 			}
@@ -528,6 +490,49 @@ public class ChickenCoop {
 			}
 		}
 	}
+ 
+
+	func fetchErrorHistory(
+							limit: UInt = 100,
+							eTag: UInt64?,
+							completionHandler: @escaping (Result<Any?, Error>) -> Void)  {
+
+		let urlPath :String = "errors"
+
+		var headers = ["limit" : String(limit)]
+		
+		if let eTag = eTag {
+			headers["If-None-Match"] =  String(eTag)
+		}
+
+		CCServerManager.shared.RESTCall(urlPath: urlPath,
+												  headers:headers,
+												  queries: nil) { (response, json, error)  in
+
+			if let response = response as? HTTPURLResponse {
+				if(response.statusCode == 304){
+					completionHandler(.success( RESTErrorLog()))
+					return
+				}
+				
+				if(response.statusCode == 404){
+						completionHandler(.success( RESTErrorLog()))
+					return
+				}
+			}
+	 
+			if let restHist = json as? RESTErrorLog {
+				completionHandler(.success(restHist))
+			}
+			else if let restErr = json as? RESTError {
+				completionHandler(.success(restErr))
+			}
+			else if let error = error{
+				completionHandler(.failure(error))
+			}
+		}
+	}
+	
 	
 	func fetchHistory(_ key: String,
 							completionHandler: @escaping (Result<Any?, Error>) -> Void)  {
@@ -584,36 +589,36 @@ public class ChickenCoop {
 		}
 	}
 
-	
-
 	func groupValueKeys(_ keys: [String]) -> [keyGroupEntry]{
 
-		var result:[keyGroupEntry] = []
+		var temp:[keyGroupEntry] = []
+		
+		temp.append( keyGroupEntry(title: "Error System" ))
+		temp.append( keyGroupEntry(title: "Coop State" ))
+		temp.append( keyGroupEntry(title: "Temperature" ))
+		temp.append( keyGroupEntry(title: "Power System" ))
 
-		result.append( keyGroupEntry(title: "Coop State" ))
-		result.append( keyGroupEntry(title: "Temperature" ))
-		result.append( keyGroupEntry(title: "Power System" ))
- 
 		let coopKeys = ["LIGHT_STATE", "DOOR_STATE", "AUX_STATE"  ]
-
 		let tempKeys = ["TEMP_0x48","CPU_TEMP"]
-
 		let powerKeys = [ "PJ_STATUS", "PJ_FAULT", "PJ_TEMP", "PJ_SOC", "PJ_I", "PJ_BV", "PJ_IN1", "PJ_IN2"]
+		let errorKeys = [ "ERR_COUNT"];
 
 		let keys = Array(keys).sorted(by: <)
 
 		for key in keys {
-
-			if(coopKeys.contains(key)){
-				result[0].keys.append(key)
+			if(errorKeys.contains(key)){
+				temp[0].keys.append(key)
+			}else if(coopKeys.contains(key)){
+				temp[1].keys.append(key)
 			}else if(tempKeys.contains(key)){
-				result[1].keys.append(key)
-			}
-			else if(powerKeys.contains(key)){
-				result[2].keys.append(key)
+				temp[2].keys.append(key)
+			}else if(powerKeys.contains(key)){
+				temp[3].keys.append(key)
 			}
 		}
-
+		
+		let result = temp.filter { $0.keys.count  > 0 }
+		
 		return result
 	}
 	

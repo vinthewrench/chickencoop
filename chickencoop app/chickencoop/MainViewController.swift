@@ -10,15 +10,18 @@ import UIKit
 
 @objc protocol MainSubviewViewControllerDelegate  {
 	func addButtonHit(_ sender: UIButton)
+	func shouldShowAddButton() -> Bool 
+	func refreshView()
 }
-
 
 
 class MainSubviewViewController: UIViewController {
 	var mainView : MainViewController?
 }
  
-class MainViewController: UIViewController, UITabBarDelegate {
+class MainViewController: UIViewController, UITabBarDelegate, SetupViewControllerDelegate {
+	
+	
 	
 	@IBOutlet var tabBar	: UITabBar!
 	@IBOutlet var lbTitle 	: UILabel!
@@ -32,6 +35,8 @@ class MainViewController: UIViewController, UITabBarDelegate {
 	var containViewController : UIViewController? = nil
 
 	var subViewDelegate: MainSubviewViewControllerDelegate? = nil
+
+	var timer = Timer()
 
 	override var title: String? {
 		 get {
@@ -60,7 +65,13 @@ class MainViewController: UIViewController, UITabBarDelegate {
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
 		
-		
+		if(AppData.serverInfo.validated){
+			refreshWarning();
+			startPolling();
+		}
+		else {
+			stopPollng();
+		}
 	}
 	
 	override func viewDidAppear(_ animated: Bool) {
@@ -72,6 +83,29 @@ class MainViewController: UIViewController, UITabBarDelegate {
 	
 	}
 	
+	override func viewWillDisappear(_ animated: Bool) {
+		super.viewWillDisappear(animated)
+		
+		stopPollng();
+ 	}
+	
+	// MARK: - polling / refresh
+
+	public func startPolling() {
+		
+		timer =  Timer.scheduledTimer(withTimeInterval: 5.0,
+												repeats: true,
+												block: { timer in
+													DispatchQueue.main.async  {
+														self.refreshWarning()
+													}
+												})
+	}
+	
+	public func stopPollng(){
+		timer.invalidate()
+	}
+
 	
 	func tabBar(_ tabBar: UITabBar, didSelect item: UITabBarItem) {
 		self.title = item.title
@@ -97,7 +131,7 @@ class MainViewController: UIViewController, UITabBarDelegate {
 		}
 		
 		newVC?.mainView = self
-		subViewDelegate = newVC as? MainSubviewViewControllerDelegate
+		self.subViewDelegate = newVC as? MainSubviewViewControllerDelegate
 		
 		btnAdd.isHidden = subViewDelegate == nil
 		
@@ -118,16 +152,62 @@ class MainViewController: UIViewController, UITabBarDelegate {
 		}
 	 
 	}
+	
+	private func refreshWarning() {
+		
+		if(AppData.serverInfo.validated){
+			
+			let lastEtag = AppData.serverInfo.lastErrorEtag
+			
+			ChickenCoop.shared.fetchErrorHistory(limit: 0, eTag: lastEtag) { result in
+				
+				if case .success(let hist as RESTErrorLog ) = result {
+					
+					var color =  UIView.appearance().tintColor
+					
+					if let newTag = hist.eTag  {
+						if(hist.count == 0){
+							AppData.serverInfo.lastErrorEtag =  UInt64(newTag)
+						}
+						else {
+							color = .systemRed
+						}
+						
+					} else {
+						AppData.serverInfo.lastErrorEtag = 0
+					}
+					
+					self.btnDetails.tintColor = color
+				}
+			}
+		}
+	}
  
- 
+	// SetupViewControllerDelegate
+	func setupViewChanged(state: loginState){
+
+		if(state == loginState.success){
+			refreshWarning();
+ 			startPolling();
+			subViewDelegate?.refreshView()
+		}
+		else {
+			stopPollng();
+			subViewDelegate?.refreshView()
+		}
+	}
+
+	// actions
 	@IBAction func SetupUpClicked(_ sender: UIButton) -> Void {
 
 		self.displaySetupView()
 	}
 
+	
+
 	func displaySetupView(){
 
-		if let setupView = SetupViewController.create() {
+		if let setupView = SetupViewController.createWith(delegate: self) {
 			self.show(setupView, sender: self)
 		}
 	}
@@ -145,5 +225,5 @@ class MainViewController: UIViewController, UITabBarDelegate {
 		}
 		
 	}
-
+	
 }

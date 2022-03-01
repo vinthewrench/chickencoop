@@ -290,6 +290,71 @@ struct RESTProperties: Codable {
 	var properties:  Dictionary<String, String>
   }
 
+
+struct RESTErrorDetails: Codable {
+	
+	var eTag:  	Double
+	var facility:  UInt
+	var level:  	UInt
+	var device:  	UInt
+	var message: 	String
+	var errStr:  String?
+ 	var time:  Double
+ 
+	enum CodingKeys: String, CodingKey {
+		case eTag 		= "ETag"
+		case facility 	= "err.facility"
+		case level 		= "err.level"
+		case device		= "err.device"
+		case message 	= "err.message"
+		case errStr 	= "err.error"
+ 		case time 		= "time"
+	}
+
+	/*
+	FAC_UNKNOWN,
+	FAC_I2C,
+	FAC_GPIO,
+	FAC_POWER,
+	FAC_SENSOR,
+	FAC_DEVICE
+
+	*/
+	func stringForFaciliy() ->  String {
+		var str = ""
+		switch facility {
+		case 1: str = "I2C"
+		case 2: str = "GPIO"
+		case 3: str = "PWR"
+		case 4: str = "SEN"
+		case 5: str = "DEV"
+ 		default: break
+
+		}
+		
+		return str
+	}
+
+	
+}
+
+struct RESTErrorLog: Codable {
+	var errors:  Array< RESTErrorDetails>?
+	var eTag:  		UInt64?
+	var count:  	UInt64
+
+	enum CodingKeys: String, CodingKey {
+		case errors = "errors"
+		case eTag 	= "ETag"
+		case count 	= "count"
+	}
+ 
+	init() {
+		errors = []
+		count = 0
+	}
+}
+
 struct RESTValuesList: Codable {
 	var values:  Dictionary<String, RESTValueDetails>
 	var ETag: 	Int?
@@ -318,10 +383,13 @@ struct RESTHistoryItem: Codable {
 
 struct RESTHistory: Codable {
 	var values:  Array< RESTHistoryItem>
+	var eTag:  	Double?
+	
 	enum CodingKeys: String, CodingKey {
 		case values = "values"
+		case eTag = "ETag"
 	}
- 
+	
 	init() {
 		values = []
 	}
@@ -330,13 +398,13 @@ struct RESTHistory: Codable {
 		
 		var timeline:Array<RESTTimeSpanItem> = []
 		
-		let items = self.values.reversed()
+		let items = values.reversed()
 		let now = Date().timeIntervalSince1970
 		var lastValue:String = "<no value>"
 		var lastTime:Double = 0;
 		
 		for item in items {
-		
+			
 			// did we change values
 			if (item.value != lastValue){
 				
@@ -352,10 +420,9 @@ struct RESTHistory: Codable {
 			}
 		}
 		
+		
 		return timeline
 	}
-	
-	
 }
 
 
@@ -1515,9 +1582,9 @@ class CCServerManager: ObservableObject {
 			}
 				
 			// Send HTTP Request
-			request.timeoutInterval = timeout
+ 			request.timeoutInterval = timeout
 			
-//  	 	print(request)
+ // 	 	print(request)
 			
 			let session = URLSession(configuration: .ephemeral, delegate: nil, delegateQueue: .main)
 			
@@ -1529,19 +1596,16 @@ class CCServerManager: ObservableObject {
 				}
 			
 			
-//  			print ( String(decoding: (data!), as: UTF8.self))
+//   			print ( String(decoding: (data!), as: UTF8.self))
 
 				if let data = data as Data? {
 					
 					let decoder = JSONDecoder()
 					
 					if let restErr = try? decoder.decode(RESTError.self, from: data){
-						completion(response, restErr.error, nil)
+						completion(response, restErr, nil)
 					}
 					else if let obj = try? decoder.decode(RESTValuesList.self, from: data){
-						completion(response, obj, nil)
-					}
-					else if let obj = try? decoder.decode(RESTHistory.self, from: data){
 						completion(response, obj, nil)
 					}
 					else if let obj = try? decoder.decode(RESTStatus.self, from: data){
@@ -1577,6 +1641,13 @@ class CCServerManager: ObservableObject {
 					else if let obj = try? decoder.decode(RESTDevicePower.self, from: data){
 						completion(response, obj, nil)
 					}
+					else if let obj = try? decoder.decode(RESTHistory.self, from: data){
+						completion(response, obj, nil)
+					}
+					else if let obj = try? decoder.decode(RESTErrorLog.self, from: data){
+						completion(response, obj, nil)
+					}
+
 					else if let jsonObj = try? JSONSerialization.jsonObject(with: data, options: .allowFragments) as? Dictionary<String, Any> {
 						completion(response, jsonObj, nil)
 					}

@@ -54,6 +54,7 @@ struct ServerPrefs: Codable {
 	var 	url:				URL?
 	var 	validated: 		Bool // we did succeed in a login
 	var 	tabSelection:	Int
+	var 	lastErrorEtag: UInt64
 }
 
 struct AppData {
@@ -68,7 +69,8 @@ struct AppData {
 												  apiSecret: "",
 												  url: URL(string: "http://pi1:8080")!,
 												  validated: false,
-												  tabSelection: 0
+												  tabSelection: 0,
+												  lastErrorEtag: 0
 												  ))
 	
 	static var serverInfo: ServerPrefs

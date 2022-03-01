@@ -463,18 +463,68 @@ bool CoopMgrDB::getErrorLogEtag(eTag_t &eTagOut){
 			
 			string sql = "select seq from sqlite_sequence where name = \"ERROR_LOG\";";
 			sqlite3_stmt* stmt = NULL;
-
+			
 			sqlite3_prepare_v2(_sdb, sql.c_str(), -1,  &stmt, NULL);
- 
+			
 			while ( (sqlite3_step(stmt)) == SQLITE_ROW) {
-				eTagOut  = sqlite3_column_int64(stmt, 0);
-				success = true;
+				if(sqlite3_column_type(stmt,0) == SQLITE_INTEGER){
+					eTagOut =  sqlite3_column_int64(stmt, 0);
+					success = true;
+				}
 			}
 			sqlite3_finalize(stmt);
-  		}
+		}
 	}
 	return success;
 }
+
+
+bool  CoopMgrDB::getErrorCount(eTag_t eTag, int& countOut){
+	bool success = false;
+
+ 	std::lock_guard<std::mutex> lock(_mutex);
+	
+	if(_isSetup){
+	
+		string sql =  "SELECT Count(*) AS COUNT FROM ERROR_LOG WHERE err_id > " +  to_string(eTag) + ";";
+		sqlite3_stmt* stmt = NULL;
+
+		sqlite3_prepare_v2(_sdb, sql.c_str(), -1,  &stmt, NULL);
+
+		while ( (sqlite3_step(stmt)) == SQLITE_ROW) {
+			countOut  = (int) sqlite3_column_int64(stmt, 0);
+			success = true;
+		}
+		sqlite3_finalize(stmt);
+	}
+	
+	return success;
+};
+
+
+ 
+bool  CoopMgrDB::getLastErrorTime(time_t &whenOut){
+	bool success = false;
+
+	std::lock_guard<std::mutex> lock(_mutex);
+	
+	if(_isSetup){
+	
+		string sql =  "SELECT MAX(strftime('%s', DATE)) AS DATE FROM ERROR_LOG;" ;
+		sqlite3_stmt* stmt = NULL;
+
+		sqlite3_prepare_v2(_sdb, sql.c_str(), -1,  &stmt, NULL);
+
+		while ( (sqlite3_step(stmt)) == SQLITE_ROW) {
+			if(sqlite3_column_type(stmt,0) == SQLITE_INTEGER){
+				whenOut =  sqlite3_column_int64(stmt, 0);
+				success = true;
+			}
+		}
+		sqlite3_finalize(stmt);
+	}
+	return success;
+};
 
 
 void CoopMgrDB::logError(
@@ -482,33 +532,46 @@ void CoopMgrDB::logError(
 								  ErrorMgr::facility_t 	facility,
 								  uint8_t 		deviceID,
 								  string 		message,
-								  string 		error){
+								 string 		error){
 	
-	std::lock_guard<std::mutex> lock(_mutex);
 	
 	if(_isSetup){
 		
-		auto ts = TimeStamp(time(NULL));
+		time_t  when = time(NULL);
+		auto ts = TimeStamp(when);
 		
-		
-		string sql = string("INSERT INTO ERROR_LOG (LEVEL, FACILITY, DEVICE_ID, MESSAGE, ERR, DATE) ")
-		+ "VALUES  ("
-		+ "\"" + to_string(level) + "\","
-		+ "\"" + to_string(facility) + "\","
-		+ "\"" + to_string(deviceID) +  "\","
-		+ "\"" + message +  "\","
-		+ "\"" + error +  "\","
-		+ "'" + ts.ISO8601String() + "' );";
-		
-		//			  printf("%s\n", sql.c_str());
-		
-		char *zErrMsg = 0;
-		if(sqlite3_exec(_sdb,sql.c_str(),NULL, 0, &zErrMsg  ) != SQLITE_OK){
-			LOGT_ERROR("sqlite3_exec FAILED: %s\n\t%s", sql.c_str(), sqlite3_errmsg(_sdb	) );
-			sqlite3_free(zErrMsg);
+		{		std::lock_guard<std::mutex> lock(_mutex);
+			
+			string sql = string("INSERT INTO ERROR_LOG (LEVEL, FACILITY, DEVICE_ID, MESSAGE, ERR, DATE) ")
+			+ "VALUES  ("
+			+ "\"" + to_string(level) + "\","
+			+ "\"" + to_string(facility) + "\","
+			+ "\"" + to_string(deviceID) +  "\","
+			+ "\"" + message +  "\","
+			+ "\"" + error +  "\","
+			+ "'" + ts.ISO8601String() + "' );";
+			
+			//			  printf("%s\n", sql.c_str());
+			
+			char *zErrMsg = 0;
+			if(sqlite3_exec(_sdb,sql.c_str(),NULL, 0, &zErrMsg  ) != SQLITE_OK){
+				LOGT_ERROR("sqlite3_exec FAILED: %s\n\t%s", sql.c_str(), sqlite3_errmsg(_sdb	) );
+				sqlite3_free(zErrMsg);
+			}
 		}
 		
+		// update psuedo value error count
+		{
+			int 		errorCount;
+			
+			if(getErrorCount(0,errorCount)){
+				std::lock_guard<std::mutex> lock(_mutex);
+				_values[string(SCHEMA_TAG_ERRCOUNT)] = make_pair(when, to_string(errorCount)) ;
+				_etagMap[string(SCHEMA_TAG_ERRCOUNT)] = _eTag++;
+			}
+		}
 		_cachedErrorTag = MAX_ETAG;
+		
 	}
 }
 
@@ -569,88 +632,128 @@ bool CoopMgrDB::historyForErrors(errorLogValues_t &valuesOut, eTag_t &eTagOut,
 }
  
 bool CoopMgrDB::trimHistoryForErrorsByEtag(eTag_t eTag){
-
-	  std::lock_guard<std::mutex> lock(_mutex);
-	  bool success = false;
-	  
-	  string sql = string("DELETE FROM ERROR_LOG ");
-		  
-	  if(eTag > 0) {
-		  sql += "WHERE err_id <=  " +  to_string(eTag) + " ;";
-	  }
-	  else {
-		  sql += ";";
-	  }
-	  sqlite3_stmt* stmt = NULL;
-	  
-	  if(sqlite3_prepare_v2(_sdb, sql.c_str(), -1,  &stmt, NULL)  == SQLITE_OK){
-		  
-		  if(sqlite3_step(stmt) == SQLITE_DONE) {
 	
-			  int count =  sqlite3_changes(_sdb);
-			  LOGT_DEBUG("sqlite %s\n %d rows affected", sql.c_str(), count );
-			  success = true;
-		  }
-		  else
-		  {
-			  LOGT_ERROR("sqlite3_step FAILED: %s\n\t%s", sql.c_str(), sqlite3_errmsg(_sdb	) );
-		  }
-		  sqlite3_finalize(stmt);
-		  
-	  }
-	  else {
-		  LOGT_ERROR("sqlite3_prepare_v2 FAILED: %s\n\t%s", sql.c_str(), sqlite3_errmsg(_sdb	) );
-		  sqlite3_errmsg(_sdb);
-	  }
-	  
-		if(success){
-			_cachedErrorTag = MAX_ETAG;
+	bool success = false;
+	
+	{
+		std::lock_guard<std::mutex> lock(_mutex);
+		
+		string sql = string("DELETE FROM ERROR_LOG ");
+		
+		if(eTag > 0) {
+			sql += "WHERE err_id <=  " +  to_string(eTag) + " ;";
 		}
+		else {
+			sql += ";";
+		}
+		sqlite3_stmt* stmt = NULL;
+		
+		if(sqlite3_prepare_v2(_sdb, sql.c_str(), -1,  &stmt, NULL)  == SQLITE_OK){
+			
+			if(sqlite3_step(stmt) == SQLITE_DONE) {
+				
+				int count =  sqlite3_changes(_sdb);
+				LOGT_DEBUG("sqlite %s\n %d rows affected", sql.c_str(), count );
+				success = true;
+			}
+			else
+			{
+				LOGT_ERROR("sqlite3_step FAILED: %s\n\t%s", sql.c_str(), sqlite3_errmsg(_sdb	) );
+			}
+			sqlite3_finalize(stmt);
+			
+		}
+		else {
+			LOGT_ERROR("sqlite3_prepare_v2 FAILED: %s\n\t%s", sql.c_str(), sqlite3_errmsg(_sdb	) );
+			sqlite3_errmsg(_sdb);
+		}
+		
+	}
+	if(success){
+		
+		// update pseudo values
+		
+		int 		errorCount;
+		time_t  	when;
+		
+		if( getLastErrorTime(when)
+			&&  getErrorCount(0,errorCount)){
+			std::lock_guard<std::mutex> lock(_mutex);
+			_values[string(SCHEMA_TAG_ERRCOUNT)] = make_pair(when, to_string(errorCount)) ;
+			_etagMap[string(SCHEMA_TAG_ERRCOUNT)] = _eTag++;
+		}
+		else {
+			_values.erase (string(SCHEMA_TAG_ERRCOUNT));
+			_etagMap[string(SCHEMA_TAG_ERRCOUNT)] = _eTag++;
+		}
+		
+		_cachedErrorTag = MAX_ETAG;
+	}
 	
-	  return success;
+	return success;
 }
 
 bool CoopMgrDB::trimHistoryForErrorsByDays(float days){
- 
-	std::lock_guard<std::mutex> lock(_mutex);
+	
 	bool success = false;
 	
-	string sql = string("DELETE FROM ERROR_LOG ");
+	{	std::lock_guard<std::mutex> lock(_mutex);
 		
-	if(days > 0) {
-		sql += "WHERE DATE < datetime('now' , '-" + to_string(days) + " days'); ";
+		string sql = string("DELETE FROM ERROR_LOG ");
+		
+		if(days > 0) {
+			sql += "WHERE DATE < datetime('now' , '-" + to_string(days) + " days'); ";
+		}
+		else {
+			sql += ";";
+		}
+		sqlite3_stmt* stmt = NULL;
+		
+		if(sqlite3_prepare_v2(_sdb, sql.c_str(), -1,  &stmt, NULL)  == SQLITE_OK){
+			
+			if(sqlite3_step(stmt) == SQLITE_DONE) {
+				
+				int count =  sqlite3_changes(_sdb);
+				LOGT_DEBUG("sqlite %s\n %d rows affected", sql.c_str(), count );
+				success = true;
+			}
+			else
+			{
+				LOGT_ERROR("sqlite3_step FAILED: %s\n\t%s", sql.c_str(), sqlite3_errmsg(_sdb	) );
+			}
+			sqlite3_finalize(stmt);
+			
+		}
+		else {
+			LOGT_ERROR("sqlite3_prepare_v2 FAILED: %s\n\t%s", sql.c_str(), sqlite3_errmsg(_sdb	) );
+			sqlite3_errmsg(_sdb);
+		}
+		
 	}
-	else {
-		sql += ";";
-	}
-	sqlite3_stmt* stmt = NULL;
 	
-	if(sqlite3_prepare_v2(_sdb, sql.c_str(), -1,  &stmt, NULL)  == SQLITE_OK){
-		
-		if(sqlite3_step(stmt) == SQLITE_DONE) {
- 
-			int count =  sqlite3_changes(_sdb);
-			LOGT_DEBUG("sqlite %s\n %d rows affected", sql.c_str(), count );
-			success = true;
-		}
-		else
-		{
-			LOGT_ERROR("sqlite3_step FAILED: %s\n\t%s", sql.c_str(), sqlite3_errmsg(_sdb	) );
-		}
-		sqlite3_finalize(stmt);
-		
-	}
-	else {
-		LOGT_ERROR("sqlite3_prepare_v2 FAILED: %s\n\t%s", sql.c_str(), sqlite3_errmsg(_sdb	) );
-		sqlite3_errmsg(_sdb);
-	}
-
 	if(success){
+		// update pseudo values
+		
+		int 		errorCount;
+		time_t  	when;
+		
+		if( getLastErrorTime(when)
+			&&  getErrorCount(0,errorCount)){
+			std::lock_guard<std::mutex> lock(_mutex);
+			
+			_values[string(SCHEMA_TAG_ERRCOUNT)] = make_pair(when, to_string(errorCount)) ;
+			_etagMap[string(SCHEMA_TAG_ERRCOUNT)] = _eTag++;
+		}
+		else {
+			_values.erase (string(SCHEMA_TAG_ERRCOUNT));
+	 		_etagMap[string(SCHEMA_TAG_ERRCOUNT)] = _eTag++;
+		}
 		_cachedErrorTag = MAX_ETAG;
+		
 	}
-
+	
 	return success;
- }
+}
 
 
 
@@ -725,30 +828,44 @@ bool CoopMgrDB::refreshSolarEvents(){
 
 bool CoopMgrDB::restoreValuesFromDB(){
 	
-	std::lock_guard<std::mutex> lock(_mutex);
 	bool	statusOk = true;;
  
-	_values.clear();
- 
-	string sql = string("SELECT NAME, VALUE, MAX(strftime('%s', DATE)) AS DATE FROM SENSOR_DATA GROUP BY NAME;");
-	
-	sqlite3_stmt* stmt = NULL;
-	sqlite3_prepare_v2(_sdb, sql.c_str(), -1,  &stmt, NULL);
-
-	while ( (sqlite3_step(stmt)) == SQLITE_ROW) {
-	 
-		string  key = string( (char*) sqlite3_column_text(stmt, 0));
-		string  value = string((char*) sqlite3_column_text(stmt, 1));
-		time_t  when =  sqlite3_column_int64(stmt, 2);
+ 	{
+		std::lock_guard<std::mutex> lock(_mutex);
+		_values.clear();
 		
-// 		printf("%8s  %8s %ld\n",  key.c_str(),  value.c_str(), when );
-		_values[key] = make_pair(when, value) ;
-		_etagMap[key] = _eTag++;
+		string sql = string("SELECT NAME, VALUE, MAX(strftime('%s', DATE)) AS DATE FROM SENSOR_DATA GROUP BY NAME;");
+		
+		sqlite3_stmt* stmt = NULL;
+		sqlite3_prepare_v2(_sdb, sql.c_str(), -1,  &stmt, NULL);
+		
+		while ( (sqlite3_step(stmt)) == SQLITE_ROW) {
+			
+			string  key = string( (char*) sqlite3_column_text(stmt, 0));
+			string  value = string((char*) sqlite3_column_text(stmt, 1));
+			time_t  when =  sqlite3_column_int64(stmt, 2);
+			
+			// 		printf("%8s  %8s %ld\n",  key.c_str(),  value.c_str(), when );
+			_values[key] = make_pair(when, value) ;
+			_etagMap[key] = _eTag++;
+		}
+		sqlite3_finalize(stmt);
 	}
-	sqlite3_finalize(stmt);
 	
+	// add pseudo values
+	{
+		int 		errorCount;
+		time_t  	when;
 		
-	return statusOk;
+		if( getLastErrorTime(when)
+			&&  getErrorCount(0,errorCount)){
+				std::lock_guard<std::mutex> lock(_mutex);
+				_values[string(SCHEMA_TAG_ERRCOUNT)] = make_pair(when, to_string(errorCount)) ;
+				_etagMap[string(SCHEMA_TAG_ERRCOUNT)] = _eTag++;
+		}
+	}
+	
+ 	return statusOk;
 }
  
 
@@ -1034,13 +1151,12 @@ bool CoopMgrDB::initLogDatabase(string filePath){
 		return false;
 	}
 
+	_isSetup = true;
  
 	if(!restoreValuesFromDB()){
 		LOGT_ERROR("restoreValuesFromDB FAILED");
 		return false;
 	}
-	
-	_isSetup = true;
 	
 	return true;
 }
@@ -1062,6 +1178,13 @@ bool CoopMgrDB::initSchemaFromFile(string filePath){
 	
 		_schema.clear();
 
+		// Hard code Schema values
+		addSchema( string(SCHEMA_TAG_ERRCOUNT),
+					 CoopMgrDB::INT,
+					 1,
+					 "Error Count",
+					 CoopMgrDB::TR_TRACK);
+ 
 		// open the file
 		ifs.open(filePath, ios::in);
 		if(!ifs.is_open()) return false;
@@ -1081,7 +1204,6 @@ bool CoopMgrDB::initSchemaFromFile(string filePath){
 			string track = v[2];
 			string thesh = v[3];
 			string desc  = Utils::trimStart(v[4]);
-			
 			
 			if(_schemaMap.count(typ)){
 				addSchema(key, _schemaMap[typ],

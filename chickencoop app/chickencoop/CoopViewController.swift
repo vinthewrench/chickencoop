@@ -21,7 +21,8 @@ class CircleBackgroundView: UIView {
 
 // MARK: - CoopViewController
 
-class CoopViewController: MainSubviewViewController {
+class CoopViewController: MainSubviewViewController,MainSubviewViewControllerDelegate {
+	
 	
 	@IBOutlet var vwOverlay	: UIView!
 
@@ -57,7 +58,15 @@ class CoopViewController: MainSubviewViewController {
 		return vc
 	}()
 
-// MARK: - view lifetime
+	func shouldShowAddButton() -> Bool {
+		return true;
+	}
+
+	func addButtonHit(_ sender: UIButton) {
+// never called
+	}
+
+	// MARK: - view lifetime
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
@@ -168,7 +177,7 @@ class CoopViewController: MainSubviewViewController {
 		}
 	}
 	
-	private func refreshView() {
+	func refreshView() {
 		
 		if(AppData.serverInfo.validated){
 			

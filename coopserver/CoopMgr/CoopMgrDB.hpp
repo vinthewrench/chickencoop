@@ -58,6 +58,8 @@ public:
 	constexpr static string_view PROP_ARG_EVENT_GROUPID		= "groupID";	// event data follows
 	constexpr static string_view PROP_ARG_EVENTIDS				= "eventIDs";	// event data follows
  
+	constexpr static string_view SCHEMA_TAG_ERRCOUNT		= "ERR_COUNT";
+
 	typedef enum {
 		INVALID = 0,
 		BOOL,				// Bool ON/OFF
@@ -230,7 +232,7 @@ public:
 	vector<eventGroupID_t> allEventGroupIDs();
 	void reconcileEventGroups(const solarTimes_t &solar, time_t localNow);
 
-	// MARK: -  error logging into database // called by coopMgr
+	// MARK: -  error logging into database
 	
 	void logError(ErrorMgr::level_t level,
 				ErrorMgr::facility_t 	facility,
@@ -241,8 +243,13 @@ public:
 	bool historyForErrors(errorLogValues_t &values, eTag_t &eTagOut,
 								 eTag_t eTag,  float days = 0.0, int limit = 0);
 
+	bool getErrorCount(eTag_t eTag, int &countOut);
+ 
+	
 	bool getErrorLogEtag(eTag_t &eTagOut);
 
+	bool getLastErrorTime(time_t &whenOut);
+	
 	bool trimHistoryForErrorsByDays(float days);
 	bool trimHistoryForErrorsByEtag(eTag_t eTag);
 

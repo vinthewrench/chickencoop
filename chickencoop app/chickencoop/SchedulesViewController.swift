@@ -45,6 +45,8 @@ class SchedulesViewController: MainSubviewViewController,
 										 SchedulesDetailViewControllerDelegate,
 										 UITableViewDelegate,
 										 UITableViewDataSource  {
+
+	
 		
 		
 	@IBOutlet var tableView: UITableView!
@@ -113,7 +115,13 @@ class SchedulesViewController: MainSubviewViewController,
 	
 	//	mainView?.btnAdd.isHidden = false
 
+		self.refreshView()
+	}
+	
+	func refreshView() {
+		
 		self.refreshSchedules()
+
 	}
 	
 	override func viewDidAppear(_ animated: Bool) {
@@ -500,6 +508,10 @@ class SchedulesViewController: MainSubviewViewController,
 	}
 	
 	// MARK: - MainSubviewViewControllerDelegate
+
+	func shouldShowAddButton() -> Bool {
+		return true;
+	}
 
 	func addButtonHit(_ sender: UIButton){
 		createNewEvent()

@@ -464,9 +464,6 @@ static void Values_Handler(ServerCmdQueue* cmdQueue,
 		reply[string(JSON_ARG_VALUES)] = db->currentValuesJSON(eTag);
 		reply[string(JSON_ARG_ETAG)] = db->lastEtag();
 		
-		reply[string(JSON_ARG_STATE)] 		= coopMgr->coopState();
-		reply[string(JSON_ARG_STATESTR)] 	= CoopMgrDevice::stateString(coopMgr->coopState());
-
 		makeStatusJSON(reply,STATUS_OK);
 		(completion) (reply, STATUS_OK);
 
@@ -835,6 +832,7 @@ static bool Errors_NounHandler_GET(ServerCmdQueue* cmdQueue,
 	float days = 0;
 	int limit = 0;
 	eTag_t eTag = 0;
+	int count = 0;
 	
 	auto coopMgr = CoopMgr::shared();
 	auto db = coopMgr->getDB();
@@ -856,6 +854,10 @@ static bool Errors_NounHandler_GET(ServerCmdQueue* cmdQueue,
 			if(limit == 0){
 				if(db->getErrorLogEtag(lastEtag)){
 					reply[string(JSON_ARG_ETAG)] = lastEtag;
+					
+					db->getErrorCount(eTag, count);
+					reply[string(JSON_ARG_COUNT)] = count;
+					
 					success = true;
 					goto done;
 				}
@@ -871,6 +873,10 @@ static bool Errors_NounHandler_GET(ServerCmdQueue* cmdQueue,
 		if(db->historyForErrors(errorLog, lastEtag, eTag, days, limit)){
 			
 			json j;
+			
+			db->getErrorCount(eTag, count);
+			reply[string(JSON_ARG_COUNT)] = count;
+ 
 			for (auto& entry : errorLog) {
 
 				/*

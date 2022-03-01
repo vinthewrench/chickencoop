@@ -20,12 +20,27 @@ final class CoopValueHistoryCell: UITableViewCell {
 	}
 }
 
+final class CoopErrorHistoryCell: UITableViewCell {
+	
+	@IBOutlet var imgLevel	: UIImageView!
+
+	@IBOutlet var lblTitle	: UILabel!
+	@IBOutlet var lblSubTitle	: UILabel!
+	@IBOutlet var lblTime	: UILabel!
+	@IBOutlet var lblFacility	: UILabel!
+
+ 
+	override func awakeFromNib() {
+		super.awakeFromNib()
+	}
+}
+
 
 class CoopValueHistoryController: 	UIViewController,										  										UITableViewDelegate,
 												 UITableViewDataSource   {
 	
 	// cell reuse id (cells that scroll out of view can be reused)
-	let cellReuseIdentifier = "CoopValueHistoryCell"
+	var cellReuseIdentifier = "CoopValueHistoryCell"
 	
 	
 	@IBOutlet var lblTitle	: UILabel!
@@ -38,7 +53,8 @@ class CoopValueHistoryController: 	UIViewController,										  										UITabl
 	var valueKey  = String()
 	var schema :RESTSchemaDetails =  RESTSchemaDetails()
 	var history: Array< RESTHistoryItem> = []
-	
+	var errLog: Array< RESTErrorDetails> = []
+
 	var valueFormatter: CoopValueFormatter  {
 		let formatter = CoopValueFormatter()
 		formatter.units = RESTschemaUnits(rawValue:schema.units) ?? .UNKNOWN
@@ -72,8 +88,19 @@ class CoopValueHistoryController: 	UIViewController,										  										UITabl
 		
 		super.viewWillAppear(animated)
 		
-		lblTitle.text = "History: " + self.schema.name
-		lblSubTitle.text = self.valueKey
+		if(self.valueKey == "ERR_COUNT"){
+ 			cellReuseIdentifier = "CoopErrorHistoryCell"
+			lblTitle.text = "Error History"
+			lblSubTitle.isHidden = true
+ 		}
+		else
+		{
+			cellReuseIdentifier = "CoopValueHistoryCell"
+			lblTitle.text = "History: " + self.schema.name
+			lblSubTitle.text = self.valueKey
+			lblSubTitle.isHidden = false
+		}
+	 
 		lblCount.isHidden = true
 		
 		if(AppData.serverInfo.validated){
@@ -96,7 +123,7 @@ class CoopValueHistoryController: 	UIViewController,										  										UITabl
 	
 	public func startPolling() {
 		
-		timer =  Timer.scheduledTimer(withTimeInterval: 0.8,
+		timer =  Timer.scheduledTimer(withTimeInterval: 2.0,
 												repeats: true,
 												block: { timer in
 													DispatchQueue.main.async  {
@@ -116,35 +143,69 @@ class CoopValueHistoryController: 	UIViewController,										  										UITabl
 		
 		if(AppData.serverInfo.validated){
 			
-			ChickenCoop.shared.fetchHistory(valueKey) { result in
+			if(self.valueKey == "ERR_COUNT"){
 				
-				if case .success(let hist as RESTHistory ) = result {
-					var items = hist.values
+				ChickenCoop.shared.fetchErrorHistory(limit: 1000, eTag: 0) { result in
 					
-					items.sort{
-						$0.time > $1.time
+					if case .success(let hist as RESTErrorLog ) = result {
+						
+						self.lblCount.text = String(hist.count)
+						self.lblCount.isHidden = false
+
+						if var items = hist.errors {
+							items.sort{
+								$0.time > $1.time
+							}
+							
+							self.errLog = items
+						}
+						
+						self.history = []
+						self.tableView.reloadData()
+
+						return;
 					}
-					
-					self.lblCount.isHidden = false
-					self.lblCount.text = String(items.count)
-					self.history = items
-					
 				}
-				else {
-					self.tableView.reloadData()
-					self.history = []
-					self.lblCount.isHidden = true
-					
-				}
-				self.tableView.reloadData()
 				
 			}
+			else {
+				
+				ChickenCoop.shared.fetchHistory(valueKey) { result in
+					
+					if case .success(let hist as RESTHistory ) = result {
+						var items = hist.values
+						
+						items.sort{
+							$0.time > $1.time
+						}
+						
+						self.lblCount.isHidden = false
+						self.lblCount.text = String(items.count)
+						self.history = items
+						self.errLog = []
+						self.tableView.reloadData()
+						return;
+					}
+					
+				}
+			}
+			return
 		}
+		self.errLog = []
+		self.history = []
+		self.lblCount.isHidden = true
+		self.tableView.reloadData()
 	}
 	
 	func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-		return self.history.count
 		
+		if(self.valueKey == "ERR_COUNT"){
+			return self.errLog.count
+			
+		}
+		else {
+			return self.history.count
+		}
 	}
 	
 	func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -159,6 +220,24 @@ class CoopValueHistoryController: 	UIViewController,										  										UITabl
 			cell.lblSubTitle.text = String(format: "%@", timeStr )			
 			cell.lblTitle.text = valueFormatter.string(for: val.value)
 			
+			return cell
+		}
+		else  if let cell = tableView.dequeueReusableCell(withIdentifier:cellReuseIdentifier) as? CoopErrorHistoryCell{
+			
+			cell.accessoryType = .none
+			cell.selectionStyle = .none
+			let val = self.errLog[indexPath.row]
+			let timeStr = self.timeFormatter.string(from: Date(timeIntervalSince1970: val.time))
+			cell.lblTime.text = String(format: "%@", timeStr )
+			cell.lblTitle.text = val.message
+			cell.lblFacility.text = val.stringForFaciliy()
+ 
+			if let errMsg = val.errStr {
+				cell.lblSubTitle.text = errMsg
+			}
+			else{
+				cell.lblSubTitle.text = ""
+			}
 			return cell
 		}
 		

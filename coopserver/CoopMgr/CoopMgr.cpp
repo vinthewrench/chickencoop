@@ -418,7 +418,7 @@ void CoopMgr::startTempSensor( std::function<void(bool didSucceed, std::string e
 		}
 		
 		_db.addSchema(resultKey,
-						  CoopMgrDB::DEGREES_C,2,
+						  CoopMgrDB::DEGREES_C, 2,
 						  "Coop Temperature",
 						  CoopMgrDB::TR_TRACK);
 		

@@ -65,7 +65,8 @@ constexpr string_view JSON_ARG_HISTORICAL_EVENTS			= "historicalevents";
 
 constexpr string_view JSON_ARG_DAYS			= "days";
 constexpr string_view JSON_ARG_LIMIT			= "limit";
- 
+constexpr string_view JSON_ARG_COUNT			= "count";
+
 constexpr string_view JSON_ARG_ACTIONID 		= "actionID";
 constexpr string_view JSON_ARG_EVENTID 		= "eventID";
 constexpr string_view JSON_ARG_EVENTIDS		= "eventIDs";
@@ -79,10 +80,10 @@ constexpr string_view JSON_ARG_FUTURE_EVENTS	= "events.future";
 constexpr string_view JSON_ARG_ACTIONS		= "actions";
 
 
-constexpr string_view JSON_ARG_NAME			= "name";
+constexpr string_view JSON_ARG_NAME				= "name";
 constexpr string_view JSON_ARG_TRACKING		= "tracking";
 constexpr string_view JSON_ARG_UNITS			= "units";
-constexpr string_view JSON_ARG_ETAG			= "ETag";
+constexpr string_view JSON_ARG_ETAG				= "ETag";
 constexpr string_view JSON_ARG_SUFFIX			= "suffix";
 constexpr string_view JSON_ARG_DISPLAYSTR	= "display";
 
