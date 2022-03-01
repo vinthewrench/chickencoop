@@ -162,6 +162,7 @@ class SetupViewController: UIViewController,
 
 		if(connectState == loginState.success){
 			self.connectState = loginState.disconnected
+			AppData.serverInfo.lastErrorEtag = 0
 			AppData.serverInfo.validated = false
 			refreshView()
 			return

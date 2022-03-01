@@ -516,7 +516,7 @@ bool  CoopMgrDB::getLastErrorTime(time_t &whenOut){
 		sqlite3_prepare_v2(_sdb, sql.c_str(), -1,  &stmt, NULL);
 
 		while ( (sqlite3_step(stmt)) == SQLITE_ROW) {
-			if(sqlite3_column_type(stmt,0) == SQLITE_INTEGER){
+			if(sqlite3_column_type(stmt,0) != SQLITE_NULL){
 				whenOut =  sqlite3_column_int64(stmt, 0);
 				success = true;
 			}
@@ -533,9 +533,7 @@ void CoopMgrDB::logError(
 								  uint8_t 		deviceID,
 								  string 		message,
 								 string 		error){
-	
-	
-	if(_isSetup){
+		if(_isSetup){
 		
 		time_t  when = time(NULL);
 		auto ts = TimeStamp(when);
@@ -925,6 +923,12 @@ bool CoopMgrDB::saveUniqueValueToDB(string key, string value, time_t time ){
 
 bool CoopMgrDB::removeHistoryForKey(string key, float days){
 	
+	// handle pseudo value
+	if(key == SCHEMA_TAG_ERRCOUNT)
+	{
+		return trimHistoryForErrorsByDays(days);
+	}
+ 
 	std::lock_guard<std::mutex> lock(_mutex);
 	bool success = false;
 	

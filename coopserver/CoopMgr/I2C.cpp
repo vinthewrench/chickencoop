@@ -141,12 +141,13 @@ bool I2C::isAvailable(){
 
 bool I2C::writeByte(uint8_t regAddr, uint8_t b1){
 	
+	if(!_isSetup) return false;
+
 	union i2c_smbus_data data = {.byte = b1};
- 
+  
 	if(i2c_smbus_access (_fd, I2C_SMBUS_WRITE, regAddr, I2C_SMBUS_BYTE_DATA, &data) < 0){
 		
 		ELOG_ERROR(ErrorMgr::FAC_I2C, _devAddr, errno,  "I2C_SMBUS_WRITE BYTE (%02x) ", regAddr);
-		
 		return false;
 	}
 	
@@ -155,7 +156,9 @@ bool I2C::writeByte(uint8_t regAddr, uint8_t b1){
 
 
 bool I2C::writeWord(uint8_t regAddr, uint16_t word){
-	
+
+	if(!_isSetup) return false;
+
 	union i2c_smbus_data data = {.word = word};
  
 	if(i2c_smbus_access (_fd, I2C_SMBUS_WRITE, regAddr, I2C_SMBUS_WORD_DATA, &data) < 0){
@@ -170,6 +173,8 @@ bool I2C::writeWord(uint8_t regAddr, uint16_t word){
 
 bool I2C::readByte(uint8_t regAddr,  uint8_t& byte){
 	
+	if(!_isSetup) return false;
+
 	union i2c_smbus_data data;
 	
 	if(i2c_smbus_access (_fd, I2C_SMBUS_READ, regAddr, I2C_SMBUS_BYTE_DATA, &data) < 0){
@@ -184,6 +189,8 @@ bool I2C::readByte(uint8_t regAddr,  uint8_t& byte){
 }
 
 bool I2C::readWord(uint8_t regAddr,  uint16_t& word){
+
+	if(!_isSetup) return false;
 
 	union i2c_smbus_data data;
 	
@@ -201,6 +208,9 @@ bool I2C::readWord(uint8_t regAddr,  uint16_t& word){
 
 
 bool I2C::readBlock(uint8_t regAddr, uint8_t size, i2c_block_t & block ){
+
+	if(!_isSetup) return false;
+
 	union i2c_smbus_data data;
 
 	memset(data.block, 0, sizeof(data.block));

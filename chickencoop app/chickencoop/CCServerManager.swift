@@ -331,10 +331,49 @@ struct RESTErrorDetails: Codable {
  		default: break
 
 		}
-		
 		return str
 	}
 
+
+	func stringForDevID() ->  String {
+		var str = ""
+		
+		if(device != 0){
+			str = String(format:"0x%02x", UInt8(device))
+		}
+		return str
+	}
+	
+ 
+	func imageForLevel() -> UIImage {
+		var image:UIImage? =  nil
+		
+		switch level {
+		case 0:		image = UIImage(systemName: "m.circle")
+		case 1:  	image = UIImage(systemName: "d.circle")
+		case 2: 	 	image = UIImage(systemName: "i.circle")
+		case 3:  	image = UIImage(systemName: "w.circle")
+		case 4:  	image = UIImage(systemName: "e.circle")
+ 		default:	 image =   UIImage(systemName: "questionmark")
+		}
+		return image ?? UIImage()
+	}
+	
+	func tintColorForLevel() ->UIColor {
+		var color:UIColor? =  nil
+		
+		switch level {
+		case 0:		color = .lightGray
+		case 1:  	color = .systemTeal
+		case 2: 	 	color =  .systemBlue
+		case 3:  	color =  .systemOrange
+		case 4:  	color = .systemRed
+		default:	 	color = UIColor()
+		}
+		return color ?? UIColor()
+
+	}
+ 
 	
 }
 

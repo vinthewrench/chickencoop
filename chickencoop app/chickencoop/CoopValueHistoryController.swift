@@ -23,11 +23,11 @@ final class CoopValueHistoryCell: UITableViewCell {
 final class CoopErrorHistoryCell: UITableViewCell {
 	
 	@IBOutlet var imgLevel	: UIImageView!
-
 	@IBOutlet var lblTitle	: UILabel!
 	@IBOutlet var lblSubTitle	: UILabel!
 	@IBOutlet var lblTime	: UILabel!
 	@IBOutlet var lblFacility	: UILabel!
+	@IBOutlet var lblDevID	: UILabel!
 
  
 	override func awakeFromNib() {
@@ -152,6 +152,9 @@ class CoopValueHistoryController: 	UIViewController,										  										UITabl
 						self.lblCount.text = String(hist.count)
 						self.lblCount.isHidden = false
 
+						self.history = []
+						self.errLog = []
+	
 						if var items = hist.errors {
 							items.sort{
 								$0.time > $1.time
@@ -159,10 +162,8 @@ class CoopValueHistoryController: 	UIViewController,										  										UITabl
 							
 							self.errLog = items
 						}
-						
-						self.history = []
+		
 						self.tableView.reloadData()
-
 						return;
 					}
 				}
@@ -231,6 +232,9 @@ class CoopValueHistoryController: 	UIViewController,										  										UITabl
 			cell.lblTime.text = String(format: "%@", timeStr )
 			cell.lblTitle.text = val.message
 			cell.lblFacility.text = val.stringForFaciliy()
+			cell.lblDevID.text = val.stringForDevID()
+			cell.imgLevel.image = val.imageForLevel()
+			cell.imgLevel.tintColor = val.tintColorForLevel()
  
 			if let errMsg = val.errStr {
 				cell.lblSubTitle.text = errMsg
