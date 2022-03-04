@@ -935,7 +935,7 @@ bool CoopMgrDB::removeHistoryForKey(string key, float days){
 	string sql = string("DELETE FROM SENSOR_DATA ");
 	
 	if(key.size() > 0) {
-		sql += "WHERE NAME ='" + key + "' ";
+		sql += "WHERE NAME = ? ";
 	}
 	
 	if(days > 0) {
@@ -952,9 +952,14 @@ bool CoopMgrDB::removeHistoryForKey(string key, float days){
 	else {
 		sql += ";";
 	}
+	
 	sqlite3_stmt* stmt = NULL;
 	
 	if(sqlite3_prepare_v2(_sdb, sql.c_str(), -1,  &stmt, NULL)  == SQLITE_OK){
+		
+		if(key.size() > 0) {
+			sqlite3_bind_text(stmt, 1, key.c_str(), -1, SQLITE_STATIC);
+		}
 		
 		if(sqlite3_step(stmt) == SQLITE_DONE) {
  
@@ -985,9 +990,8 @@ bool CoopMgrDB::historyForKey(string key, historicValues_t &valuesOut, float day
 	historicValues_t values;
 	values.clear();
 
-	string sql = string("SELECT strftime('%s', DATE) AS DATE, VALUE FROM SENSOR_DATA WHERE NAME = '")
-	+ key + "'";
-	
+	string sql = string("SELECT strftime('%s', DATE) AS DATE, VALUE FROM SENSOR_DATA WHERE NAME = ? ");
+ 
 	if(limit){
 		sql += " ORDER BY DATE DESC LIMIT " + to_string(limit) + ";";
 	}
@@ -1001,7 +1005,8 @@ bool CoopMgrDB::historyForKey(string key, historicValues_t &valuesOut, float day
 	sqlite3_stmt* stmt = NULL;
 
 	sqlite3_prepare_v2(_sdb, sql.c_str(), -1,  &stmt, NULL);
-	
+	sqlite3_bind_text(stmt, 1, key.c_str(), -1, SQLITE_STATIC);
+ 
 	while ( (sqlite3_step(stmt)) == SQLITE_ROW) {
 		time_t  when =  sqlite3_column_int64(stmt, 0);
 		string  value = string((char*) sqlite3_column_text(stmt, 1));
