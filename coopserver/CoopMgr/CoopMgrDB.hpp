@@ -18,7 +18,7 @@
 #include <set>
 #include <vector>
 #include <tuple>
-#include<functional>
+#include <functional>
 #include <map>
 #include <string>
 #include "json.hpp"

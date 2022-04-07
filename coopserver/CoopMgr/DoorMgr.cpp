@@ -10,8 +10,8 @@
 #include "LogMgr.hpp"
 
  
-const time_t open_delay  	= 5;
-const time_t close_delay  	= 5;
+const time_t open_delay  	= 30;
+const time_t close_delay  	= 30;
 
 
 DoorMgr::DoorMgr( CoopDevices *coopDev){
