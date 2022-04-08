@@ -24,15 +24,16 @@ class SetupViewController: UIViewController,
 
  	@IBOutlet var txtServerHost	: UITextField!
 	@IBOutlet var txtServerPort	: UITextField!
-	@IBOutlet var txtKey			: UITextField!
-	@IBOutlet var txtSecret		: UITextField!
+	@IBOutlet var txtKey				: UITextField!
+	@IBOutlet var txtSecret			: UITextField!
 	@IBOutlet var btnConnect		: BHButton!
 	@IBOutlet var btnSecured		: UIButton!
 	
-	@IBOutlet var lblStatus		: UILabel!
-	@IBOutlet var btnInfo		: UIButton!
+	@IBOutlet var lblStatus			: UILabel!
+	@IBOutlet var btnInfo			: UIButton!
 	
-	
+	@IBOutlet var lblVersion		: UILabel!
+
 	var delegate:SetupViewControllerDelegate? = nil
 
 //	var svc : StatusViewController?
@@ -131,6 +132,7 @@ class SetupViewController: UIViewController,
 		}
 		
 		refreshView()
+		lblVersion.text =  Bundle.main.releaseVersionNumberPretty
 	}
 	
 	@IBAction func btnSecuredClicked(_ sender: Any) {

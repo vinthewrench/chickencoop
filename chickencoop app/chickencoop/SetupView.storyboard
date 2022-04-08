@@ -142,6 +142,12 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="xxx" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WVH-pD-9TD">
+                                <rect key="frame" x="94" y="76" width="21" height="16"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="vDu-zF-Fre"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
@@ -153,6 +159,7 @@
                             <constraint firstAttribute="bottomMargin" secondItem="Eqm-m2-hlq" secondAttribute="bottom" id="9fr-We-97S"/>
                             <constraint firstItem="fCT-7g-2Bq" firstAttribute="leading" secondItem="ang-ID-1Yc" secondAttribute="leading" id="9gq-CD-AwJ"/>
                             <constraint firstItem="ang-ID-1Yc" firstAttribute="centerY" secondItem="KuD-j1-040" secondAttribute="centerY" id="9pM-x5-VBg"/>
+                            <constraint firstItem="WVH-pD-9TD" firstAttribute="bottom" secondItem="Qzw-de-MFp" secondAttribute="bottom" id="CnN-Q4-iJb"/>
                             <constraint firstItem="UaC-8b-T1V" firstAttribute="trailing" secondItem="ang-ID-1Yc" secondAttribute="trailing" id="Csb-Nu-MSv"/>
                             <constraint firstItem="r8D-ci-nFQ" firstAttribute="top" secondItem="qb3-ll-EIh" secondAttribute="bottom" constant="40" id="E3R-7g-yaN"/>
                             <constraint firstItem="UaC-8b-T1V" firstAttribute="centerY" secondItem="KfX-Xi-AdH" secondAttribute="centerY" id="FtV-qX-TMk"/>
@@ -164,6 +171,7 @@
                             <constraint firstItem="s5C-Rr-7gz" firstAttribute="centerY" secondItem="0eQ-gP-epc" secondAttribute="centerY" id="Lzs-Ya-jEC"/>
                             <constraint firstItem="Qzw-de-MFp" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" constant="20" id="OIc-z3-cQM"/>
                             <constraint firstItem="r8D-ci-nFQ" firstAttribute="centerY" secondItem="GB6-eH-4LP" secondAttribute="centerY" id="OV9-mu-ZRG"/>
+                            <constraint firstItem="WVH-pD-9TD" firstAttribute="leading" secondItem="Qzw-de-MFp" secondAttribute="trailing" constant="4" id="Qkf-Sn-8QC"/>
                             <constraint firstItem="GB6-eH-4LP" firstAttribute="trailing" secondItem="0eQ-gP-epc" secondAttribute="trailing" id="QpG-aW-ygj"/>
                             <constraint firstItem="N2t-B4-Nep" firstAttribute="leading" secondItem="s5C-Rr-7gz" secondAttribute="trailing" constant="4" id="Ssw-Mw-e25"/>
                             <constraint firstItem="s5C-Rr-7gz" firstAttribute="top" secondItem="UaC-8b-T1V" secondAttribute="bottom" constant="8" symbolic="YES" id="UK3-GP-1eI"/>
@@ -191,6 +199,7 @@
                         <outlet property="btnInfo" destination="YxL-yh-gxl" id="Mao-2G-jhL"/>
                         <outlet property="btnSecured" destination="N2t-B4-Nep" id="z4G-ik-zHV"/>
                         <outlet property="lblStatus" destination="r8D-ci-nFQ" id="ifP-fe-to8"/>
+                        <outlet property="lblVersion" destination="WVH-pD-9TD" id="p9Z-5c-s6R"/>
                         <outlet property="txtKey" destination="UaC-8b-T1V" id="1D8-Sy-Joi"/>
                         <outlet property="txtSecret" destination="s5C-Rr-7gz" id="DHz-GH-UdM"/>
                         <outlet property="txtServerHost" destination="ang-ID-1Yc" id="kW9-nO-lBE"/>

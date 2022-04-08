@@ -59,7 +59,7 @@ class CoopViewController: MainSubviewViewController,MainSubviewViewControllerDel
 	}()
 
 	func shouldShowAddButton() -> Bool {
-		return true;
+		return false;
 	}
 
 	func addButtonHit(_ sender: UIButton) {

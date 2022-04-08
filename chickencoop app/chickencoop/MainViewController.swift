@@ -133,8 +133,13 @@ class MainViewController: UIViewController, UITabBarDelegate, SetupViewControlle
 		newVC?.mainView = self
 		self.subViewDelegate = newVC as? MainSubviewViewControllerDelegate
 		
-		btnAdd.isHidden = subViewDelegate == nil
-		
+		if let svd = self.subViewDelegate {
+			btnAdd.isHidden = !svd.shouldShowAddButton()
+		}
+		else {
+			btnAdd.isHidden = true;
+		}
+	 
 		if let cvc = containViewController {
 			cvc.willMove(toParent: nil)
 			cvc.view.removeFromSuperview()
